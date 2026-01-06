@@ -1,10 +1,21 @@
+using Microsoft.EntityFrameworkCore;
 using RecipeNow.Components;
+using RecipeNow.Data;
+using RecipeNow.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+// Falls Services benutzt werden:
+builder.Services.AddScoped<RecipeService>();
+builder.Services.AddScoped<UserService>();
+
+// DbContext registrieren
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
