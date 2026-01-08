@@ -19,6 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Data\Entities\Authentication\" />
       <Folder Include="Data\Enumerators\Authentication\" />
     </ItemGroup>
 

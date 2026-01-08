@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using RecipeNow.Data.Entities.Authentication;
+using Microsoft.AspNetCore.Identity;
 using RecipeNow.Data.Enumerators;
 namespace RecipeNow.Data.Entities.RecipeSystem;
 
@@ -25,9 +25,11 @@ public class Recipe
     [Required] public required CookingDifficulty CookingDifficulty { get; set; } = CookingDifficulty.Medium; // oder Enum später
 
     [Required]
-    public required int UserId { get; set; }
+    public required string UserId { get; set; } 
+
     [Required]
-    public required User User { get; set; }
+    public required IdentityUser User { get; set; }
+
     
     public ICollection<RecipeIngredient> RecipeIngredients { get; set; }
         = new List<RecipeIngredient>();

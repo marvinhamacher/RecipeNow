@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using RecipeNow.Components;
 using RecipeNow.Data;
+using RecipeNow.Data.Contexts;
 using RecipeNow.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,13 +14,17 @@ builder.Services.AddRazorComponents()
 // Falls Services benutzt werden:
 builder.Services.AddScoped<RecipeService>();
 builder.Services.AddScoped<UserService>();
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddDbContext<AuthDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 {
     options.SignIn.RequireConfirmedAccount = false;
 });
-// DbContext registrieren
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
