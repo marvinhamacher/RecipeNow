@@ -1,5 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using RecipeNow.Data.Entities;
+using RecipeNow.Data.Entities.RecipeSystem;
 
 namespace RecipeNow.Data;
 

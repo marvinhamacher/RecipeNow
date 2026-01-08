@@ -19,7 +19,7 @@ classDiagram
         -int id
         -string name
         -ENUM measuretype (kg,l,pcs)
-        -int price_per_unit
+        -float price_per_unit
     }
     
     class Shelf {
