@@ -21,6 +21,7 @@
     <ItemGroup>
       <Folder Include="Data\Entities\Authentication\" />
       <Folder Include="Data\Enumerators\Authentication\" />
+      <Folder Include="wwwroot\static\Images\" />
     </ItemGroup>
 
 </Project>

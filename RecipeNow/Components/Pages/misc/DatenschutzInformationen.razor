@@ -1,0 +1,215 @@
+﻿@page "/DatenschutzInformationen"
+
+<div class="card">
+    <div class="card-body">
+        <h1 class="card-title mb-4">Datenschutzinformationen</h1>
+
+        <div class="accordion" id="datenschutzAccordion">
+
+            <!-- 1. Allgemeines -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#dsAllgemein">
+                        Allgemeine Hinweise
+                    </button>
+                </h2>
+                <div id="dsAllgemein"
+                     class="accordion-collapse collapse"
+                     data-bs-parent="#datenschutzAccordion">
+                    <div class="accordion-body">
+                        <p>
+                            Der Schutz Ihrer persönlichen Daten ist uns ein besonderes Anliegen.
+                            Wir behandeln Ihre personenbezogenen Daten vertraulich und entsprechend
+                            den gesetzlichen Datenschutzvorschriften sowie dieser Datenschutzerklärung.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Verantwortlicher -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#dsVerantwortlich">
+                        Verantwortliche Stelle
+                    </button>
+                </h2>
+                <div id="dsVerantwortlich"
+                     class="accordion-collapse collapse"
+                     data-bs-parent="#datenschutzAccordion">
+                    <div class="accordion-body">
+                        <p>
+                            Musterfirma GmbH<br/>
+                            Musterstraße 12<br/>
+                            12345 Musterstadt<br/>
+                            Deutschland
+                        </p>
+                        <p>
+                            E-Mail: datenschutz@firma.de<br/>
+                            Telefon: +49 123 456789
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Datenerfassung -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#dsDatenerfassung">
+                        Datenerfassung beim Besuch der Website
+                    </button>
+                </h2>
+                <div id="dsDatenerfassung"
+                     class="accordion-collapse collapse"
+                     data-bs-parent="#datenschutzAccordion">
+                    <div class="accordion-body">
+                        <ul>
+                            <li>IP-Adresse</li>
+                            <li>Datum und Uhrzeit des Zugriffs</li>
+                            <li>Browsertyp und Version</li>
+                            <li>Betriebssystem</li>
+                        </ul>
+                        <p>
+                            Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO
+                            (berechtigtes Interesse).
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Kontakt -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#dsKontakt">
+                        Kontaktaufnahme
+                    </button>
+                </h2>
+                <div id="dsKontakt"
+                     class="accordion-collapse collapse"
+                     data-bs-parent="#datenschutzAccordion">
+                    <div class="accordion-body">
+                        <p>
+                            Wenn Sie uns per E-Mail kontaktieren, werden Ihre Angaben
+                            zwecks Bearbeitung der Anfrage gespeichert.
+                        </p>
+                        <p>
+                            Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Rechte -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#dsRechte">
+                        Ihre Rechte
+                    </button>
+                </h2>
+                <div id="dsRechte"
+                     class="accordion-collapse collapse"
+                     data-bs-parent="#datenschutzAccordion">
+                    <div class="accordion-body">
+                        <ul>
+                            <li>Auskunft (Art. 15 DSGVO)</li>
+                            <li>Berichtigung (Art. 16 DSGVO)</li>
+                            <li>Löschung (Art. 17 DSGVO)</li>
+                            <li>Einschränkung der Verarbeitung (Art. 18 DSGVO)</li>
+                            <li>Widerspruch (Art. 21 DSGVO)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. FAQ -->
+            <!-- 6. FAQ -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#dsFragen">
+                        Häufig gestellte Fragen
+                    </button>
+                </h2>
+
+                <div id="dsFragen"
+                     class="accordion-collapse collapse"
+                     data-bs-parent="#datenschutzAccordion">
+                    <div class="accordion-body">
+
+                        <h5>Werden Gesundheitsdaten gesammelt?</h5>
+                        <p><i>
+                                Nein. RecipeNow verarbeitet keine besonderen Kategorien personenbezogener Daten
+                                gemäß Art. 9 DSGVO (z. B. Gesundheitsdaten).
+                                Auch aus Vorrats- oder Nutzungsinformationen lassen sich keine entsprechenden
+                                Rückschlüsse ziehen.
+                            </i></p>
+
+                        <h5>Werden meine Daten an Dritte weitergegeben?</h5>
+                        <p><i>
+                                Eine Weitergabe Ihrer personenbezogenen Daten an Dritte erfolgt grundsätzlich nicht.
+                                Ausnahmen bestehen nur, wenn dies gesetzlich vorgeschrieben ist oder zur technischen
+                                Bereitstellung des Dienstes erforderlich ist (z. B. Hosting).
+                            </i></p>
+
+                        <h5>Wo werden meine Daten gespeichert?</h5>
+                        <p><i>
+                                Die Datenverarbeitung erfolgt auf Servern innerhalb der Europäischen Union.
+                                Eine Übermittlung in Drittländer findet nicht statt.
+                            </i></p>
+
+                        <h5>Werden Cookies oder Tracking-Tools eingesetzt?</h5>
+                        <p><i>
+                                RecipeNow verwendet ausschließlich technisch notwendige Cookies,
+                                die für den Betrieb der Anwendung erforderlich sind.
+                                Es werden keine Tracking- oder Marketing-Cookies eingesetzt.
+                            </i></p>
+
+                        <h5>Wie lange werden meine Daten gespeichert?</h5>
+                        <p><i>
+                                Personenbezogene Daten werden nur so lange gespeichert,
+                                wie dies für die jeweiligen Zwecke erforderlich ist
+                                oder gesetzliche Aufbewahrungspflichten bestehen.
+                            </i></p>
+
+                        <h5>Wie kann ich meine Datenschutzrechte ausüben?</h5>
+                        <p><i>
+                                Sie können Ihre Rechte auf Auskunft, Berichtigung, Löschung oder
+                                Einschränkung der Verarbeitung jederzeit geltend machen.
+                                Bitte wenden Sie sich dazu an die im Impressum oder in den
+                                Datenschutzinformationen angegebene Kontaktadresse.
+                            </i></p>
+
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+        <p class="mt-4 text-muted">
+            Stand: Januar 2026
+        </p>
+    </div>
+</div>
+
+
+
+
+
+
