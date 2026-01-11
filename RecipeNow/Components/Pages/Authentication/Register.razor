@@ -37,12 +37,10 @@
     private async void HandleRegister()
     {
         var user = new IdentityUser { UserName = Input.Email, Email = Input.Email };
-        var result = await UserManager.CreateAsync(user, Input.Password);
+        await UserManager.CreateAsync(user, Input.Password);
         // Hier kannst du jetzt auf Input.Email, Input.Password etc. zugreifen
         Console.WriteLine($"Email: {Input.Email}");
         Console.WriteLine("Registration erfolgreich!");
-
-        
 
     }
 
