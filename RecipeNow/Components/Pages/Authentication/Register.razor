@@ -1,9 +1,17 @@
 ﻿@page "/register"
+@rendermode InteractiveServer
 @using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<IdentityUser> UserManager
 @inject NavigationManager NavigationManager
+
 <h3>Registrieren</h3>
+
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <div class="alert alert-danger">@_errorMessage</div>
+}
 
 <EditForm Model="Input" OnValidSubmit="HandleRegister" FormName="RegisterForm">
     <DataAnnotationsValidator />
@@ -31,18 +39,37 @@
 </EditForm>
 
 @code {
+    private string? _errorMessage;
+
     [SupplyParameterFromForm]
     public RegisterModel Input { get; set; } = new();
 
-    private async void HandleRegister()
+    private async Task HandleRegister()
     {
-        var user = new IdentityUser { UserName = Input.Email, Email = Input.Email };
-        await UserManager.CreateAsync(user, Input.Password);
-        // Hier kannst du jetzt auf Input.Email, Input.Password etc. zugreifen
-        Console.WriteLine($"Email: {Input.Email}");
-        Console.WriteLine("Registration erfolgreich!");
-        NavigationManager.NavigateTo("/");
+        try 
+        {
+            _errorMessage = null;
+            var user = new IdentityUser { UserName = Input.Email, Email = Input.Email };
+            
+            // Passwort-Validierung von Identity ist standardmäßig streng!
+            var result = await UserManager.CreateAsync(user, Input.Password);
 
+            if (result.Succeeded)
+            {
+                Console.WriteLine("Registration erfolgreich!");
+                NavigationManager.NavigateTo("/");
+            }
+            else
+            {
+                _errorMessage = string.Join(" ", result.Errors.Select(e => e.Description));
+                Console.WriteLine($"Identity-Fehler: {_errorMessage}");
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = "Ein Fehler ist aufgetreten: " + ex.Message;
+            Console.WriteLine($"Exception: {ex.Message}");
+        }
     }
 
     public class RegisterModel
