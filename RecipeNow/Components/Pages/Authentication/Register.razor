@@ -1,48 +1,63 @@
 ﻿@page "/register"
 @using System.ComponentModel.DataAnnotations
-@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> UserManager
+@inject NavigationManager NavigationManager
+<h3>Registrieren</h3>
 
-<EditForm Model="this" OnValidSubmit="HandleRegister" FormName="RegisterForm">
+<EditForm Model="Input" OnValidSubmit="HandleRegister" FormName="RegisterForm">
     <DataAnnotationsValidator />
     <ValidationSummary class="text-danger" />
 
     <div class="form-group mb-3">
         <label>Email</label>
-        <InputText class="form-control" @bind-Value="Email" />
-        <ValidationMessage For="@(() => Email)" class="text-danger" />
+        <InputText class="form-control" @bind-Value="Input.Email" />
+        <ValidationMessage For="@(() => Input.Email)" class="text-danger" />
     </div>
 
     <div class="form-group mb-3">
         <label>Passwort</label>
-        <InputText class="form-control" type="password" @bind-Value="Password" />
-        <ValidationMessage For="@(() => Password)" class="text-danger" />
+        <InputText class="form-control" type="password" @bind-Value="Input.Password" />
+        <ValidationMessage For="@(() => Input.Password)" class="text-danger" />
     </div>
 
     <div class="form-group mb-3">
         <label>Passwort bestätigen</label>
-        <InputText class="form-control" type="password" @bind-Value="ConfirmPassword" />
-        <ValidationMessage For="@(() => ConfirmPassword)" class="text-danger" />
+        <InputText class="form-control" type="password" @bind-Value="Input.ConfirmPassword" />
+        <ValidationMessage For="@(() => Input.ConfirmPassword)" class="text-danger" />
     </div>
 
     <button type="submit" class="btn btn-primary">Registrieren</button>
 </EditForm>
 
 @code {
-    [Required(ErrorMessage = "Email ist erforderlich")]
-    [EmailAddress(ErrorMessage = "Ungültige Emailadresse")]
-    public string Email { get; set; }
+    [SupplyParameterFromForm]
+    public RegisterModel Input { get; set; } = new();
 
-    [Required(ErrorMessage = "Passwort ist erforderlich")]
-    [MinLength(6, ErrorMessage = "Passwort muss mindestens 6 Zeichen lang sein")]
-    public string Password { get; set; }
-
-    [Required(ErrorMessage = "Bitte Passwort bestätigen")]
-    [Compare(nameof(Password), ErrorMessage = "Passwörter stimmen nicht überein")]
-    public string ConfirmPassword { get; set; }
-
-    private void HandleRegister()
+    private async void HandleRegister()
     {
-        Console.WriteLine($"Email: {Email}");
+        var user = new IdentityUser { UserName = Input.Email, Email = Input.Email };
+        var result = await UserManager.CreateAsync(user, Input.Password);
+        // Hier kannst du jetzt auf Input.Email, Input.Password etc. zugreifen
+        Console.WriteLine($"Email: {Input.Email}");
         Console.WriteLine("Registration erfolgreich!");
+
+        
+
+    }
+
+    public class RegisterModel
+    {
+        [Required(ErrorMessage = "Email ist erforderlich")]
+        [EmailAddress(ErrorMessage = "Ungültige Emailadresse")]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Passwort ist erforderlich")]
+        [MinLength(6, ErrorMessage = "Passwort muss mindestens 6 Zeichen lang sein")]
+        public string Password { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Bitte Passwort bestätigen")]
+        [Compare(nameof(Password), ErrorMessage = "Passwörter stimmen nicht überein")]
+        public string ConfirmPassword { get; set; } = string.Empty;
     }
 }
