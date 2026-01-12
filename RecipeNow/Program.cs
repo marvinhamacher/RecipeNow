@@ -19,12 +19,24 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddDbContext<AuthDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+        options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
-    .AddEntityFrameworkStores<AuthDbContext>()  // <-- hier wird UserStore / RoleStore bereitgestellt
-    .AddDefaultTokenProviders();
+    builder.Services.AddCascadingAuthenticationState(); // Wichtig für Blazor Auth-Status
 
+    builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => {
+            options.Password.RequireDigit = false; // Optional: Passwort-Regeln anpassen
+            options.Password.RequiredLength = 6;
+        })
+        .AddEntityFrameworkStores<AuthDbContext>()
+        .AddDefaultTokenProviders();
+
+    builder.Services.AddAuthentication(options =>
+        {
+            options.DefaultScheme = IdentityConstants.ApplicationScheme;
+            options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+        });
+
+    builder.Services.AddAuthorizationCore();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -39,6 +51,7 @@ app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages:
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.UseAntiforgery();
 
 app.MapStaticAssets();

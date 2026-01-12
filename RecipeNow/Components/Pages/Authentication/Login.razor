@@ -1,0 +1,82 @@
+﻿@page "/login"
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject NavigationManager NavigationManager
+
+@* 
+   WICHTIG: Kein @rendermode InteractiveServer hier! 
+   Der Login muss über Static Server Rendering (SSR) laufen, damit Cookies gesetzt werden können.
+*@
+
+<h3>Anmelden</h3>
+
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <div class="alert alert-danger">@_errorMessage</div>
+}
+
+@* 
+   FormName: Identifiziert das Formular beim POST.
+   method="post": Ermöglicht das Senden von Cookies.
+   data-enhance="false": Verhindert, dass Blazor den Redirect im Hintergrund "verschluckt".
+*@
+<EditForm Model="Input" OnValidSubmit="HandleLogin" FormName="LoginForm" method="post" data-enhance="false">
+    <DataAnnotationsValidator />
+
+    <div class="form-group mb-3">
+        <label>Email</label>
+        <InputText class="form-control" @bind-Value="Input.Email" />
+        <ValidationMessage For="@(() => Input.Email)" class="text-danger" />
+    </div>
+
+    <div class="form-group mb-3">
+        <label>Passwort</label>
+        <InputText class="form-control" type="password" @bind-Value="Input.Password" />
+        <ValidationMessage For="@(() => Input.Password)" class="text-danger" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Anmelden</button>
+</EditForm>
+
+@code {
+    private string? _errorMessage;
+
+    [SupplyParameterFromForm]
+    public LoginModel Input { get; set; } = new();
+
+    private async Task HandleLogin()
+    {
+        _errorMessage = null;
+        Console.WriteLine("Login attempt");
+        // Named Arguments lösen die "Ambiguous invocation" in Rider
+        var result = await SignInManager.PasswordSignInAsync(
+            userName: Input.Email,
+            password: Input.Password,
+            isPersistent: true, 
+            lockoutOnFailure: false);
+
+        if (result.Succeeded)
+        {
+            Console.WriteLine("Login redirect");
+            // forceLoad: true ist zwingend, damit der Browser das neue Cookie für die nächste Anfrage nutzt
+            NavigationManager.NavigateTo("/", forceLoad: true);
+        }
+        else
+        {
+            _errorMessage = "Email oder Passwort ist falsch.";
+        }
+    }
+
+    public class LoginModel
+    {
+        [Required(ErrorMessage = "Email ist erforderlich")]
+        [EmailAddress(ErrorMessage = "Ungültige Emailadresse")]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Passwort ist erforderlich")]
+        [MinLength(6, ErrorMessage = "Passwort muss mindestens 6 Zeichen lang sein")]
+        public string Password { get; set; } = string.Empty;
+    }
+}
