@@ -18,4 +18,8 @@ public class Ingredient
     
     [Required]
     public required MeasurementType Measurement { get; set;}
+    
+    [Required]
+    [MaxLength(255)]
+    public required string ImagePath { get; set; }
 }

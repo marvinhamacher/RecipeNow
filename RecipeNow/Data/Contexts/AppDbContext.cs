@@ -9,6 +9,8 @@ namespace RecipeNow.Data.Contexts
             : base(options)
         {
         }
+
+        public DbSet<Ingredient> Ingredients { get; set; }
         public DbSet<Recipe> Recipes { get; set; }
     }
 }
