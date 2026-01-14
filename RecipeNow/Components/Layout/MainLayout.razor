@@ -11,7 +11,9 @@
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container-fluid">
                 <a class="navbar-brand" href="/">RecipeNow</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false"
+                        aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNavDropdown">
@@ -19,7 +21,8 @@
                         @if (_isAuthenticated)
                         {
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button"
+                                   data-bs-toggle="dropdown" aria-expanded="false">
                                     Rezepte
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
@@ -35,12 +38,11 @@
                             {
                                 <li class="nav-item">
                                     <a class="nav-link" href="#">Zutaten Hinzufügen</a>
-                                </li>  
+                                </li>
                             }
                         }
                         else
                         {
-                            
                             <li class="nav-item">
                                 <a class="nav-link active" aria-current="page" href="#">Rezepte</a>
                             </li>
@@ -49,19 +51,27 @@
                         @if (_isAuthenticated)
                         {
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button"
+                                   data-bs-toggle="dropdown" aria-expanded="false">
                                     @_username
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                                     <li><a class="dropdown-item" href="#">Profil</a></li>
                                     <li><a class="dropdown-item" href="#">Einstellungen</a></li>
                                     <li>
-                                        <a class="dropdown-item" @onclick="async () => { await Logout();}">
-                                            Logout
-                                        </a>    
+                                        <a class="dropdown-item">
+                                            <form action="/logout" method="post" style="display:inline">
+                                                @* Das AntiforgeryToken ist wichtig für die Sicherheit *@
+                                                <AntiforgeryToken/>
+                                                <button type="submit" class="nav-link btn btn-link"
+                                                        style="display:inline; padding:0;">
+                                                    Logout
+                                                </button>
+                                            </form>
+                                        </a>
                                     </li>
                                 </ul>
-                            </li>    
+                            </li>
                         }
                         else
                         {
@@ -88,26 +98,18 @@
 </div>
 
 @code {
+
     private bool _isAuthenticated;
     private bool _isAdmin;
     private string? _username;
 
     protected override async Task OnInitializedAsync()
     {
-        // Hier ist await erlaubt, da OnInitializedAsync als 'async' markiert ist
         _isAuthenticated = await UserService.IsAuthenticated();
         _isAdmin = await UserService.IsAdmin();
-        _username = await GetUsername() ?? null;
+        _username = await UserService.GetUserNameAsync();
     }
+    
 
-    private async Task<bool> Logout()
-    {
-        await UserService.LogoutAsync();
-        return true;
-    }
 
-    private async Task<string?> GetUsername()
-    {
-        return await UserService.GetUserNameAsync();
-    }
 }

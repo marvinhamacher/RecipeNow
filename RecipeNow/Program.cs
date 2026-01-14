@@ -22,7 +22,6 @@ builder.Services.AddDbContext<AuthDbContext>(options =>
         options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
     builder.Services.AddCascadingAuthenticationState(); // Wichtig für Blazor Auth-Status
-
     builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => {
             options.Password.RequireDigit = false; // Optional: Passwort-Regeln anpassen
             options.Password.RequiredLength = 6;
@@ -55,6 +54,11 @@ app.UseAuthorization();
 app.UseAntiforgery();
 
 app.MapStaticAssets();
+app.MapPost("/logout", async (SignInManager<IdentityUser> signInManager) =>
+{
+    await signInManager.SignOutAsync();
+    return Results.Redirect("/");
+});
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
