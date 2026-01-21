@@ -4,5 +4,8 @@ using Microsoft.AspNetCore.Components.Forms;
 
 public interface IIngredientService
 {
+    Task<IEnumerable<Ingredient>> LoadAllAsync();
+    Task UpdateAsync(Ingredient ingredient);
     Task AddAsync(Ingredient ingredient, IBrowserFile image);
+    Task DeleteAsync(int id);
 }
