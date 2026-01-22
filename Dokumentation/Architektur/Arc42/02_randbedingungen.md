@@ -59,8 +59,3 @@ In diesem Kapitel werden die nicht-funktionalen Anforderungen sowie die technisc
   Es dürfen ausschließlich Open-Source-Komponenten verwendet werden, deren Lizenzen eine Weiterverwendung erlauben (z. B. MIT, Apache 2.0).
 
 ---
-
-Wenn du möchtest, kann ich das Kapitel noch
-- kürzer und kompakter,
-- formeller (z. B. für eine Bachelorarbeit) oder
-- noch technischer mit expliziten .NET-Bezügen ausarbeiten.

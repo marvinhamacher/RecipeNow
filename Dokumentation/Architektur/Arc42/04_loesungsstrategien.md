@@ -71,8 +71,3 @@ Diese Struktur ermöglicht eine gute Testbarkeit, Wartbarkeit und eine spätere 
 - Nutzung von Docker für entwicklungsnahe Testumgebungen
 
 ---
-
-Wenn du möchtest, kann ich den Abschnitt auch
-- noch technischer (z. B. mit konkreten ASP.NET-Konzepten),
-- kürzer und kompakter, oder
-- konsequent nach arc42 ausrichten.
