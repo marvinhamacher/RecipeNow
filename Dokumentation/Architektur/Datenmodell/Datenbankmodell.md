@@ -1,7 +1,7 @@
 ﻿<!---
 Artefakte der Systemdokumentation wurden mithilfe von ChatGPT (OpenAI) erstellt und manuell angepasst
 -->
-# Datenbankmodell Studurizer
+# Datenbankmodell RecipeNow
 
 ```mermaid 
 classDiagram
