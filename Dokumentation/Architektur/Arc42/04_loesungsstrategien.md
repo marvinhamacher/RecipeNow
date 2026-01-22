@@ -1,3 +1,8 @@
+<!---
+Artefakte der Systemdokumentation wurden teilweise auf basis
+von ChatGPT (OpenAI) & der Projektvorlage Studurizer erstellt, und manuell angepasst.
+Vorlage: https://github.com/Johann110/Studurizer-Fallstudie-Software-Engineering/tree/main/Systemdokumentation
+-->
 # 04 – Lösungsstrategie
 
 Dieses Kapitel beschreibt die grundlegende Lösungsstrategie sowie die zentralen Architektur- und Technologieentscheidungen für die Implementierung der Anwendung.

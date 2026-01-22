@@ -1,6 +1,11 @@
+<!---
+Artefakte der Systemdokumentation wurden teilweise auf basis
+von ChatGPT (OpenAI) & der Projektvorlage Studurizer erstellt, und manuell angepasst.
+Vorlage: https://github.com/Johann110/Studurizer-Fallstudie-Software-Engineering/tree/main/Systemdokumentation
+-->
 # 05 – Bausteinsicht
 
-Diese Bausteinsicht beschreibt die statische Struktur der Anwendung.  
+Diese Bausteinsicht beschreibt die statische Struktur der Anwendung.
 Das System ist in mehrere logisch und fachlich getrennte Module unterteilt, die auf **ASP.NET mit Razor Pages und Blazor Components** basieren.
 
 ## Übersicht über Systembausteine
