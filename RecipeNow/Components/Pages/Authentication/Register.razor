@@ -1,0 +1,86 @@
+﻿@page "/register"
+@rendermode InteractiveServer
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> UserManager
+@inject NavigationManager NavigationManager
+
+<h3>Registrieren</h3>
+
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <div class="alert alert-danger">@_errorMessage</div>
+}
+
+<EditForm Model="Input" OnValidSubmit="HandleRegister">
+    <DataAnnotationsValidator />
+
+    <div class="form-group mb-3">
+        <label>Email</label>
+        <InputText class="form-control" @bind-Value="Input.Email" />
+        <ValidationMessage For="@(() => Input.Email)" class="text-danger" />
+    </div>
+
+    <div class="form-group mb-3">
+        <label>Passwort</label>
+        <InputText class="form-control" type="password" @bind-Value="Input.Password" />
+        <ValidationMessage For="@(() => Input.Password)" class="text-danger" />
+    </div>
+
+    <div class="form-group mb-3">
+        <label>Passwort bestätigen</label>
+        <InputText class="form-control" type="password" @bind-Value="Input.ConfirmPassword" />
+        <ValidationMessage For="@(() => Input.ConfirmPassword)" class="text-danger" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Registrieren</button>
+</EditForm>
+
+@code {
+    private string? _errorMessage;
+    
+    public RegisterModel Input { get; set; } = new();
+
+    private async Task HandleRegister()
+    {
+        try 
+        {
+            _errorMessage = null;
+            var user = new IdentityUser { UserName = Input.Email, Email = Input.Email };
+            
+            // Passwort-Validierung von Identity ist standardmäßig streng!
+            var result = await UserManager.CreateAsync(user, Input.Password);
+
+            if (result.Succeeded)
+            {
+                Console.WriteLine("Registration erfolgreich!");
+                NavigationManager.NavigateTo("/");
+            }
+            else
+            {
+                _errorMessage = string.Join(" ", result.Errors.Select(e => e.Description));
+                Console.WriteLine($"Identity-Fehler: {_errorMessage}");
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = "Ein Fehler ist aufgetreten: " + ex.Message;
+            Console.WriteLine($"Exception: {ex.Message}");
+        }
+    }
+
+    public class RegisterModel
+    {
+        [Required(ErrorMessage = "Email ist erforderlich")]
+        [EmailAddress(ErrorMessage = "Ungültige Emailadresse")]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Passwort ist erforderlich")]
+        [MinLength(6, ErrorMessage = "Passwort muss mindestens 6 Zeichen lang sein")]
+        public string Password { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Bitte Passwort bestätigen")]
+        [Compare(nameof(Password), ErrorMessage = "Passwörter stimmen nicht überein")]
+        public string ConfirmPassword { get; set; } = string.Empty;
+    }
+}

@@ -27,9 +27,6 @@ public class Recipe
     [Required]
     public required string UserId { get; set; } 
 
-    [Required]
-    public required IdentityUser User { get; set; }
-
     
     public ICollection<RecipeIngredient> RecipeIngredients { get; set; }
         = new List<RecipeIngredient>();
