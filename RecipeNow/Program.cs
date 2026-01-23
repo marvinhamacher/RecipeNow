@@ -24,27 +24,22 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddDbContext<AuthDbContext>(options =>
         options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-    builder.Services.AddCascadingAuthenticationState(); // Wichtig für Blazor Auth-Status
-    builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => {
+builder.Services.AddCascadingAuthenticationState(); // Wichtig für Blazor Auth-Status
+builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => {
             options.Password.RequireDigit = false; // Optional: Passwort-Regeln anpassen
-            options.Password.RequiredLength = 6;
-        })
+            options.Password.RequiredLength = 6; 
+    })
         .AddEntityFrameworkStores<AuthDbContext>()
         .AddDefaultTokenProviders();
 // Falls Services benutzt werden:
 builder.Services.AddScoped<RecipeService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<IIngredientService, IngredientService>();
-
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
-    .AddEntityFrameworkStores<AuthDbContext>()  // <-- hier wird UserStore / RoleStore bereitgestellt
-    .AddDefaultTokenProviders();
-
-    builder.Services.AddAuthentication(options =>
+builder.Services.AddAuthentication(options =>
         {
             options.DefaultScheme = IdentityConstants.ApplicationScheme;
             options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-        });
+});
 
     builder.Services.AddAuthorizationCore();
 var app = builder.Build();
