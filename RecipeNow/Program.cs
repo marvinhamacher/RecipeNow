@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using RecipeNow.Components;
+using RecipeNow.Config;
 using RecipeNow.Data;
 using RecipeNow.Data.Contexts;
 using RecipeNow.Services;
@@ -14,6 +15,8 @@ builder.Services.AddRazorComponents()
 // Falls Services benutzt werden:
 builder.Services.AddScoped<RecipeService>();
 builder.Services.AddScoped<UserService>();
+builder.Services.Configure<UploadSettings>(
+    builder.Configuration.GetSection("UploadSettings"));
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -28,6 +31,14 @@ builder.Services.AddDbContext<AuthDbContext>(options =>
         })
         .AddEntityFrameworkStores<AuthDbContext>()
         .AddDefaultTokenProviders();
+// Falls Services benutzt werden:
+builder.Services.AddScoped<RecipeService>();
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<IIngredientService, IngredientService>();
+
+builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+    .AddEntityFrameworkStores<AuthDbContext>()  // <-- hier wird UserStore / RoleStore bereitgestellt
+    .AddDefaultTokenProviders();
 
     builder.Services.AddAuthentication(options =>
         {

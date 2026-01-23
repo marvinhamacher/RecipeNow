@@ -57,8 +57,8 @@ classDiagram
     
     User "1" -- "n" StorageRoom
     User "1" -- "n" Recipe
-    Recipe "1" -- "1" RecipeIngredient
-    Ingredient "1" -- "1" RecipeIngredient
+    Recipe "1" -- "n" RecipeIngredient
+    Ingredient "1" -- "n" RecipeIngredient
     StorageRoom "1" -- "n" Shelf
     User "1" -- "n" StorageRoom
     

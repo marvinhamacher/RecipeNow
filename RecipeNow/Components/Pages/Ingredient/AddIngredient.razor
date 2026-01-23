@@ -1,0 +1,124 @@
+﻿@page "/add-ingredient"
+@rendermode InteractiveServer
+@inject IIngredientService IngredientService
+@inject NavigationManager NavigationManager
+@inject IOptions<UploadSettings> UploadOptions
+@using Microsoft.Extensions.Options
+@using RecipeNow.Config
+@using RecipeNow.Data.Entities.RecipeSystem
+@using RecipeNow.Data.Enumerators
+@using RecipeNow.Services
+
+<EditForm EditContext="_editContext" OnSubmit="HandleSubmit">
+    <DataAnnotationsValidator />
+
+    <div class="container mt-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                <h5 class="card-title mb-4">Zutat hinzufügen</h5>
+
+                <div class="mb-3">
+                    <label class="form-label">Name</label>
+                    <InputText class="form-control"
+                               @bind-Value="_ingredient.Name" />
+                    <ValidationMessage For="@(() => _ingredient.Name)"
+                                       class="text-danger" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Preis pro Einheit</label>
+                    <InputNumber class="form-control"
+                                 @bind-Value="_ingredient.PricePerUnit" />
+                    <ValidationMessage For="@(() => _ingredient.PricePerUnit)"
+                                       class="text-danger" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Maßeinheit</label>
+                    <InputSelect class="form-select"
+                                 @bind-Value="_ingredient.Measurement">
+                        @foreach (var m in Enum.GetValues<MeasurementType>())
+                        {
+                            <option value="@m">@m</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => _ingredient.Measurement)"
+                                       class="text-danger" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Bild</label>
+                    <InputFile class="form-control"
+                               OnChange="OnFileChange" />
+
+                    @if (_fileError != null)
+                    {
+                        <div class="text-danger mt-1">
+                            @_fileError
+                        </div>
+                    }
+                    else if (_submitAttempted && _image == null)
+                    {
+                        <div class="text-danger mt-1">
+                            Bitte laden Sie ein Bild hoch
+                        </div>
+                    }
+                </div>
+
+                <button type="submit"
+                        class="btn btn-primary w-100">
+                    Speichern
+                </button>
+
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    long MaxFileSize => UploadOptions.Value.MaxImageSize;
+    bool _submitAttempted = false;
+    bool _isValid = false;
+    string? _fileError;
+
+    EditContext _editContext = null!;
+    
+    Ingredient _ingredient = new()
+    {
+        Name = "",
+        PricePerUnit = 0,
+        Measurement = MeasurementType.Kilogram,
+        ImagePath = "temp" 
+    };
+    IBrowserFile? _image;
+    
+    protected override void OnInitialized()
+    {
+        _editContext = new EditContext(_ingredient);
+    }
+    
+    void OnFileChange(InputFileChangeEventArgs e)
+    {
+        _fileError = null;
+        _image = e.File;
+        if (_image.Size > MaxFileSize)
+        {
+            _fileError = $"Die Datei darf nicht größer sein als {MaxFileSize / 1_000_000} MB.";
+            _image = null;
+        }
+    }
+    
+    async Task HandleSubmit()
+    {
+        _submitAttempted = true;
+
+        _isValid = _editContext.Validate();
+
+        if (!_isValid || _image == null)
+            return;
+
+        await IngredientService.AddAsync(_ingredient, _image);
+        NavigationManager.NavigateTo("/", forceLoad: true);
+    }
+}
