@@ -26,7 +26,10 @@ public class Recipe
 
     [Required]
     public required string UserId { get; set; } 
-
+    
+    [Required]
+    [MaxLength(255)]
+    public required string ImagePath { get; set; }
     
     public ICollection<RecipeIngredient> RecipeIngredients { get; set; }
         = new List<RecipeIngredient>();

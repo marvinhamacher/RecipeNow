@@ -4,7 +4,7 @@ namespace RecipeNow.Data.Entities.RecipeSystem;
 
 public class RecipeIngredient
 {
-    public required int Id { get; set; }
+    public int Id { get; set; }
     
     [Required]
     public required int RecipeId { get; set; }

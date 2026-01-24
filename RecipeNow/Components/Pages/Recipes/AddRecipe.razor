@@ -1,0 +1,265 @@
+﻿@page "/add-recipe"
+@rendermode InteractiveServer
+@inject IRecipeService RecipeService
+@inject IIngredientService IngredientService
+@inject NavigationManager NavigationManager
+@using Microsoft.Extensions.Options
+@using RecipeNow.Config
+@using RecipeNow.Data.Entities.RecipeSystem
+@using RecipeNow.Data.Enumerators
+@using RecipeNow.Services
+@inject UserService UserService
+@inject IOptions<UploadSettings> UploadOptions
+
+@if (_isAuthenticated)
+{
+    <EditForm EditContext="_editContext" OnSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+
+        <div class="container mt-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+
+                    <h5 class="card-title mb-4">Rezept hinzufügen</h5>
+
+                    <div class="mb-3">
+                        <label class="form-label">Name</label>
+                        <InputText class="form-control" @bind-Value="_recipe.Name" />
+                        <ValidationMessage For="@(() => _recipe.Name)" class="text-danger" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Beschreibung</label>
+                        <InputTextArea class="form-control" @bind-Value="_recipe.Description" />
+                        <ValidationMessage For="@(() => _recipe.Description)" class="text-danger" />
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Vorbereitungszeit (Min.)</label>
+                            <InputNumber class="form-control" @bind-Value="_recipe.PreparationTime" />
+                            <ValidationMessage For="@(() => _recipe.PreparationTime)" class="text-danger" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Kochzeit (Min.)</label>
+                            <InputNumber class="form-control" @bind-Value="_recipe.CookingTime" />
+                            <ValidationMessage For="@(() => _recipe.CookingTime)" class="text-danger" />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Schwierigkeit</label>
+                        <InputSelect class="form-select" @bind-Value="_recipe.CookingDifficulty">
+                            @foreach (var d in Enum.GetValues<CookingDifficulty>())
+                            {
+                                <option value="@d">@d</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(() => _recipe.CookingDifficulty)" class="text-danger" />
+                    </div>
+
+                    <!-- Searchable Select: Zutaten suchen + anklicken -->
+                    <div class="mb-3" style="position: relative;">
+                        <label class="form-label">Zutaten</label>
+
+                        <InputText class="form-control"
+                                   placeholder="Zutat suchen…"
+                                   @bind-Value="_ingredientSearch"
+                                   @oninput="OnIngredientSearchInput"
+                                   @onfocus="() => _showIngredientSuggestions = true" />
+
+                        @if (_showIngredientSuggestions && FilteredIngredients.Count > 0)
+                        {
+                            <div class="list-group w-100"
+                                 style="position:absolute; z-index: 2000; max-height: 240px; overflow:auto;">
+                                @foreach (var i in FilteredIngredients)
+                                {
+                                    <button type="button"
+                                            class="list-group-item list-group-item-action"
+                                            @onclick="() => AddIngredientToSelection(i)">
+                                        @i.Name
+                                    </button>
+                                }
+                            </div>
+                        }
+
+                        @if (SelectedIngredients.Count > 0)
+                        {
+                            <div class="mt-3">
+                                <div class="fw-semibold mb-2">Ausgewählt</div>
+
+                                @foreach (var si in SelectedIngredients)
+                                {
+                                    <div class="d-flex gap-2 align-items-center mb-2">
+                                        <div class="flex-grow-1">@si.Name</div>
+
+                                        <input class="form-control"
+                                               style="max-width: 140px;"
+                                               type="number"
+                                               min="0"
+                                               step="0.1"
+                                               value="@si.Amount"
+                                               @oninput="e => OnAmountChanged(si, e.Value?.ToString())" />
+
+                                        <button type="button"
+                                                class="btn btn-outline-danger btn-sm"
+                                                @onclick="() => RemoveIngredientFromSelection(si.IngredientId)">
+                                            Entfernen
+                                        </button>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        <div class="mb-3">
+                            <label class="form-label">Bild</label>
+                            <InputFile class="form-control" OnChange="OnFileChange" />
+
+                            @if (_fileError != null)
+                            {
+                                <div class="text-danger mt-1">@_fileError</div>
+                            }
+                            else if (_submitAttempted && _image == null)
+                            {
+                                <div class="text-danger mt-1">Bitte laden Sie ein Bild hoch</div>
+                            }
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        Speichern
+                    </button>
+
+                </div>
+            </div>
+        </div>
+    </EditForm>
+}
+
+@code {
+    private bool _isAuthenticated;
+    private IBrowserFile? _image;
+    long MaxFileSize => UploadOptions.Value.MaxImageSize;
+    private bool _submitAttempted;
+    private string? _fileError;
+    private Recipe _recipe = new()
+    {
+        Name = "",
+        Description = "",
+        PreparationTime = 0,
+        CookingTime = 0,
+        CookingDifficulty = CookingDifficulty.Medium,
+        UserId = "", 
+        ImagePath = ""    
+    };
+    
+    private void OnFileChange(InputFileChangeEventArgs e)
+    {
+        _fileError = null;
+        _image = e.File;
+
+        if (_image.Size > MaxFileSize)
+        {
+            _fileError = $"Die Datei darf nicht größer sein als {MaxFileSize / 1_000_000} MB.";
+            _image = null;
+        }
+    }
+
+
+    private EditContext _editContext = null!;
+
+    // --- Zutaten Searchable Select State ---
+    private List<Ingredient> _allIngredients = new();
+    private string _ingredientSearch = string.Empty;
+    private bool _showIngredientSuggestions = false;
+
+    private sealed class SelectedIngredientVm
+    {
+        public required int IngredientId { get; init; }
+        public required string Name { get; init; }
+        public decimal Amount { get; set; } = 1;
+    }
+
+    private List<SelectedIngredientVm> SelectedIngredients { get; } = new();
+
+    private List<Ingredient> FilteredIngredients =>
+        string.IsNullOrWhiteSpace(_ingredientSearch)
+            ? _allIngredients.Take(20).ToList()
+            : _allIngredients
+                .Where(i => i.Name.Contains(_ingredientSearch, StringComparison.OrdinalIgnoreCase))
+                .Take(20)
+                .ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _isAuthenticated = await UserService.IsAuthenticated();
+
+        if (_isAuthenticated)
+            _allIngredients = await IngredientService.GetAllAsync();
+    }
+
+    protected override void OnInitialized()
+    {
+        _editContext = new EditContext(_recipe);
+    }
+
+    private void OnIngredientSearchInput(ChangeEventArgs e)
+    {
+        _ingredientSearch = e.Value?.ToString() ?? string.Empty;
+        _showIngredientSuggestions = true;
+    }
+
+    private void AddIngredientToSelection(Ingredient ingredient)
+    {
+        if (SelectedIngredients.Any(x => x.IngredientId == ingredient.Id))
+        {
+            _ingredientSearch = string.Empty;
+            _showIngredientSuggestions = false;
+            return;
+        }
+
+        SelectedIngredients.Add(new SelectedIngredientVm
+        {
+            IngredientId = ingredient.Id,
+            Name = ingredient.Name,
+            Amount = 1
+        });
+
+        _ingredientSearch = string.Empty;
+        _showIngredientSuggestions = false;
+    }
+
+    private void RemoveIngredientFromSelection(int ingredientId)
+    {
+        var item = SelectedIngredients.FirstOrDefault(x => x.IngredientId == ingredientId);
+        if (item != null)
+            SelectedIngredients.Remove(item);
+    }
+
+    private void OnAmountChanged(SelectedIngredientVm item, string? raw)
+    {
+        if (decimal.TryParse(raw, out var val))
+            item.Amount = val;
+    }
+
+    private async Task HandleSubmit()
+    {
+        _submitAttempted = true;
+        if (!_editContext.Validate() || _image == null)
+            return;
+
+        var user = await UserService.GetUserAsync();
+        var userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrWhiteSpace(userId))
+            return;
+
+        _recipe.UserId = userId;
+
+        var ingredientRows = SelectedIngredients
+            .Select(x => (x.IngredientId, x.Amount));
+
+        await RecipeService.AddAsync(_recipe, _image, ingredientRows);
+
+        NavigationManager.NavigateTo("/", forceLoad: true);
+    }
+}
