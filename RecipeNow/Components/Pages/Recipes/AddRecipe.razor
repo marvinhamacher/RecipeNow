@@ -50,9 +50,9 @@
                     <div class="mb-3">
                         <label class="form-label">Schwierigkeit</label>
                         <InputSelect class="form-select" @bind-Value="_recipe.CookingDifficulty">
-                            @foreach (var d in Enum.GetValues<CookingDifficulty>())
+                            @foreach (var difficulty in Enum.GetValues<CookingDifficulty>())
                             {
-                                <option value="@d">@d</option>
+                                <option value="@difficulty">@EnumHelper.GetDisplayName(difficulty)</option>
                             }
                         </InputSelect>
                         <ValidationMessage For="@(() => _recipe.CookingDifficulty)" class="text-danger" />
@@ -93,14 +93,10 @@
                                     <div class="d-flex gap-2 align-items-center mb-2">
                                         <div class="flex-grow-1">@si.Name</div>
 
-                                        <input class="form-control"
-                                               style="max-width: 140px;"
-                                               type="number"
-                                               min="0"
-                                               step="0.1"
-                                               value="@si.Amount"
-                                               @oninput="e => OnAmountChanged(si, e.Value?.ToString())" />
-
+                                        <InputNumber class="form-control"
+                                                     style="max-width: 140px;"
+                                                     @bind-Value="si.Amount" />
+                                        <div class="flex-grow-1">/@si.MeasurementType</div>
                                         <button type="button"
                                                 class="btn btn-outline-danger btn-sm"
                                                 @onclick="() => RemoveIngredientFromSelection(si.IngredientId)">
@@ -177,6 +173,7 @@
         public required int IngredientId { get; init; }
         public required string Name { get; init; }
         public decimal Amount { get; set; } = 1;
+        public required string MeasurementType { get; set; }
     }
 
     private List<SelectedIngredientVm> SelectedIngredients { get; } = new();
@@ -221,7 +218,8 @@
         {
             IngredientId = ingredient.Id,
             Name = ingredient.Name,
-            Amount = 1
+            Amount = 1,
+            MeasurementType = EnumHelper.GetDisplayName(ingredient.Measurement)
         });
 
         _ingredientSearch = string.Empty;
@@ -244,7 +242,8 @@
     private async Task HandleSubmit()
     {
         _submitAttempted = true;
-        if (!_editContext.Validate() || _image == null)
+
+        if (_image == null)
             return;
 
         var user = await UserService.GetUserAsync();
@@ -260,6 +259,7 @@
 
         await RecipeService.AddAsync(_recipe, _image, ingredientRows);
 
-        NavigationManager.NavigateTo("/", forceLoad: true);
+        NavigationManager.NavigateTo("/");
     }
+
 }
