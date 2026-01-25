@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using RecipeNow.Config;
 using RecipeNow.Data.Contexts;
@@ -52,5 +53,12 @@ public class RecipeService : IRecipeService
 
         _context.RecipeIngredients.AddRange(rows);
         await _context.SaveChangesAsync();
+    }
+
+    public Task<List<Recipe>> GetAllAsync()
+    {
+       return _context.Recipes.AsNoTracking()
+            .OrderBy(i => i.Name)
+            .ToListAsync();
     }
 }

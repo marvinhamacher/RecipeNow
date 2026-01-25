@@ -54,4 +54,9 @@ public class UserService
         await _signInManager.SignOutAsync();
         _navigationManager.NavigateTo("/",forceLoad:true);
     }
+
+    public async Task<IdentityUser?> GetUserByIdAsync(string userId)
+    {
+        return await _dbContext.Users.FindAsync(userId);
+    }
 }

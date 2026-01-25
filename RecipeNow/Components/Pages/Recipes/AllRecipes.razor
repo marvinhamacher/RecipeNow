@@ -1,0 +1,40 @@
+﻿@using RecipeNow.Data.Entities.RecipeSystem
+@using RecipeNow.Services
+@inject IRecipeService RecipeService
+@inject UserService UserService
+
+<h3>AllRecipes</h3>
+
+@code {
+
+    public sealed class RecipePreview
+    {
+        public required string image { get; init; } = "";
+        public required string name { get; init; } = "";
+        public required string user_name { get; init; } = "0";
+
+
+    }
+    private List<RecipePreview> _recipePreviews;
+        
+        
+    protected override async Task OnInitializedAsync()
+    {
+        List<Recipe> recipes = await RecipeService.GetAllAsync();
+        foreach (var recipe in recipes)
+        {
+            var preview = new RecipePreview
+            {
+                image = recipe.ImagePath,
+                name = recipe.Name,
+                user_name = UserService.GetUserByIdAsync(recipe.UserId).Result?.UserName ?? "es konnte keinen Nutzername gefunden werden"
+            };
+            _recipePreviews.Add(preview);
+        }
+
+
+    }
+
+    
+    
+}
