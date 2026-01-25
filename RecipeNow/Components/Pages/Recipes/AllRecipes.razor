@@ -2,8 +2,19 @@
 @using RecipeNow.Services
 @inject IRecipeService RecipeService
 @inject UserService UserService
-
+@page "/recipes"
 <h3>AllRecipes</h3>
+@foreach (var recipePreview in _recipePreviews)
+{
+    <div class="card mb-3">
+        <img src="@recipePreview.image" class="card-img-top" alt="...">
+        <div class="card-body">
+            <h5 class="card-title">@recipePreview.name</h5>
+            <p class="card-text">Created by: @recipePreview.user_name</p>
+        </div>
+    </div>
+}
+
 
 @code {
 
