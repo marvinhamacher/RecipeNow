@@ -26,7 +26,7 @@
 
 
     }
-    private List<RecipePreview> _recipePreviews;
+    private List<RecipePreview> _recipePreviews = new List<RecipePreview>();
         
         
     protected override async Task OnInitializedAsync()
@@ -34,12 +34,16 @@
         List<Recipe> recipes = await RecipeService.GetAllAsync();
         foreach (var recipe in recipes)
         {
+            var user = await UserService.GetUserByIdAsync(recipe.UserId);
+
             var preview = new RecipePreview
             {
                 image = recipe.ImagePath,
                 name = recipe.Name,
-                user_name = UserService.GetUserByIdAsync(recipe.UserId).Result?.UserName ?? "es konnte keinen Nutzername gefunden werden"
+                user_name = user?.UserName 
+                            ?? "es konnte kein Nutzername gefunden werden"
             };
+
             _recipePreviews.Add(preview);
         }
 
