@@ -23,6 +23,7 @@
       <Folder Include="Data\Entities\Authentication\" />
       <Folder Include="Data\Enumerators\Authentication\" />
       <Folder Include="wwwroot\images\ingredients\" />
+      <Folder Include="wwwroot\images\Recipes\" />
       <Folder Include="wwwroot\static\Images\" />
     </ItemGroup>
 

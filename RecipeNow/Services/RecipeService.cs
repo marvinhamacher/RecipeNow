@@ -24,8 +24,7 @@ public class RecipeService : IRecipeService
         IBrowserFile image,
         IEnumerable<(int IngredientId, decimal Amount)> ingredients)
     {
-        // 1) Bild speichern
-        var uploadDir = Path.Combine(_env.WebRootPath, "images", "recipes");
+        var uploadDir = Path.Combine(_env.WebRootPath, "images", "Recipes");
         Directory.CreateDirectory(uploadDir);
 
         var fileName = $"{Guid.NewGuid()}{Path.GetExtension(image.Name)}";
@@ -35,14 +34,9 @@ public class RecipeService : IRecipeService
         {
             await image.OpenReadStream(_uploadSettings.MaxImageSize).CopyToAsync(fs);
         }
-
         recipe.ImagePath = $"/images/recipes/{fileName}";
-
-        // 2) Recipe speichern
         _context.Recipes.Add(recipe);
         await _context.SaveChangesAsync();
-
-        // 3) Join-Tabelle speichern
         var rows = ingredients
             .Where(x => x.Amount > 0)
             .Select(x => new RecipeIngredient
@@ -51,7 +45,7 @@ public class RecipeService : IRecipeService
                 RecipeId = recipe.Id,
                 Recipe = recipe,
                 IngredientId = x.IngredientId,
-                Ingredient = null!, // FK reicht, Navigation wird nicht geladen
+                Ingredient = null!,
                 Amount = x.Amount
             })
             .ToList();
