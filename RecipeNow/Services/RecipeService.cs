@@ -61,4 +61,9 @@ public class RecipeService : IRecipeService
             .OrderBy(i => i.Name)
             .ToListAsync();
     }
+
+    public Task<Recipe?> GetByIdAsync(int id)
+    {
+        return _context.Recipes.FindAsync(id).AsTask();
+    }
 }

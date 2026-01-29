@@ -3,18 +3,23 @@
 @inject IRecipeService RecipeService
 @inject UserService UserService
 @page "/recipes"
-<h3>AllRecipes</h3>
-@foreach (var recipePreview in _recipePreviews)
-{
-    <div class="card mb-3">
-        <img src="@recipePreview.image" class="card-img-top" alt="...">
-        <div class="card-body">
-            <h5 class="card-title">@recipePreview.name</h5>
-            <p class="card-text">Created by: @recipePreview.user_name</p>
-        </div>
-    </div>
-}
+<h3>Alle Rezepte: </h3>
 
+<div class="recipes-grid">
+    @foreach (var recipePreview in _recipePreviews)
+    {
+        <div class="recipe-overview bg-white rounded">
+            <div class="card shadow">
+                <img src="@recipePreview.image" class="card-img-top recipe-img" alt="Rezeptbild">
+                <div class="card-body">
+                    <h5 class="card-title">@recipePreview.name</h5>
+                    <p class="card-text">Created by: @recipePreview.user_name</p>
+                    <a href="/recipes/@recipePreview.id" class="btn btn-primary">Go somewhere</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
 
 @code {
 
@@ -23,6 +28,7 @@
         public required string image { get; init; } = "";
         public required string name { get; init; } = "";
         public required string user_name { get; init; } = "0";
+        public required int id { get; set; } = 0;
 
 
     }
@@ -41,7 +47,8 @@
                 image = recipe.ImagePath,
                 name = recipe.Name,
                 user_name = user?.UserName 
-                            ?? "es konnte kein Nutzername gefunden werden"
+                            ?? "es konnte kein Nutzername gefunden werden",
+                id = recipe.Id               
             };
 
             _recipePreviews.Add(preview);

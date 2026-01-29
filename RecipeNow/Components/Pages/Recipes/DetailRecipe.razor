@@ -1,0 +1,33 @@
+﻿@page "/recipes/{Id: int}"
+@using Microsoft.AspNetCore.Routing.Template
+@using RecipeNow.Services
+@inject IRecipeService RecipeService
+@inject UserService UserService
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private bool _isSameUser = false;
+    private RecipeDetail _recipeDetail;
+    public sealed class RecipeDetail
+    {
+        public required string image { get; init; } = "";
+        public required string name { get; init; } = "";
+        public required string description { get; init; } = "";
+        public required string user_name { get; init; } = "0";
+        public required int id { get; set; } = 0;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var temp = await RecipeService.GetByIdAsync(Id);
+        _recipeDetail = new RecipeDetail()
+        {
+            description = temp?.Description,
+            id = temp.Id,
+            image = temp.ImagePath,
+            name = temp.Name,
+            user_name = temp.UserId
+        };
+        _isSameUser = (UserService.GetUserByIdAsync(_recipeDetail.user_name).Id == UserService.GetUserAsync().Id);
+    }
+}

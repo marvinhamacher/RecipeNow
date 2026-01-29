@@ -1,0 +1,17 @@
+﻿.recipes-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.recipe-overview {
+    width: 18rem;
+}
+
+.recipe-img {
+    height: 160px;
+    object-fit: cover;
+    width: 100%;
+    display: block;
+}
