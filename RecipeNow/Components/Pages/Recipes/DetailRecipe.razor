@@ -4,6 +4,23 @@
 @inject IRecipeService RecipeService
 @inject UserService UserService
 
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <h1>@_recipeDetail.name</h1>
+            <img src="@_recipeDetail.image" alt="Recipe Image" />
+            <p>@_recipeDetail.description</p>
+        </div>
+        @if (_isSameUser)
+        {
+            <a href="/recipes/edit/@_recipeDetail.id" class="btn btn-primary">Edit</a>
+        }
+    </div>
+</div>
+
+
+
+
 @code {
     [Parameter] public int Id { get; set; }
     private bool _isSameUser = false;
