@@ -54,7 +54,7 @@ public class RecipeService : IRecipeService
             var isPrimary = i == 0;
 
             if (isPrimary)
-                recipe.ImagePath = relativePath; // für bestehende Listen/Preview-UI
+                recipe.ImagePath = relativePath;
 
             recipeImages.Add(new RecipeImage
             {

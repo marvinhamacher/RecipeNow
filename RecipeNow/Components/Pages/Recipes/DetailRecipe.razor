@@ -1,4 +1,4 @@
-﻿@page "/recipes/{Id}"
+﻿@page "/recipes/{Id:int}"
 @using RecipeNow.Services
 @inject IRecipeService RecipeService
 @inject UserService UserService
@@ -9,11 +9,11 @@
             <h1>@_recipeDetail.name</h1>
             <img src="@_recipeDetail.image" alt="Recipe Image" />
             <p>@_recipeDetail.description</p>
+            @if (_isSameUser)
+            {
+                <a href="/recipes/edit/@_recipeDetail.id" class="btn btn-primary">Edit</a>
+            }
         </div>
-        @if (_isSameUser)
-        {
-            <a href="/recipes/edit/@_recipeDetail.id" class="btn btn-primary">Edit</a>
-        }
     </div>
 </div>
 
@@ -22,7 +22,7 @@
 
 @code {
     [Parameter] public int Id { get; set; }
-    private bool _isSameUser = false;
+    private bool _isSameUser;
     private RecipeDetail _recipeDetail;
     public sealed class RecipeDetail
     {
@@ -44,6 +44,10 @@
             name = temp.Name,
             user_name = temp.UserId
         };
-        _isSameUser = (UserService.GetUserByIdAsync(_recipeDetail.user_name).Id == UserService.GetUserAsync().Id);
+        var currentUser = await UserService.GetUserAsync();
+        var currentUserId = currentUser.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+        _isSameUser = !string.IsNullOrWhiteSpace(currentUserId)
+                      && string.Equals(temp.UserId, currentUserId, StringComparison.Ordinal);
     }
 }
