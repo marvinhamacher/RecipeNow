@@ -94,6 +94,11 @@ public class RecipeService : IRecipeService
 
     public Task<Recipe?> GetByIdAsync(int id)
     {
-        return _context.Recipes.FindAsync(id).AsTask();
+        return _context.Recipes
+            .AsNoTracking()
+            .Include(r => r.Images)
+            .Include(r => r.RecipeIngredients)
+            .ThenInclude(ri => ri.Ingredient)
+            .FirstOrDefaultAsync(r => r.Id == id);
     }
 }
