@@ -29,6 +29,8 @@ public class Recipe
     [MaxLength(255)]
     public string ImagePath { get; set; }
     
+    public ICollection<RecipeImage> Images { get; set; }
+    
     public ICollection<RecipeIngredient> RecipeIngredients { get; set; }
         = new List<RecipeIngredient>();
 }

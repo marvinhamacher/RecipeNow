@@ -22,22 +22,51 @@ public class RecipeService : IRecipeService
 
     public async Task AddAsync(
         Recipe recipe,
-        IBrowserFile image,
+        IEnumerable<IBrowserFile> images,
         IEnumerable<(int IngredientId, decimal Amount)> ingredients)
     {
         var uploadDir = Path.Combine(_env.WebRootPath, "images", "Recipes");
         Directory.CreateDirectory(uploadDir);
 
-        var fileName = $"{Guid.NewGuid()}{Path.GetExtension(image.Name)}";
-        var filePath = Path.Combine(uploadDir, fileName);
+        var imageList = images?.ToList() ?? new List<IBrowserFile>();
+        if (imageList.Count == 0)
+            throw new InvalidOperationException("Es muss mindestens ein Bild hochgeladen werden.");
 
-        await using (var fs = new FileStream(filePath, FileMode.Create))
-        {
-            await image.OpenReadStream(_uploadSettings.MaxImageSize).CopyToAsync(fs);
-        }
-        recipe.ImagePath = $"/images/recipes/{fileName}";
+        // Rezept zuerst speichern, damit wir recipe.Id haben
         _context.Recipes.Add(recipe);
         await _context.SaveChangesAsync();
+
+        var recipeImages = new List<RecipeImage>();
+
+        for (var i = 0; i < imageList.Count; i++)
+        {
+            var image = imageList[i];
+
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(image.Name)}";
+            var filePath = Path.Combine(uploadDir, fileName);
+
+            await using (var fs = new FileStream(filePath, FileMode.Create))
+            {
+                await image.OpenReadStream(_uploadSettings.MaxImageSize).CopyToAsync(fs);
+            }
+
+            var relativePath = $"/images/recipes/{fileName}";
+            var isPrimary = i == 0;
+
+            if (isPrimary)
+                recipe.ImagePath = relativePath; // für bestehende Listen/Preview-UI
+
+            recipeImages.Add(new RecipeImage
+            {
+                RecipeId = recipe.Id,
+                Recipe = recipe,
+                ImagePath = relativePath,
+                IsPrimary = isPrimary
+            });
+        }
+
+        _context.RecipeImages.AddRange(recipeImages);
+
         var rows = ingredients
             .Where(x => x.Amount > 0)
             .Select(x => new RecipeIngredient
@@ -52,12 +81,13 @@ public class RecipeService : IRecipeService
             .ToList();
 
         _context.RecipeIngredients.AddRange(rows);
+
         await _context.SaveChangesAsync();
     }
 
     public Task<List<Recipe>> GetAllAsync()
     {
-       return _context.Recipes.AsNoTracking()
+        return _context.Recipes.AsNoTracking()
             .OrderBy(i => i.Name)
             .ToListAsync();
     }

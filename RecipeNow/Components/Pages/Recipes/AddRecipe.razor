@@ -108,13 +108,13 @@
                         }
                         <div class="mb-3">
                             <label class="form-label">Bild</label>
-                            <InputFile class="form-control" OnChange="OnFileChange" />
+                            <InputFile class="form-control" OnChange="OnFileChange" multiple/>
 
                             @if (_fileError != null)
                             {
                                 <div class="text-danger mt-1">@_fileError</div>
                             }
-                            else if (_submitAttempted && _image == null)
+                            else if (_submitAttempted && _images.Count == 0)
                             {
                                 <div class="text-danger mt-1">Bitte laden Sie ein Bild hoch</div>
                             }
@@ -133,7 +133,7 @@
 
 @code {
     private bool _isAuthenticated;
-    private IBrowserFile? _image;
+    private IReadOnlyList<IBrowserFile> _images = Array.Empty<IBrowserFile>();
     long MaxFileSize => UploadOptions.Value.MaxImageSize;
     private bool _submitAttempted;
     private string? _fileError;
@@ -151,13 +151,18 @@
     private void OnFileChange(InputFileChangeEventArgs e)
     {
         _fileError = null;
-        _image = e.File;
+        _images = e.GetMultipleFiles();
 
-        if (_image.Size > MaxFileSize)
+        foreach (var image in _images)
         {
-            _fileError = $"Die Datei darf nicht größer sein als {MaxFileSize / 1_000_000} MB.";
-            _image = null;
+            if (image.Size > MaxFileSize)
+            {
+                _fileError = $"Die Datei darf nicht größer sein als {MaxFileSize / 1_000_000} MB.";
+                break;
+            }
+            
         }
+
     }
 
 
@@ -243,7 +248,7 @@
     {
         _submitAttempted = true;
 
-        if (_image == null)
+        if (_images.Count == 0)
             return;
 
         var user = await UserService.GetUserAsync();
@@ -257,7 +262,7 @@
         var ingredientRows = SelectedIngredients
             .Select(x => (x.IngredientId, x.Amount));
 
-        await RecipeService.AddAsync(_recipe, _image, ingredientRows);
+        await RecipeService.AddAsync(_recipe, _images, ingredientRows);
 
         NavigationManager.NavigateTo("/");
     }

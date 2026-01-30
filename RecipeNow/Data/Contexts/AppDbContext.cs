@@ -12,6 +12,7 @@ namespace RecipeNow.Data.Contexts
 
         public DbSet<Ingredient> Ingredients { get; set; }
         public DbSet<Recipe> Recipes { get; set; }
+        public DbSet<RecipeImage> RecipeImages { get; set; }
         public DbSet<RecipeIngredient> RecipeIngredients { get; set; }
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -21,6 +22,11 @@ namespace RecipeNow.Data.Contexts
             modelBuilder.Entity<RecipeIngredient>()
                 .HasOne(ri => ri.Recipe)
                 .WithMany(r => r.RecipeIngredients)
+                .HasForeignKey(ri => ri.RecipeId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<RecipeImage>()
+                .HasOne(ri => ri.Recipe)
+                .WithMany(r => r.Images)
                 .HasForeignKey(ri => ri.RecipeId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
