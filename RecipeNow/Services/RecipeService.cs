@@ -101,4 +101,121 @@ public class RecipeService : IRecipeService
             .ThenInclude(ri => ri.Ingredient)
             .FirstOrDefaultAsync(r => r.Id == id);
     }
+
+    public async Task UpdateAsync(
+        Recipe recipe,
+        IEnumerable<IBrowserFile> newImages,
+        IEnumerable<int> keptImageIds,
+        IEnumerable<(int IngredientId, decimal Amount)> ingredients)
+    {
+        var entity = await _context.Recipes
+            .Include(r => r.Images)
+            .Include(r => r.RecipeIngredients)
+            .FirstOrDefaultAsync(r => r.Id == recipe.Id);
+
+        if (entity is null)
+            throw new InvalidOperationException("Rezept nicht gefunden.");
+        
+        entity.Name = recipe.Name;
+        entity.Description = recipe.Description;
+        entity.PreparationTime = recipe.PreparationTime;
+        entity.CookingTime = recipe.CookingTime;
+        entity.CookingDifficulty = recipe.CookingDifficulty;
+
+        
+        var incomingIngredients = ingredients
+            .Where(x => x.Amount > 0)
+            .ToList();
+
+        var incomingIds = incomingIngredients.Select(x => x.IngredientId).ToHashSet();
+
+        var toRemoveIngredients = entity.RecipeIngredients
+            .Where(ri => !incomingIds.Contains(ri.IngredientId))
+            .ToList();
+
+        _context.RecipeIngredients.RemoveRange(toRemoveIngredients);
+
+        foreach (var (ingredientId, amount) in incomingIngredients)
+        {
+            var existing = entity.RecipeIngredients.FirstOrDefault(ri => ri.IngredientId == ingredientId);
+            if (existing is null)
+            {
+                entity.RecipeIngredients.Add(new RecipeIngredient
+                {
+                    RecipeId = entity.Id,
+                    Recipe = entity,
+                    IngredientId = ingredientId,
+                    Ingredient = null!,
+                    Amount = amount
+                });
+            }
+            else
+            {
+                existing.Amount = amount;
+            }
+        }
+
+        // 3) Bilder entfernen, die nicht mehr gewünscht sind
+        var keptSet = keptImageIds?.ToHashSet() ?? new HashSet<int>();
+
+        var uploadDir = Path.Combine(_env.WebRootPath, "images", "Recipes");
+        Directory.CreateDirectory(uploadDir);
+
+        var toRemoveImages = entity.Images
+            .Where(img => img.Id != 0 && !keptSet.Contains(img.Id))
+            .ToList();
+
+        foreach (var img in toRemoveImages)
+        {
+            // img.ImagePath z.B. "/images/recipes/xyz.jpg"
+            var relative = img.ImagePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
+            var physical = Path.Combine(_env.WebRootPath, relative);
+
+            if (File.Exists(physical))
+                File.Delete(physical);
+        }
+
+        _context.RecipeImages.RemoveRange(toRemoveImages);
+
+        // 4) Neue Bilder hinzufügen (immer neue Dateien erzeugen)
+        var newImageList = newImages?.ToList() ?? new List<IBrowserFile>();
+
+        foreach (var image in newImageList)
+        {
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(image.Name)}";
+            var filePath = Path.Combine(uploadDir, fileName);
+
+            await using (var fs = new FileStream(filePath, FileMode.Create))
+            {
+                await image.OpenReadStream(_uploadSettings.MaxImageSize).CopyToAsync(fs);
+            }
+
+            var relativePath = $"/images/recipes/{fileName}";
+
+            entity.Images.Add(new RecipeImage
+            {
+                RecipeId = entity.Id,
+                Recipe = entity,
+                ImagePath = relativePath,
+                IsPrimary = false
+            });
+        }
+
+        // 5) Primary/Preview ImagePath setzen (einfach: erstes Bild = primary)
+        foreach (var img in entity.Images)
+            img.IsPrimary = false;
+
+        var primary = entity.Images.FirstOrDefault();
+        if (primary is not null)
+        {
+            primary.IsPrimary = true;
+            entity.ImagePath = primary.ImagePath;
+        }
+        else
+        {
+            entity.ImagePath = string.Empty;
+        }
+
+        await _context.SaveChangesAsync();
+    }
 }
