@@ -102,6 +102,12 @@ public class RecipeService : IRecipeService
             .FirstOrDefaultAsync(r => r.Id == id);
     }
 
+    public async Task DeleteAsync(int id)
+    {   
+        Recipe recipe = await _context.Recipes.FindAsync(id);
+        if (recipe is null) throw new InvalidOperationException("Rezept nicht gefunden.");
+        _context.Recipes.Remove(recipe);
+    }
     public async Task UpdateAsync(
         Recipe recipe,
         IEnumerable<IBrowserFile> newImages,

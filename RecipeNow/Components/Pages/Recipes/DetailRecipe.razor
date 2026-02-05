@@ -1,111 +1,228 @@
 ﻿@page "/recipes/{Id:int}"
+@using RecipeNow.Data.Entities.RecipeSystem
 @using RecipeNow.Services
 @inject IRecipeService RecipeService
 @inject UserService UserService
+@inject NavigationManager NavigationManager
 
-<div class="container">
-    <div class="card">
-        <div class="card-body">
-            @if (_recipeDetail is null)
-            {
-                <p>Lade Rezept…</p>
-            }
-            else
-            {
-                <h1>@_recipeDetail.name</h1>
-
-                @if (_recipeDetail.images is not null && _recipeDetail.images.Any())
-                {
-                    var images = _recipeDetail.images.ToList();
-
-                    <div id="recipeCarousel" class="carousel slide" data-bs-ride="carousel">
-                        <div class="carousel-indicators">
-                            @for (var i = 0; i < images.Count; i++)
-                            {
-                                <button type="button"
-                                        data-bs-target="#recipeCarousel"
-                                        data-bs-slide-to="@i"
-                                        class="@(i == 0 ? "active" : null)"
-                                        aria-current="@(i == 0 ? "true" : null)"
-                                        aria-label="Slide @(i + 1)">
-                                </button>
-                            }
-                        </div>
-
-                        <div class="carousel-inner">
-                            @for (var i = 0; i < images.Count; i++)
-                            {
-                                <div class="carousel-item @(i == 0 ? "active" : "")">
-                                    <div class="recipe-carousel-frame">
-                                        <img class="recipe-carousel-img" src="@images[i]" alt="Rezeptbild @(i + 1)">
-                                    </div>
-                                </div>
-                            }
-                        </div>
-
-                        <button class="carousel-control-prev" type="button" data-bs-target="#recipeCarousel" data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Previous</span>
-                        </button>
-
-                        <button class="carousel-control-next" type="button" data-bs-target="#recipeCarousel" data-bs-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Next</span>
-                        </button>
-                    </div>
-                }
-                else
-                {
-                    <p>Keine Bilder vorhanden.</p>
-                }
-
-                <p>@_recipeDetail.description</p>
-
-                @if (_isSameUser)
-                {
-                    <a href="/recipes/edit-recipe/@_recipeDetail.id" class="btn btn-primary">Edit</a>
-                }
-            }
+<div class="container my-4">
+    @if (_recipe is null)
+    {
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <p class="mb-0">Lade Rezept…</p>
+            </div>
         </div>
-    </div>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="d-flex flex-wrap align-items-start justify-content-between gap-3">
+                    <div>
+                        <h2 class="mb-1">@_recipe.Name</h2>
+                        <div class="text-muted">
+                            Erstellt von: <span class="fw-semibold">@(_userName ?? "Unbekannt")</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        @if (_isSameUser)
+                        {
+                            <a href="/recipes/edit-recipe/@_recipe.Id" class="btn btn-outline-primary">
+                                Bearbeiten
+                            </a>
+
+                            <button type="button"
+                                    class="btn btn-outline-danger"
+                                    disabled="@_isDeleting"
+                                    @onclick="DeleteRecipeAsync">
+                                @(_isDeleting ? "Lösche…" : "Löschen")
+                            </button>
+                        }
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(_deleteError))
+                {
+                    <div class="alert alert-danger mt-3 mb-0">@_deleteError</div>
+                }
+
+                <hr />
+
+                <div class="row g-4">
+                    <div class="col-12 col-lg-7">
+                        @if (_imagePaths.Count > 0)
+                        {
+                            <div id="recipeCarousel" class="carousel slide" data-bs-ride="carousel">
+                                <div class="carousel-indicators">
+                                    @for (var i = 0; i < _imagePaths.Count; i++)
+                                    {
+                                        <button type="button"
+                                                data-bs-target="#recipeCarousel"
+                                                data-bs-slide-to="@i"
+                                                class="@(i == 0 ? "active" : null)"
+                                                aria-current="@(i == 0 ? "true" : null)"
+                                                aria-label="Slide @(i + 1)">
+                                        </button>
+                                    }
+                                </div>
+
+                                <div class="carousel-inner rounded">
+                                    @for (var i = 0; i < _imagePaths.Count; i++)
+                                    {
+                                        <div class="carousel-item @(i == 0 ? "active" : "")">
+                                            <div class="ratio ratio-16x9 bg-light">
+                                                <img class="w-100 h-100"
+                                                     style="object-fit: cover;"
+                                                     src="@_imagePaths[i]"
+                                                     alt="Rezeptbild @(i + 1)">
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+
+                                <button class="carousel-control-prev" type="button" data-bs-target="#recipeCarousel" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+
+                                <button class="carousel-control-next" type="button" data-bs-target="#recipeCarousel" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </button>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-secondary mb-0">
+                                Keine Bilder vorhanden.
+                            </div>
+                        }
+
+                        <div class="mt-4">
+                            <h5 class="mb-2">Beschreibung</h5>
+                            @if (!string.IsNullOrWhiteSpace(_recipe.Description))
+                            {
+                                <p class="mb-0" style="white-space: pre-wrap;">@_recipe.Description</p>
+                            }
+                            else
+                            {
+                                <p class="text-muted mb-0">Keine Beschreibung angegeben.</p>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-5">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body">
+                                <h5 class="card-title mb-3">Infos</h5>
+
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted">Vorbereitung</span>
+                                    <span class="fw-semibold">@_recipe.PreparationTime Min.</span>
+                                </div>
+
+                                <div class="d-flex justify-content-between mt-2">
+                                    <span class="text-muted">Kochen</span>
+                                    <span class="fw-semibold">@_recipe.CookingTime Min.</span>
+                                </div>
+
+                                <div class="d-flex justify-content-between mt-2">
+                                    <span class="text-muted">Schwierigkeit</span>
+                                    <span class="fw-semibold">@_recipe.CookingDifficulty</span>
+                                </div>
+
+                                <hr />
+
+                                <h5 class="card-title mb-3">Zutaten</h5>
+                                {
+                                    <ul class="list-group list-group-flush">
+                                        @foreach (var ri in _recipe.RecipeIngredients)
+                                        {
+                                            <li class="list-group-item bg-light d-flex justify-content-between align-items-center px-0">
+                                                <span class="me-2">
+                                                    @(ri.Ingredient?.Name ?? $"Zutat #{ri.IngredientId}")
+                                                </span>
+                                                <span class="badge text-bg-primary rounded-pill">
+                                                    @ri.Amount
+                                                </span>
+                                            </li>
+                                        }
+                                    </ul>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 </div>
-
-
-
 
 @code {
     [Parameter] public int Id { get; set; }
+
+    private Recipe? _recipe;
+    private readonly List<string> _imagePaths = new();
+
+    private string? _userName;
     private bool _isSameUser;
-    private RecipeDetail _recipeDetail;
-    public sealed class RecipeDetail
-    {
-        public required IEnumerable<string> images { get; init; } = new List<string>();
-        public required string name { get; init; } = "";
-        public required string description { get; init; } = "";
-        public required string user_name { get; init; } = "0";
-        public required int id { get; set; } = 0;
-    }
+
+    private bool _isDeleting;
+    private string? _deleteError;
 
     protected override async Task OnInitializedAsync()
     {
-        var imagePaths = new List<string>();
-        var temp = await RecipeService.GetByIdAsync(Id);
-        foreach (var image in temp.Images)
+        _recipe = await RecipeService.GetByIdAsync(Id);
+        if (_recipe is null)
+            return;
+
+        _imagePaths.Clear();
+
+        if (!string.IsNullOrWhiteSpace(_recipe.ImagePath))
+            _imagePaths.Add(_recipe.ImagePath);
+
+        if (_recipe.Images is not null)
         {
-            imagePaths.Add(image.ImagePath);
+            foreach (var img in _recipe.Images)
+            {
+                if (!string.IsNullOrWhiteSpace(img.ImagePath))
+                    _imagePaths.Add(img.ImagePath);
+            }
         }
-        _recipeDetail = new RecipeDetail()
-        {
-            description = temp?.Description,
-            id = temp.Id,
-            images = imagePaths,
-            name = temp.Name,
-            user_name = temp.UserId
-        };
+
+        // optional: Username anzeigen (falls Service existiert)
+        var user = await UserService.GetUserByIdAsync(_recipe.UserId);
+        _userName = user?.UserName;
+
         var currentUser = await UserService.GetUserAsync();
         var currentUserId = currentUser.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
         _isSameUser = !string.IsNullOrWhiteSpace(currentUserId)
-                      && string.Equals(temp.UserId, currentUserId, StringComparison.Ordinal);
+                      && string.Equals(_recipe.UserId, currentUserId, StringComparison.Ordinal);
+    }
+
+    private async Task DeleteRecipeAsync()
+    {
+        if (_recipe is null)
+            return;
+
+        _deleteError = null;
+        _isDeleting = true;
+
+        try
+        {
+            await RecipeService.DeleteAsync(_recipe.Id);
+            NavigationManager.NavigateTo("/recipes");
+        }
+        catch
+        {
+            _deleteError = "Löschen fehlgeschlagen. Bitte versuche es erneut.";
+        }
+        finally
+        {
+            _isDeleting = false;
+        }
     }
 }

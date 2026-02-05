@@ -13,7 +13,7 @@
 
 @if (_isAuthenticated)
 {
-    <EditForm EditContext="_editContext" OnSubmit="HandleSubmit">
+    <EditForm EditContext="@_editContext" OnSubmit="HandleSubmit">
         <DataAnnotationsValidator />
 
         <div class="container mt-4">
@@ -25,25 +25,33 @@
                     <div class="mb-3">
                         <label class="form-label">Name</label>
                         <InputText class="form-control" @bind-Value="_recipe.Name" />
-                        <ValidationMessage For="@(() => _recipe.Name)" class="text-danger" />
+                        <div class="text-danger">
+                            <ValidationMessage For="@(() => _recipe.Name)" />
+                        </div>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Beschreibung</label>
                         <InputTextArea class="form-control" @bind-Value="_recipe.Description" />
-                        <ValidationMessage For="@(() => _recipe.Description)" class="text-danger" />
+                        <div class="text-danger">
+                            <ValidationMessage For="@(() => _recipe.Description)" />
+                        </div>
                     </div>
 
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Vorbereitungszeit (Min.)</label>
                             <InputNumber class="form-control" @bind-Value="_recipe.PreparationTime" />
-                            <ValidationMessage For="@(() => _recipe.PreparationTime)" class="text-danger" />
+                            <div class="text-danger">
+                                <ValidationMessage For="@(() => _recipe.PreparationTime)" />
+                            </div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Kochzeit (Min.)</label>
                             <InputNumber class="form-control" @bind-Value="_recipe.CookingTime" />
-                            <ValidationMessage For="@(() => _recipe.CookingTime)" class="text-danger" />
+                            <div class="text-danger">
+                                <ValidationMessage For="@(() => _recipe.CookingTime)" />
+                            </div>
                         </div>
                     </div>
 
@@ -55,7 +63,9 @@
                                 <option value="@difficulty">@EnumHelper.GetDisplayName(difficulty)</option>
                             }
                         </InputSelect>
-                        <ValidationMessage For="@(() => _recipe.CookingDifficulty)" class="text-danger" />
+                        <div class="text-danger">
+                            <ValidationMessage For="@(() => _recipe.CookingDifficulty)" />
+                        </div>
                     </div>
 
                     <!-- Searchable Select: Zutaten suchen + anklicken -->
@@ -108,7 +118,7 @@
                         }
                         <div class="mb-3">
                             <label class="form-label">Bild</label>
-                            <InputFile class="form-control" OnChange="OnFileChange" multiple/>
+                            <InputFile class="form-control" OnChange="OnFileChange" multiple />
 
                             @if (_fileError != null)
                             {
@@ -144,10 +154,10 @@
         PreparationTime = 0,
         CookingTime = 0,
         CookingDifficulty = CookingDifficulty.Medium,
-        UserId = "", 
-        ImagePath = ""    
+        UserId = "",
+        ImagePath = ""
     };
-    
+
     private void OnFileChange(InputFileChangeEventArgs e)
     {
         _fileError = null;
@@ -160,11 +170,8 @@
                 _fileError = $"Die Datei darf nicht größer sein als {MaxFileSize / 1_000_000} MB.";
                 break;
             }
-            
         }
-
     }
-
 
     private EditContext _editContext = null!;
 
@@ -266,5 +273,4 @@
 
         NavigationManager.NavigateTo("/");
     }
-
 }
