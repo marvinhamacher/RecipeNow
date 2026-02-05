@@ -11,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-
+builder.Services.AddRazorPages();
 // Falls Services benutzt werden:
 builder.Services.AddScoped<RecipeService>();
 builder.Services.AddScoped<UserService>();
@@ -66,6 +66,15 @@ app.MapPost("/logout", async (SignInManager<IdentityUser> signInManager) =>
     await signInManager.SignOutAsync();
     return Results.Redirect("/");
 });
+
+// Delete genau wie Logout als POST-Endpoint
+app.MapPost("/recipes/delete/{id:int}", async (int id, IRecipeService recipeService) =>
+    {
+        await recipeService.DeleteAsync(id);
+        return Results.Redirect("/recipes");
+    })
+    .RequireAuthorization();
+
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 

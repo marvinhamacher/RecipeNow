@@ -107,6 +107,7 @@ public class RecipeService : IRecipeService
         Recipe recipe = await _context.Recipes.FindAsync(id);
         if (recipe is null) throw new InvalidOperationException("Rezept nicht gefunden.");
         _context.Recipes.Remove(recipe);
+        await _context.SaveChangesAsync();
     }
     public async Task UpdateAsync(
         Recipe recipe,
