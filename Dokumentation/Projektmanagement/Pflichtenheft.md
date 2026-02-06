@@ -1,5 +1,7 @@
 <!---
-Artefakte der Systemdokumentation wurden teilweise von ChatGPT (OpenAI) erstellt und manuell angepasst
+Artefakte der Systemdokumentation wurden teilweise auf basis
+von ChatGPT (OpenAI) & der Projektvorlage Studurizer erstellt, und manuell angepasst.
+Vorlage: https://github.com/Johann110/Studurizer-Fallstudie-Software-Engineering/tree/main/Systemdokumentation
 -->
 # Pflichtenheft für die Lernplattform „RecipeNow"
 ## 1. Einleitung
