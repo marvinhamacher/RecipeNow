@@ -28,19 +28,62 @@ public class IngredientService : IIngredientService
             .ToListAsync();
     }
 
-    public async Task UpdateAsync(Ingredient ingredient)
+    public async Task UpdateAsync(Ingredient ingredient, IBrowserFile? img)
     {
-        // Minimal-Variante: alles updaten
-        _context.Ingredients.Update(ingredient);
-        await _context.SaveChangesAsync();
+        var entity = await _context.Ingredients.FirstOrDefaultAsync(x => x.Id == ingredient.Id);
+        if (entity is null)
+            return;
 
-        // Alternative (sauberer): entity laden + Felder setzen + SaveChanges
-        // var entity = await _db.Ingredients.FirstAsync(x => x.Id == ingredient.Id);
-        // entity.Name = ingredient.Name;
-        // entity.PricePerUnit = ingredient.PricePerUnit;
-        // entity.Measurement = ingredient.Measurement;
-        // entity.ImagePath = ingredient.ImagePath;
-        // await _db.SaveChangesAsync();
+        entity.Name = ingredient.Name;
+        entity.PricePerUnit = ingredient.PricePerUnit;
+        entity.Measurement = ingredient.Measurement;
+
+        var oldImagePath = entity.ImagePath;
+
+        if (img is not null)
+        {
+            var uploadDir = Path.Combine(_env.WebRootPath, "images", "ingredients");
+            Directory.CreateDirectory(uploadDir);
+
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(img.Name)}";
+            var filePath = Path.Combine(uploadDir, fileName);
+
+            await using (var fs = new FileStream(filePath, FileMode.Create))
+            {
+                await img.OpenReadStream(_uploadSettings.MaxImageSize).CopyToAsync(fs);
+            }
+
+            entity.ImagePath = $"/images/ingredients/{fileName}";
+
+            if (!string.IsNullOrWhiteSpace(oldImagePath))
+            {
+                TryDeleteIngredientImage(oldImagePath);
+            }
+        }
+        else
+        {
+            entity.ImagePath = ingredient.ImagePath;
+        }
+
+        await _context.SaveChangesAsync();
+    }
+
+    private void TryDeleteIngredientImage(string webPath)
+    {
+        var relative = webPath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
+        var fullPath = Path.Combine(_env.WebRootPath, relative);
+
+        if (!File.Exists(fullPath))
+            return;
+
+        try
+        {
+            File.Delete(fullPath);
+        }
+        catch
+        {
+            Console.WriteLine("Löschen Fehlgeschlagen.");
+        }
     }
 
     public async Task AddAsync(Ingredient ingredient, IBrowserFile image)
