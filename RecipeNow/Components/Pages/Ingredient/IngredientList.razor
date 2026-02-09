@@ -1,0 +1,345 @@
+﻿@page "/ingredients"
+@rendermode InteractiveServer
+@inject IIngredientService IngredientService
+@inject IJSRuntime JS
+@inject IOptions<UploadSettings> UploadOptions
+@using RecipeNow.Data.Entities.RecipeSystem
+@using RecipeNow.Data.Enumerators
+@using RecipeNow.Services
+@using Microsoft.Extensions.Options
+@using RecipeNow.Config
+
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title mb-4">Zutaten</h5>
+            
+            <table id="ingredientsTable"
+                   class="table table-striped align-middle w-100"
+                   style="table-layout: fixed;">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Preis</th>
+                    <th>Maßeinheit</th>
+                    <th>Aktionen</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var ing in _ingredients)
+                {
+                    <tr>
+                        <td>@ing.Name</td>
+                        <td>@ing.PricePerUnit</td>
+                        <td>@ing.Measurement</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-2"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#editIngredientModal"
+                                    @onclick="() => SelectForEdit(ing)">
+                                Bearbeiten
+                            </button>
+
+                            <button class="btn btn-sm btn-outline-danger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteIngredientModal"
+                                    @onclick="() => SelectForDelete(ing)">
+                                Löschen
+                            </button>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+            
+            @if (_loadError is not null)
+            {
+                <div class="text-danger mt-3">@_loadError</div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal fade" id="editIngredientModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <EditForm EditContext="_editContext" OnValidSubmit="SaveEdit">
+                <DataAnnotationsValidator />
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Zutat bearbeiten</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label">Name</label>
+                            <InputText class="form-control" @bind-Value="_editModel.Name" />
+                            <ValidationMessage For="@(() => _editModel.Name)" class="text-danger" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Preis pro Einheit</label>
+                            <InputNumber class="form-control" @bind-Value="_editModel.PricePerUnit" />
+                            <ValidationMessage For="@(() => _editModel.PricePerUnit)" class="text-danger" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Maßeinheit</label>
+                            <InputSelect class="form-select" @bind-Value="_editModel.Measurement">
+                                @foreach (var m in Enum.GetValues<MeasurementType>())
+                                {
+                                    <option value="@m">@m</option>
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="@(() => _editModel.Measurement)" class="text-danger" />
+                        </div>
+                        
+                        
+                        <div class="col-12">
+                            <label class="form-label">Neues Bild hinzufügen (Preview)</label>
+                            <InputFile class="form-control" OnChange="OnFileChange" multiple accept="image/*" />
+
+                            @if (!string.IsNullOrWhiteSpace(_fileError)){
+                            
+                                <div class="text-danger mt-1">@_fileError</div>
+                            }
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(_newImagePreview))
+                        {
+                            <div class="col-12">
+                                <div class="d-flex flex-wrap align-items-center justify-content-center gap-3 mt-2">
+                                    <div class="text-center">
+                                        <div class="fw-semibold mb-2">Alt</div>
+                                        <img src="@_editModel.ImagePath"
+                                             alt="Altes Bild"
+                                             style="width:180px; height:120px; object-fit:cover; border-radius:10px; border:1px solid #ddd;" />
+                                    </div>
+
+                                    <div class="text-center" style="min-width: 60px;">
+                                        <div class="fw-semibold mb-2">&nbsp;</div>
+                                        <span class="fs-2" aria-hidden="true">→</span>
+                                        <span class="visually-hidden">wird ersetzt durch</span>
+                                    </div>
+
+                                    <div class="text-center">
+                                        <div class="fw-semibold mb-2">Neu</div>
+                                        <img src="@_newImagePreview"
+                                             alt="Neues Bild (Preview)"
+                                             style="width:180px; height:120px; object-fit:cover; border-radius:10px; border:1px solid #ddd;" />
+                                    </div>
+                                </div>
+
+                                <div class="text-muted small mt-2 text-center">
+                                    Vorschau: altes Bild links, neues Bild rechts
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    @if (_editError is not null)
+                    {
+                        <div class="text-danger mt-3">@_editError</div>
+                    }
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="submit" class="btn btn-primary">Speichern</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="modal fade" id="deleteIngredientModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Zutat löschen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                @if (_ingredientToDelete is not null)
+                {
+                    <p>
+                        Soll die Zutat
+                        <strong>@_ingredientToDelete.Name</strong>
+                        wirklich gelöscht werden?
+                    </p>
+                }
+
+                @if (_deleteError is not null)
+                {
+                    <div class="text-danger">@_deleteError</div>
+                }
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">
+                    Abbrechen
+                </button>
+                <button class="btn btn-danger" @onclick="ConfirmDelete">
+                    Löschen
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+@code {
+    List<Ingredient> _ingredients = new();
+    string? _loadError;
+
+    Ingredient _editModel = new()
+    {
+        Name = "",
+        PricePerUnit = 0,
+        Measurement = MeasurementType.Kilogram,
+        ImagePath = ""
+    };
+
+    EditContext _editContext = null!;
+    string? _editError;
+    private IBrowserFile? _img;
+    private string? _fileError;
+    private string? _newImagePreview;
+    Ingredient? _ingredientToDelete;
+    string? _deleteError;
+
+    bool _dtReady;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _editContext = new EditContext(_editModel);
+        await LoadAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("recipeNow.initIngredientsTable", "#ingredientsTable");
+            _dtReady = true;
+        }
+    }
+
+    async Task LoadAsync()
+    {
+        try
+        {
+            _loadError = null;
+            _ingredients = (await IngredientService.LoadAllAsync()).ToList();
+        }
+        catch (Exception ex)
+        {
+            _loadError = ex.Message;
+        }
+    }
+
+    void SelectForEdit(Ingredient ing)
+    {
+        _editError = null;
+        
+        _editModel = new Ingredient
+        {
+            Id = ing.Id,
+            Name = ing.Name,
+            PricePerUnit = ing.PricePerUnit,
+            Measurement = ing.Measurement,
+            ImagePath = ing.ImagePath
+        };
+        _newImagePreview = null;
+
+        _editContext = new EditContext(_editModel);
+    }
+
+    async Task SaveEdit()
+    {
+        try
+        {
+            _editError = null;
+            
+            await IngredientService.UpdateAsync(_editModel, _img);
+
+            await JS.InvokeVoidAsync("recipeNow.hideModal", "#editIngredientModal");
+            await ReloadAndReinitTable();
+        }
+        catch (Exception ex)
+        {
+            _editError = ex.Message;
+        }
+    }
+
+    void SelectForDelete(Ingredient ing)
+    {
+        _deleteError = null;
+        _ingredientToDelete = ing;
+    }
+    
+    async Task ConfirmDelete()
+    {
+        if (_ingredientToDelete is null)
+            return;
+
+        try
+        {
+            await IngredientService.DeleteAsync(_ingredientToDelete.Id);
+
+            await JS.InvokeVoidAsync(
+                "recipeNow.hideModal",
+                "#deleteIngredientModal"
+            );
+
+            _ingredientToDelete = null;
+
+            await ReloadAndReinitTable();
+        }
+        catch (Exception ex)
+        {
+            _deleteError = ex.Message;
+        }
+    }
+
+    
+    async Task ReloadAndReinitTable()
+    {
+        if (_dtReady)
+            await JS.InvokeVoidAsync("recipeNow.destroyIngredientsTable");
+
+        await LoadAsync();
+        StateHasChanged();
+
+        if (_dtReady)
+            await JS.InvokeVoidAsync("recipeNow.initIngredientsTable", "#ingredientsTable");
+    }
+
+    private async Task OnFileChange(InputFileChangeEventArgs obj)
+    {
+        _fileError = null;
+        _newImagePreview = null;
+        IBrowserFile tmp = _img;
+        _img = obj.File;
+        if (_img is not null)
+        {
+            await using var stream = _img.OpenReadStream(UploadOptions.Value.MaxImageSize);
+            using var ms = new MemoryStream();
+            await stream.CopyToAsync(ms);
+
+            var base64 = Convert.ToBase64String(ms.ToArray());
+            var dataUrl = $"data:{_img.ContentType};base64,{base64}";
+            _newImagePreview = dataUrl;
+            return;
+        }
+        _img = tmp;
+    }
+
+}
