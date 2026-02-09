@@ -197,9 +197,6 @@
 
         _imagePaths.Clear();
 
-        if (!string.IsNullOrWhiteSpace(_recipe.ImagePath))
-            _imagePaths.Add(_recipe.ImagePath);
-
         if (_recipe.Images is not null)
         {
             foreach (var img in _recipe.Images)
