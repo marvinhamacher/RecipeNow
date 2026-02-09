@@ -21,7 +21,7 @@ public class Recipe
     [Range(0, int.MaxValue)]
     public required int CookingTime { get; set; }
 
-    [Required] public required CookingDifficulty CookingDifficulty { get; set; } = CookingDifficulty.Medium; // oder Enum später
+    [Required] public required CookingDifficulty CookingDifficulty { get; set; } = CookingDifficulty.Medium; 
 
     [Required]
     public required string UserId { get; set; } 
