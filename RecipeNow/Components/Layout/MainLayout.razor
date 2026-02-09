@@ -26,9 +26,9 @@
                                     Rezepte
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                                    <li><a class="dropdown-item" href="#">Durchsuchen</a></li>
+                                    <li><a class="dropdown-item" href="/recipes">Durchsuchen</a></li>
                                     <li><a class="dropdown-item" href="#">Vorschlagen</a></li>
-                                    <li><a class="dropdown-item" href="#">Erstellen</a></li>
+                                    <li><a class="dropdown-item" href="/recipes/add-recipe">Erstellen</a></li>
                                 </ul>
                             </li>
                             <li class="nav-item">
@@ -56,19 +56,20 @@
                                     @_username
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                                    <li><a class="dropdown-item" href="#">Profil</a></li>
-                                    <li><a class="dropdown-item" href="#">Einstellungen</a></li>
                                     <li>
-                                        <a class="dropdown-item">
-                                            <form action="/logout" method="post" style="display:inline">
-                                                @* Das AntiforgeryToken ist wichtig für die Sicherheit *@
-                                                <AntiforgeryToken/>
-                                                <button type="submit" class="nav-link btn btn-link"
-                                                        style="display:inline; padding:0;">
-                                                    Logout
-                                                </button>
-                                            </form>
-                                        </a>
+                                        <a class="dropdown-item" href="#">Profil</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#">Einstellungen</a>
+                                    </li>
+                                    <li>
+                                        <form action="/logout" method="post">
+                                            <AntiforgeryToken/>
+                                            <button type="submit"
+                                                    class="dropdown-item w-100 text-start">
+                                                Logout
+                                            </button>
+                                        </form>
                                     </li>
                                 </ul>
                             </li>

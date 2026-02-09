@@ -1,0 +1,62 @@
+﻿@using RecipeNow.Data.Entities.RecipeSystem
+@using RecipeNow.Services
+@inject IRecipeService RecipeService
+@inject UserService UserService
+@page "/recipes"
+<h3>Alle Rezepte: </h3>
+
+<div class="recipes-grid">
+    @foreach (var recipePreview in _recipePreviews)
+    {
+        <div class="recipe-overview bg-white rounded">
+            <div class="card shadow">
+                <img src="@recipePreview.image" class="card-img-top recipe-img" alt="Rezeptbild">
+                <div class="card-body">
+                    <h5 class="card-title">@recipePreview.name</h5>
+                    <p class="card-text">Created by: @recipePreview.user_name</p>
+                    <a href="/recipes/@recipePreview.id" class="btn btn-primary">Go somewhere</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+
+    public sealed class RecipePreview
+    {
+        public required string image { get; init; } = "";
+        public required string name { get; init; } = "";
+        public required string user_name { get; init; } = "0";
+        public required int id { get; set; } = 0;
+
+
+    }
+    private List<RecipePreview> _recipePreviews = new List<RecipePreview>();
+        
+        
+    protected override async Task OnInitializedAsync()
+    {
+        List<Recipe> recipes = await RecipeService.GetAllAsync();
+        foreach (var recipe in recipes)
+        {
+            var user = await UserService.GetUserByIdAsync(recipe.UserId);
+
+            var preview = new RecipePreview
+            {
+                image = recipe.ImagePath,
+                name = recipe.Name,
+                user_name = user?.UserName 
+                            ?? "es konnte kein Nutzername gefunden werden",
+                id = recipe.Id               
+            };
+
+            _recipePreviews.Add(preview);
+        }
+
+
+    }
+
+    
+    
+}

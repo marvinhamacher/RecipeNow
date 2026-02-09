@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using RecipeNow.Data.Contexts;
@@ -103,6 +103,13 @@ public class IngredientService : IIngredientService
         _context.Ingredients.Add(ingredient);
         await _context.SaveChangesAsync();
     }
+
+    public async Task<List<Ingredient>> GetAllAsync()
+    {
+       return await _context.Ingredients
+            .AsNoTracking()
+            .OrderBy(i => i.Name)
+            .ToListAsync();
     
     public async Task DeleteAsync(int id)
     {
