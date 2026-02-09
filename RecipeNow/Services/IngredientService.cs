@@ -106,11 +106,12 @@ public class IngredientService : IIngredientService
 
     public async Task<List<Ingredient>> GetAllAsync()
     {
-       return await _context.Ingredients
+        return await _context.Ingredients
             .AsNoTracking()
             .OrderBy(i => i.Name)
             .ToListAsync();
-    
+    }
+
     public async Task DeleteAsync(int id)
     {
         var entity = await _context.Ingredients
