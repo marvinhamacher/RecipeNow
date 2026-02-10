@@ -24,16 +24,29 @@ classDiagram
     
     class Shelf {
         -int id
-        -int FK ingredient_id
+        -string contentDescription
+        -int FK storageRoomId
         -DateTime expirationDate
         -int amount
         -int height
-        -int FK storageRoom_id
+        -int width
+    }
+
+
+    class ShelfIngredient {
+        -int id
+        -DateTime expirationDate
+        -int FK shelfId
+        -int FK ingredientId
+        -int Amount
+        -int Row
+        -int Column
     }
     
     class StorageRoom {
         -int id
         -int FK user_id
+        -List StorageRoomShelf
     }
     
     
@@ -61,5 +74,7 @@ classDiagram
     Ingredient "1" -- "n" RecipeIngredient
     StorageRoom "1" -- "n" Shelf
     User "1" -- "n" StorageRoom
+    Shelf "1" -- "n" ShelfIngredient
+    Ingredient "1" -- "n" ShelfIngredient
     
 ```
