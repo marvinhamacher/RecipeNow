@@ -10,6 +10,9 @@ public class StorageRoom
     public required string UserId { get; set; } 
     
     [Required]
+    public required string Name { get; set; }
+    
+    [Required]
     public ICollection<Shelf> StorageRoomShelf { get; set; }
         = new List<Shelf>();
 }

@@ -7,8 +7,7 @@ namespace RecipeNow.Services;
 public class StorageRoomService
 {
     private readonly AppDbContext _context;
-
-
+    private readonly UserService _userService;
     public StorageRoomService(AppDbContext context)
     {
         _context = context;
@@ -60,6 +59,13 @@ public class StorageRoomService
         await _context.SaveChangesAsync();
     }
 
+    public async Task AddStorageRoomAsync(StorageRoom storageRoom)
+    {
+        storageRoom.UserId = _userService.GetUserAsync().Id.ToString();
+        _context.StorageRooms.Add(storageRoom);
+        await _context.SaveChangesAsync();
+    }
+
     public Task SwapIngredientPositionsWithAnotherAsync(int shelfIngredient1Id, int shelfIngredient2Id)
     {
         //_dbcontext.ShelfIngredients.Find(shelfIngredient1Id) 
@@ -69,10 +75,29 @@ public class StorageRoomService
 
     public Task ChangeIngredientPosition(ShelfIngredient ingredient, int newColumn, int newRow)
     {
+        // if(GetShelfIngredientByPositionAsync(ingredient.ShelfId, newColumn, newRow) != null) SwapIngredientPositionsWithAnotherAsync(ingredient.Id, GetShelfIngredientByPositionAsync(ingredient.ShelfId, newColumn, newRow).Id);
         //TODO;
         // hole aus ShelfIngredient den Shelf und schau ob auf positon newColumn und newRow bereits ein Ingredient steht
         // wenn ja > swap
         // wenn nein > einfach platzieren
         throw new NotImplementedException();
+    }
+    
+    public async Task<StorageRoom?> GetStorageRoomByIdAsync(int id)
+    {
+        return await _context.StorageRooms.FindAsync(id);
+    }
+
+    public async Task<ShelfIngredient?> GetShelfIngredientByPositionAsync(int shelfId, int column, int row)
+    {
+        return await _context.ShelfIngredients.FirstOrDefaultAsync(si => si.ShelfId == shelfId && si.Column == column && si.Row == row);
+    }
+
+    public async Task<List<StorageRoom>> GetAllStorageRoomsByCurrentUserAsync()
+    {
+        var userId = _userService.GetUserAsync().Id.ToString();
+        return await _context.StorageRooms
+            .Where(sr => sr.UserId == userId  )
+            .ToListAsync();
     }
 }

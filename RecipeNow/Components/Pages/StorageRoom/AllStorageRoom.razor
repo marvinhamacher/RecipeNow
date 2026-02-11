@@ -1,0 +1,112 @@
+﻿@page "/StorageRoom"
+@using RecipeNow.Data.Entities.RecipeSystem
+@using RecipeNow.Services
+@inject UserService UserService
+@inject NavigationManager NavigationManager
+@inject StorageRoomService StorageRoomService
+<h3>StorageOverview</h3>
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Storage Rooms</h5>
+        <div class="btn-group" role="group" aria-label="Storage Room Buttons">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#storageRoom">Neuer
+                Raum
+            </button>
+        </div>
+        <div class="row">
+            @foreach (var storageRoom in _rooms)
+            {
+                <div class="col-md-6">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">@storageRoom.Name</h5>
+                            <p class="card-text">Menge an Schränke: @storageRoom.StorageRoomShelf.Count</p>
+                            <div class="btn-group" role="group" aria-label="Storage Room Buttons">
+                                <button type="button"
+                                        class="btn btn-primary"
+                                        @onclick="() => NavigationManager.NavigateTo($'/StorageRoom/{storageRoom.Id}')">
+                                    Zum Raum
+                                </button>
+                                <button type="button" class="btn btn-primary">Middle</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="storageRoom" tabindex="-1" aria-labelledby="storageRoomLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <EditForm EditContext="_editContext" OnValidSubmit="SaveRoomAsync">
+                    <DataAnnotationsValidator />
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="storageRoomLabel">Neuen Vorratsraum anlegen</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="modal-body">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label">Name</label>
+                                    <InputText class="form-control" @bind-Value="_editModel.Name"/>
+                                    <ValidationMessage For="@(() => _editModel.Name)" class="text-danger"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                        <button type="submit" class="btn btn-primary">Speichern</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<StorageRoom> _rooms = new List<StorageRoom>();
+    private bool _isAuthenticated = false;
+    EditContext _editContext = null!;
+
+
+    protected async Task SaveRoomAsync()
+    {
+        try
+        {
+            await StorageRoomService.AddStorageRoomAsync(_editModel);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+    
+    
+    private StorageRoom _editModel = new StorageRoom()
+    {
+        UserId = "",
+        Name = "",
+        StorageRoomShelf = new List<Shelf>()
+    };
+    protected override async Task OnInitializedAsync()
+    {
+        _editContext = new EditContext(_editModel);
+        try
+        {
+            _isAuthenticated = await UserService.IsAuthenticated();
+            _rooms = await StorageRoomService.GetAllStorageRoomsByCurrentUserAsync();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("Error couldnt load Storage Services " + e);
+            throw;
+        }
+    }
+
+}
