@@ -34,13 +34,13 @@ namespace RecipeNow.Data.Contexts
                 .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<ShelfIngredient>()
                 .HasOne(ri => ri.Shelf)
-                .WithMany(r => ShelfIngredients)
+                .WithMany(s => s.ShelfIngredients)
                 .HasForeignKey(ri => ri.ShelfId)
                 .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<ShelfIngredient>()
-                .HasOne(ri => ri.Ingredient)
-                .WithMany(r => ShelfIngredients)
-                .HasForeignKey(ri => ri.IngredientId)
+                .HasOne(si => si.Ingredient)
+                .WithMany()
+                .HasForeignKey(si => si.IngredientId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
         
