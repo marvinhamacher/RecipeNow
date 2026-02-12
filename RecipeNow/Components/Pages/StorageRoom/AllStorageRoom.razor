@@ -38,9 +38,8 @@
     <div class="modal fade" id="storageRoom" tabindex="-1" aria-labelledby="storageRoomLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <EditForm Model="_editModel"
-                          OnValidSubmit="SaveRoomAsync"
-                          FormName="CreateStorageRoom">
+                <EditForm EditContext="_editContext"
+                          OnSubmit="SaveRoomAsync">
                     <DataAnnotationsValidator />
 
                     <div class="modal-header">
@@ -75,13 +74,20 @@
 
 @code {
     private List<StorageRoom> _rooms = new();
-
+    
     private StorageRoom _editModel = new()
     {
         UserId = "",
         Name = "",
         StorageRoomShelf = new List<Shelf>()
     };
+    private EditContext? _editContext;
+
+    
+    protected override void OnInitialized()
+    {
+        _editContext = new EditContext(_editModel);
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -92,12 +98,15 @@
 
     protected async Task SaveRoomAsync()
     {
-        await StorageRoomService.AddStorageRoomAsync(_editModel);
+        if (_editContext!.Validate())
+        {
+            await StorageRoomService.AddStorageRoomAsync(_editModel);
 
-        _rooms = await StorageRoomService.GetAllStorageRoomsByCurrentUserAsync();
+            _rooms = await StorageRoomService.GetAllStorageRoomsByCurrentUserAsync();
 
-        _editModel = new StorageRoom { UserId = "", Name = "", StorageRoomShelf = new List<Shelf>() };
+            _editModel = new StorageRoom { UserId = "", Name = "", StorageRoomShelf = new List<Shelf>() };
 
-        StateHasChanged();
+            StateHasChanged();
+        }
     }
 }
