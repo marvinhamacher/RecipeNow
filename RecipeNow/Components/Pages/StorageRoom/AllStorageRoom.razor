@@ -3,6 +3,7 @@
 @using RecipeNow.Data.Entities.RecipeSystem
 @using RecipeNow.Services
 @inject StorageRoomService StorageRoomService
+@inject IJSRuntime JS
 
 <h1>Vorratsräume:</h1>
 
@@ -36,7 +37,7 @@
 <div class="modal fade" id="storageRoomModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <EditForm EditContext="_editContext" OnValidSubmit="CreateRoom">
+            <EditForm EditContext="_editContext" OnSubmit="CreateRoom" FormName="SNForm">
                 <DataAnnotationsValidator />
                 <ValidationSummary class="text-danger" />
 
@@ -73,7 +74,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // Initial Load
         _newRoomModel = new NewRoomModel();
         _editContext = new EditContext(_newRoomModel);
 
@@ -85,25 +85,32 @@
         _rooms = await StorageRoomService.GetAllStorageRoomsByCurrentUserAsync();
     }
 
-    private void PrepareNewRoom()
+    private async Task PrepareNewRoom()
     {
-        // Jedes Mal, wenn das Modal geöffnet wird, neues Model + EditContext
+        // Neues Model + EditContext erzeugen
         _newRoomModel = new NewRoomModel();
         _editContext = new EditContext(_newRoomModel);
+
+        // Warten, bis Blazor die Bindings aktualisiert hat
+        await Task.Yield();
+        StateHasChanged();
     }
 
-    private async Task CreateRoom()
+    private async Task CreateRoom(EditContext context)
     {
-        if (!_editContext.Validate())
+        if (!context.Validate())
         {
-            // Validation fehlgeschlagen
+            Console.WriteLine("Validation failed: " + string.Join(", ", context.GetValidationMessages()));
             return;
         }
+
+        Console.WriteLine("Validation passed: " + _newRoomModel.Name);
 
         // StorageRoom speichern
         await StorageRoomService.AddStorageRoomAsync(_newRoomModel.Name);
 
-        // Liste neu laden
+        // Räume neu laden
         await LoadRooms();
+        
     }
 }
