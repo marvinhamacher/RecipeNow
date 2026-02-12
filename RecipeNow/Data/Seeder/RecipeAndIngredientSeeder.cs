@@ -357,11 +357,13 @@ public class RecipeAndIngredientSeeder
         }
     }
 
-    public static async Task SeedRecipesAsync(
+public static async Task SeedRecipesAsync(
         AppDbContext db,
         UserManager<IdentityUser> userManager,
         CancellationToken ct = default)
     {
+        const string recipeImageBase = "/static/Images/RecipeStatic/";
+
         var seedEmails = new[]
         {
             "user1@example.test",
@@ -386,7 +388,7 @@ public class RecipeAndIngredientSeeder
         {
             var ing = await db.Ingredients.AsNoTracking().SingleOrDefaultAsync(i => i.Name == name, ct);
             return ing?.Id ?? throw new InvalidOperationException(
-                $"Missing ingredient '{name}'. Add it to Ingredient seeding first.");
+                $"Missing ingredient '{name}'. Ensure Ingredient seeding creates it with the exact same Name.");
         }
 
         var recipes = new[]
@@ -394,177 +396,142 @@ public class RecipeAndIngredientSeeder
             new
             {
                 Name = "Spaghetti Aglio e Olio",
-                Description = "Einfach, schnell, knoblauchig – Klassiker aus Neapel.",
+                Description = "Schnell, würzig, knoblauchig – perfektes Feierabendgericht.",
                 Prep = 10,
                 Cook = 12,
                 Difficulty = CookingDifficulty.Easy,
-                ImagePath = "/images/recipes/spaghetti-aglio-e-olio.jpg",
-                Ingredients = new (string Name, int Amount)[]
+                ImageFile = "/static/Images/RecipeStatic/spaghetti.jpg",
+                Ingredients = new (string Name, decimal Amount)[]
                 {
-                    ("Spaghetti", 200),
-                    ("Olive Oil", 30),
-                    ("Garlic", 8),
-                    ("Salt", 5),
-                    ("Pepper", 2),
+                    ("Nudeln", 200m),
+                    ("Olivenöl", 30m),
+                    ("Knoblauch", 8m),
+                    ("Salz", 5m),
+                    ("Pfeffer", 2m),
                 }
             },
             new
             {
                 Name = "Tomaten-Basilikum-Pasta",
-                Description = "Frische Tomaten, Basilikum und ein Hauch Parmesan.",
+                Description = "Fruchtige Tomaten, Basilikum und Olivenöl – simpel & gut.",
                 Prep = 10,
                 Cook = 18,
                 Difficulty = CookingDifficulty.Easy,
-                ImagePath = "/images/recipes/tomato-basil-pasta.jpg",
-                Ingredients = new (string Name, int Amount)[]
+                ImageFile = "/static/Images/RecipeStatic/tomaten-basilikum-pasta.png",
+                Ingredients = new (string Name, decimal Amount)[]
                 {
-                    ("Spaghetti", 200),
-                    ("Tomato", 250),
-                    ("Olive Oil", 20),
-                    ("Garlic", 6),
-                    ("Basil", 10),
-                    ("Salt", 5),
+                    ("Nudeln", 200m),
+                    ("Tomaten", 300m),
+                    ("Olivenöl", 20m),
+                    ("Knoblauch", 6m),
+                    ("Basilikum", 10m),
+                    ("Salz", 5m),
                 }
             },
             new
             {
-                Name = "Pancakes",
-                Description = "Fluffig, goldbraun – perfekt fürs Wochenende.",
+                Name = "Pfannkuchen",
+                Description = "Klassische Pfannkuchen – süß oder herzhaft möglich.",
                 Prep = 10,
                 Cook = 15,
                 Difficulty = CookingDifficulty.Easy,
-                ImagePath = "/images/recipes/pancakes.jpg",
-                Ingredients = new (string Name, int Amount)[]
+                ImageFile = "pfannkuchen.jpg",
+                Ingredients = new (string Name, decimal Amount)[]
                 {
-                    ("Flour", 200),
-                    ("Milk", 250),
-                    ("Eggs", 2),
-                    ("Butter", 30),
-                    ("Sugar", 25),
-                    ("Salt", 2),
+                    ("Mehl", 200m),
+                    ("Milch", 250m),
+                    ("Eier", 2m),
+                    ("Butter", 30m),
+                    ("Zucker", 25m),
+                    ("Salz", 2m),
                 }
             },
             new
             {
-                Name = "Rührei mit Kräutern",
-                Description = "Cremiges Rührei mit frischen Kräutern.",
+                Name = "Rührei",
+                Description = "Cremiges Rührei – ideal zum Frühstück.",
                 Prep = 5,
                 Cook = 7,
                 Difficulty = CookingDifficulty.Easy,
-                ImagePath = "/images/recipes/herb-scrambled-eggs.jpg",
-                Ingredients = new (string Name, int Amount)[]
+                ImageFile = "/static/Images/RecipeStatic/ruehrei.png",
+                Ingredients = new (string Name, decimal Amount)[]
                 {
-                    ("Eggs", 3),
-                    ("Butter", 15),
-                    ("Salt", 2),
-                    ("Pepper", 1),
-                }
-            },
-            new
-            {
-                Name = "Hähnchen-Curry mit Reis",
-                Description = "Wärmendes Curry, mild bis pikant skalierbar.",
-                Prep = 15,
-                Cook = 25,
-                Difficulty = CookingDifficulty.Medium,
-                ImagePath = "/images/recipes/chicken-curry-rice.jpg",
-                Ingredients = new (string Name, int Amount)[]
-                {
-                    ("Chicken Breast", 300),
-                    ("Onion", 120),
-                    ("Garlic", 6),
-                    ("Curry Powder", 10),
-                    ("Olive Oil", 15),
-                    ("Salt", 5),
-                    ("Rice", 200),
+                    ("Eier", 3m),
+                    ("Butter", 15m),
+                    ("Salz", 2m),
+                    ("Pfeffer", 1m),
                 }
             },
             new
             {
                 Name = "Tomatensuppe",
-                Description = "Samtige Suppe, ideal mit etwas Pfeffer und Basilikum.",
+                Description = "Samtige Suppe – mit Basilikum richtig rund.",
                 Prep = 10,
                 Cook = 20,
                 Difficulty = CookingDifficulty.Easy,
-                ImagePath = "/images/recipes/tomato-soup.jpg",
-                Ingredients = new (string Name, int Amount)[]
+                ImageFile = "/static/Images/RecipeStatic/tomatensuppe.png",
+                Ingredients = new (string Name, decimal Amount)[]
                 {
-                    ("Tomato", 500),
-                    ("Onion", 120),
-                    ("Garlic", 6),
-                    ("Olive Oil", 15),
-                    ("Salt", 6),
-                    ("Pepper", 2),
-                    ("Basil", 8),
+                    ("Tomaten", 500m),
+                    ("Zwiebeln", 120m),
+                    ("Knoblauch", 6m),
+                    ("Olivenöl", 15m),
+                    ("Salz", 6m),
+                    ("Pfeffer", 2m),
+                    ("Basilikum", 8m),
                 }
             },
             new
             {
                 Name = "Ofenkartoffeln",
-                Description = "Knusprig außen, weich innen – Ofen macht die Arbeit.",
+                Description = "Knusprig aus dem Ofen – wenig Aufwand, viel Genuss.",
                 Prep = 10,
                 Cook = 35,
                 Difficulty = CookingDifficulty.Easy,
-                ImagePath = "/images/recipes/oven-potatoes.jpg",
-                Ingredients = new (string Name, int Amount)[]
+                ImageFile = "/static/Images/RecipeStatic/ofenkartoffeln.png",
+                Ingredients = new (string Name, decimal Amount)[]
                 {
-                    ("Potato", 600),
-                    ("Olive Oil", 20),
-                    ("Salt", 6),
-                    ("Pepper", 2),
+                    ("Kartoffeln", 600m),
+                    ("Olivenöl", 20m),
+                    ("Salz", 6m),
+                    ("Pfeffer", 2m),
                 }
             },
             new
             {
                 Name = "Zitronen-Hähnchen",
-                Description = "Frisch, leicht, perfekt mit Reis oder Pasta.",
+                Description = "Frisch, leicht und zitronig – passt zu Reis oder Salat.",
                 Prep = 10,
                 Cook = 20,
                 Difficulty = CookingDifficulty.Medium,
-                ImagePath = "/images/recipes/lemon-chicken.jpg",
-                Ingredients = new (string Name, int Amount)[]
+                ImageFile = "/static/Images/RecipeStatic/zitronen-haehnchen.png",
+                Ingredients = new (string Name, decimal Amount)[]
                 {
-                    ("Chicken Breast", 300),
-                    ("Lemon", 1),
-                    ("Olive Oil", 15),
-                    ("Garlic", 4),
-                    ("Salt", 5),
-                    ("Pepper", 2),
+                    ("Hähnchenbrust", 300m),
+                    ("Zitronen", 1m),
+                    ("Olivenöl", 15m),
+                    ("Knoblauch", 4m),
+                    ("Salz", 5m),
+                    ("Pfeffer", 2m),
                 }
             },
             new
             {
                 Name = "Caprese-Salat",
-                Description = "Tomate, Basilikum, Öl – simpel und genial.",
+                Description = "Tomaten, Basilikum, Olivenöl – einfach & frisch.",
                 Prep = 8,
                 Cook = 0,
                 Difficulty = CookingDifficulty.Easy,
-                ImagePath = "/images/recipes/caprese-salad.jpg",
-                Ingredients = new (string Name, int Amount)[]
+                ImageFile = "/static/Images/RecipeStatic/caprese-salat.png",
+                Ingredients = new (string Name, decimal Amount)[]
                 {
-                    ("Tomato", 300),
-                    ("Basil", 10),
-                    ("Olive Oil", 15),
-                    ("Salt", 4),
-                    ("Pepper", 2),
+                    ("Tomaten", 300m),
+                    ("Basilikum", 10m),
+                    ("Olivenöl", 15m),
+                    ("Salz", 4m),
+                    ("Pfeffer", 2m),
                 }
-            },
-            new
-            {
-                Name = "Knoblauchbrot",
-                Description = "Buttrig-knusprig – Beilage oder Snack.",
-                Prep = 8,
-                Cook = 12,
-                Difficulty = CookingDifficulty.Easy,
-                ImagePath = "/images/recipes/garlic-bread.jpg",
-                Ingredients = new (string Name, int Amount)[]
-                {
-                    ("Bread", 250),
-                    ("Butter", 40),
-                    ("Garlic", 8),
-                    ("Salt", 3),
-                }
-            },
+            }
         };
 
         for (var index = 0; index < recipes.Length; index++)
@@ -572,8 +539,11 @@ public class RecipeAndIngredientSeeder
             var r = recipes[index];
             var ownerUserId = users[index % users.Count].Id;
 
+            var imagePath = recipeImageBase + r.ImageFile;
+
             var existing = await db.Recipes
                 .Include(x => x.RecipeIngredients)
+                .Include(x => x.Images)
                 .SingleOrDefaultAsync(x => x.Name == r.Name, ct);
 
             if (existing is null)
@@ -581,53 +551,53 @@ public class RecipeAndIngredientSeeder
                 existing = new Recipe
                 {
                     Name = r.Name,
-                    Images = new List<RecipeImage>(),
-                    RecipeIngredients = new List<RecipeIngredient>(),
-                    ImagePath = r.ImagePath,
-                    UserId = ownerUserId,
                     Description = r.Description,
                     PreparationTime = r.Prep,
                     CookingTime = r.Cook,
                     CookingDifficulty = r.Difficulty,
+                    UserId = ownerUserId,
+
+                    ImagePath = imagePath,
+
+                    Images = new List<RecipeImage>(),
+                    RecipeIngredients = new List<RecipeIngredient>(),
                 };
-                existing.Images.Add(new RecipeImage
-                {
-                    ImagePath = r.ImagePath,
-                    IsPrimary = true
-                });
+
                 db.Recipes.Add(existing);
             }
             else
             {
-                existing.UserId = ownerUserId;
                 existing.Description = r.Description;
                 existing.PreparationTime = r.Prep;
                 existing.CookingTime = r.Cook;
                 existing.CookingDifficulty = r.Difficulty;
-                existing.ImagePath = r.ImagePath;
+                existing.UserId = ownerUserId;
+                existing.ImagePath = imagePath;
 
                 existing.RecipeIngredients ??= new List<RecipeIngredient>();
                 existing.Images ??= new List<RecipeImage>();
 
-                // repeatable: Zutatenliste sauber "resetten"
                 db.RecipeIngredients.RemoveRange(existing.RecipeIngredients);
                 existing.RecipeIngredients.Clear();
-                existing.Images.Add(new RecipeImage
-                {
-                    ImagePath = r.ImagePath,
-                    IsPrimary = true
-                });
+
+                db.RecipeImages.RemoveRange(existing.Images);
+                existing.Images.Clear();
             }
+            existing.Images.Add(new RecipeImage
+            {
+                ImagePath = imagePath,
+                IsPrimary = true
+            });
 
             foreach (var (ingredientName, amount) in r.Ingredients)
             {
-                var ing = await db.Ingredients.FindAsync(ingredientName, ct);
+                Ingredient i = await db.Ingredients.SingleOrDefaultAsync(x => x.Name == ingredientName, ct);
                 existing.RecipeIngredients.Add(new RecipeIngredient
                 {
                     Recipe = existing,
                     RecipeId = existing.Id,
-                    IngredientId = await IngredientId(ing.Name),
-                    Ingredient = ing,
+                    IngredientId = i.Id,
+                    Ingredient = i,
                     Amount = amount
                 });
             }
