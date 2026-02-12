@@ -1,112 +1,100 @@
 ﻿@page "/StorageRoom"
+@using System.ComponentModel.DataAnnotations
 @using RecipeNow.Data.Entities.RecipeSystem
 @using RecipeNow.Services
-@inject UserService UserService
-@inject NavigationManager NavigationManager
 @inject StorageRoomService StorageRoomService
+@inject UserService UserService
+
 <h1>Vorratsräume:</h1>
+
 <div class="card">
     <div class="card-body">
-        <div class="btn-group" role="group" aria-label="Storage Room Buttons">
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#storageRoom">Neuer
-                Raum
+        <div class="btn-group mb-3">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#storageRoomModal" @onclick="PrepareNewRoom">
+                Neuer Raum
             </button>
         </div>
+
         <div class="row">
-            @foreach (var storageRoom in _rooms)
+            @foreach (var room in _rooms)
             {
                 <div class="col-md-6">
                     <div class="card mb-3">
                         <div class="card-body">
-                            <h5 class="card-title">@storageRoom.Name</h5>
-                            <p class="card-text">Menge an Schränke: @(storageRoom.StorageRoomShelf?.Count ?? 0)</p>
-                            <div class="btn-group" role="group" aria-label="Storage Room Buttons">
-                                <button type="button"
-                                        class="btn btn-primary"
-                                        @onclick='() => NavigationManager.NavigateTo($"/StorageRoom/{storageRoom.Id}")'>
-                                    Zum Raum
-                                </button>
-                                <button type="button" class="btn btn-primary">Middle</button>
-                            </div>
+                            <h5 class="card-title">@room.Name</h5>
+                            <p class="card-text">Anzahl Schränke: @(room.StorageRoomShelf?.Count ?? 0)</p>
                         </div>
                     </div>
                 </div>
             }
         </div>
     </div>
+</div>
 
-    <div class="modal fade" id="storageRoom" tabindex="-1" aria-labelledby="storageRoomLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <EditForm EditContext="_editContext"
-                          OnSubmit="SaveRoomAsync">
-                    <DataAnnotationsValidator />
+<!-- Modal für neuen Raum -->
+<div class="modal fade" id="storageRoomModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <EditForm Model="_newRoomModel" OnValidSubmit="CreateRoom" FormName="StorageRoomForm">
+                <DataAnnotationsValidator />
+                <ValidationSummary class="text-danger" />
 
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="storageRoomLabel">Neuen Vorratsraum anlegen</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
+                <div class="modal-header">
+                    <h5 class="modal-title">Neuen Vorratsraum anlegen</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                </div>
 
-                    <div class="modal-body">
-                        <div class="row g-3">
-                            <div class="col-12">
-                                <label class="form-label">Name</label>
+                <div class="modal-body">
+                    <label class="form-label">Name</label>
+                    <InputText class="form-control" @bind-Value="_newRoomModel.Name" @bind-Value:event="oninput" />
+                    <ValidationMessage For="@(() => _newRoomModel.Name)" class="text-danger" />
+                </div>
 
-                                <!-- oninput: Wert ist garantiert aktuell beim Submit -->
-                                <InputText class="form-control"
-                                           @bind-Value="_editModel.Name"
-                                           @bind-Value:event="oninput" />
-
-                                <ValidationMessage For="@(() => _editModel.Name)" class="text-danger" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-                        <button type="submit" class="btn btn-primary">Speichern</button>
-                    </div>
-                </EditForm>
-            </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="submit" class="btn btn-primary">Speichern</button>
+                </div>
+            </EditForm>
         </div>
     </div>
 </div>
 
 @code {
-    private List<StorageRoom> _rooms = new();
-    
-    private StorageRoom _editModel = new()
-    {
-        UserId = "",
-        Name = "",
-        StorageRoomShelf = new List<Shelf>()
-    };
-    private EditContext? _editContext;
 
-    
-    protected override void OnInitialized()
+    public sealed class NewRoomModel
     {
-        _editContext = new EditContext(_editModel);
+        [Required(ErrorMessage = "Name ist erforderlich")] 
+        public string Name { get; set; } = string.Empty;
     }
+    
+    private List<StorageRoom> _rooms = new();
+    private NewRoomModel _newRoomModel = new();
 
     protected override async Task OnInitializedAsync()
     {
-        var isAuthenticated = await UserService.IsAuthenticated();
-        if (isAuthenticated)
-            _rooms = await StorageRoomService.GetAllStorageRoomsByCurrentUserAsync();
+        await LoadRooms();
     }
 
-    protected async Task SaveRoomAsync()
+    private async Task LoadRooms()
     {
-        if (_editContext!.Validate())
-        {
-            await StorageRoomService.AddStorageRoomAsync(_editModel);
-
-            _rooms = await StorageRoomService.GetAllStorageRoomsByCurrentUserAsync();
-
-            _editModel = new StorageRoom { UserId = "", Name = "", StorageRoomShelf = new List<Shelf>() };
-
-            StateHasChanged();
-        }
+        _rooms = await StorageRoomService.GetAllStorageRoomsByCurrentUserAsync();
     }
+
+// Modal vorbereiten
+    private void PrepareNewRoom()
+    {
+        _newRoomModel = new NewRoomModel();
+    }
+
+// OnValidSubmit
+    private async Task CreateRoom()
+    {
+        await StorageRoomService.AddStorageRoomAsync(_newRoomModel.Name);
+
+        await LoadRooms();
+
+        PrepareNewRoom(); // Model zurücksetzen
+        StateHasChanged();
+    }
+
 }

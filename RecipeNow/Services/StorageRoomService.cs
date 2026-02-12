@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using RecipeNow.Data.Contexts;
 using RecipeNow.Data.Entities.RecipeSystem;
@@ -7,6 +8,7 @@ namespace RecipeNow.Services;
 
 public class StorageRoomService
 {
+    [Inject] private ILogger<StorageRoom> Logger { get; set; } = default!;
     private readonly AppDbContext _context;
     private readonly UserService _userService;
     public StorageRoomService(AppDbContext context, UserService userService)
@@ -60,11 +62,16 @@ public class StorageRoomService
         await _context.SaveChangesAsync();
     }
 
-    public async Task AddStorageRoomAsync(StorageRoom storageRoom)
+    public async Task AddStorageRoomAsync(string name)
     {
         var user = await _userService.GetUserAsync();
         var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
-        storageRoom.UserId = userId!;
+        StorageRoom storageRoom = new StorageRoom()
+        {
+            UserId = userId!,
+            Name =  name,
+            StorageRoomShelf =  new List<Shelf>()
+        };
         _context.StorageRooms.Add(storageRoom);
         await _context.SaveChangesAsync();
     }
