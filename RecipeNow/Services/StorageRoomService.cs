@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 using RecipeNow.Data.Contexts;
 using RecipeNow.Data.Entities.RecipeSystem;
 
@@ -8,14 +9,14 @@ public class StorageRoomService
 {
     private readonly AppDbContext _context;
     private readonly UserService _userService;
-    public StorageRoomService(AppDbContext context)
+    public StorageRoomService(AppDbContext context, UserService userService)
     {
         _context = context;
+        _userService = userService;
     }
 
     public async Task AddShelfAsync(int storageRoomId, String shelfName, int height, int width)
     {
-        ;
         StorageRoom storageRoom = await _context.StorageRooms.FindAsync(storageRoomId);
         storageRoom?.StorageRoomShelf.Add(
             new Shelf
@@ -61,7 +62,9 @@ public class StorageRoomService
 
     public async Task AddStorageRoomAsync(StorageRoom storageRoom)
     {
-        storageRoom.UserId = _userService.GetUserAsync().Id.ToString();
+        var user = await _userService.GetUserAsync();
+        var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+        storageRoom.UserId = userId;
         _context.StorageRooms.Add(storageRoom);
         await _context.SaveChangesAsync();
     }
@@ -95,7 +98,8 @@ public class StorageRoomService
 
     public async Task<List<StorageRoom>> GetAllStorageRoomsByCurrentUserAsync()
     {
-        var userId = _userService.GetUserAsync().Id.ToString();
+        var user = await _userService.GetUserAsync();
+        var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
         return await _context.StorageRooms
             .Where(sr => sr.UserId == userId  )
             .ToListAsync();

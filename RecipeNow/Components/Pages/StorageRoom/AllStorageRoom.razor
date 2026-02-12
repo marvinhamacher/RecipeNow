@@ -4,10 +4,9 @@
 @inject UserService UserService
 @inject NavigationManager NavigationManager
 @inject StorageRoomService StorageRoomService
-<h3>StorageOverview</h3>
+<h1>Vorratsräume:</h1>
 <div class="card">
     <div class="card-body">
-        <h5 class="card-title">Storage Rooms</h5>
         <div class="btn-group" role="group" aria-label="Storage Room Buttons">
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#storageRoom">Neuer
                 Raum
@@ -41,7 +40,7 @@
     <div class="modal fade" id="storageRoom" tabindex="-1" aria-labelledby="storageRoomLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <EditForm EditContext="_editContext" OnValidSubmit="SaveRoomAsync">
+                <EditForm EditContext="_editContext" OnValidSubmit="SaveRoomAsync" FormName="CreateStorageRoom">
                     <DataAnnotationsValidator />
                     <div class="modal-header">
                         <h5 class="modal-title" id="storageRoomLabel">Neuen Vorratsraum anlegen</h5>
