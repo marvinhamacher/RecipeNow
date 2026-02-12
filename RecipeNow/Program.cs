@@ -92,7 +92,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseAntiforgery();
-
+app.UseStaticFiles();
 app.MapStaticAssets();
 app.MapPost("/logout", async (SignInManager<IdentityUser> signInManager) =>
 {

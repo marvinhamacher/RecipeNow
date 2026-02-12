@@ -367,7 +367,6 @@ public static async Task SeedRecipesAsync(
         UserManager<IdentityUser> userManager,
         CancellationToken ct = default)
     {
-        const string recipeImageBase = "/static/Images/RecipeStatic/";
 
         var seedEmails = new[]
         {
@@ -405,7 +404,7 @@ public static async Task SeedRecipesAsync(
                 Prep = 10,
                 Cook = 12,
                 Difficulty = CookingDifficulty.Easy,
-                ImageFile = "/static/Images/RecipeStatic/spaghetti.jpg",
+                ImageFile = "/static/Images/RecipeStatic/spaghetti.png",
                 Ingredients = new (string Name, decimal Amount)[]
                 {
                     ("Nudeln", 200m),
@@ -440,7 +439,7 @@ public static async Task SeedRecipesAsync(
                 Prep = 10,
                 Cook = 15,
                 Difficulty = CookingDifficulty.Easy,
-                ImageFile = "pfannkuchen.jpg",
+                ImageFile = "/static/Images/RecipeStatic/pfannkuchen.png",
                 Ingredients = new (string Name, decimal Amount)[]
                 {
                     ("Mehl", 200m),
@@ -544,7 +543,7 @@ public static async Task SeedRecipesAsync(
             var r = recipes[index];
             var ownerUserId = users[index % users.Count].Id;
 
-            var imagePath = recipeImageBase + r.ImageFile;
+            var imagePath =  r.ImageFile;
 
             var existing = await db.Recipes
                 .Include(x => x.RecipeIngredients)
