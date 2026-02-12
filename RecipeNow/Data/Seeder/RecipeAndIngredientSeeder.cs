@@ -21,6 +21,11 @@ public class RecipeAndIngredientSeeder
             },
             new
             {
+                Name = "Salz", PricePerUnit = 0.8, MeasurementType = MeasurementType.Kilogram,
+                ImagePath = "static/Images/IngredientStatic/salz.png"
+            },
+            new
+            {
                 Name = "Mehl", PricePerUnit = 1.9, MeasurementType = MeasurementType.Kilogram,
                 ImagePath = "static/Images/IngredientStatic/mehl.png"
             },

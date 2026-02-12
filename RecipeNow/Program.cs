@@ -4,6 +4,7 @@ using RecipeNow.Components;
 using RecipeNow.Config;
 using RecipeNow.Data;
 using RecipeNow.Data.Contexts;
+using RecipeNow.Data.Seeder;
 using RecipeNow.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -44,6 +45,38 @@ builder.Services.AddAuthentication(options =>
 
     builder.Services.AddAuthorizationCore();
 var app = builder.Build();
+
+// Seeding für Mockdaten (muss VOR app.Run() passieren!)
+if (args.Any(a => string.Equals(a, "seed", StringComparison.OrdinalIgnoreCase) ||
+                  string.Equals(a, "--seed", StringComparison.OrdinalIgnoreCase)))
+{
+    using var scope = app.Services.CreateScope();
+    var sp = scope.ServiceProvider;
+
+    var appDb = sp.GetRequiredService<AppDbContext>();
+    var authDb = sp.GetRequiredService<AuthDbContext>();
+    var userManager = sp.GetRequiredService<UserManager<IdentityUser>>();
+
+    // DB up-to-date (beide Contexts)
+    await appDb.Database.MigrateAsync();
+    await authDb.Database.MigrateAsync();
+
+    // Seed-Reihenfolge: Ingredients -> Users -> Recipes
+    await RecipeAndIngredientSeeder.SeedIngredientsAsync(appDb);
+
+    // User Secrets / appsettings / Env (in der Reihenfolge) – alles über Configuration verfügbar
+    var seedPassword =
+        builder.Configuration["DEV_SEED_PASSWORD"]
+        ?? Environment.GetEnvironmentVariable("DEV_SEED_PASSWORD");
+
+    if (string.IsNullOrWhiteSpace(seedPassword))
+        throw new InvalidOperationException("DEV_SEED_PASSWORD is not set. Set it via env var or user-secrets.");
+
+    await RecipeAndIngredientSeeder.SeedUsersAsync(userManager, seedPassword);
+    await RecipeAndIngredientSeeder.SeedRecipesAsync(appDb, userManager);
+
+    return; // wichtig: Webserver NICHT starten
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
