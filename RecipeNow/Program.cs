@@ -103,13 +103,22 @@ app.MapPost("/logout", async (SignInManager<IdentityUser> signInManager) =>
     return Results.Redirect("/");
 });
 
-// Delete genau wie Logout als POST-Endpoint
+
 app.MapPost("/recipes/delete/{id:int}", async (int id, IRecipeService recipeService) =>
     {
         await recipeService.DeleteAsync(id);
         return Results.Redirect("/recipes");
     })
     .RequireAuthorization();
+
+app.MapPost("/StorageRoom/delete/{id:int}", async (int id, StorageRoomService storageRoomService) =>
+    {
+        await storageRoomService.DeleteStorageRoomAsync(id);
+        return Results.Redirect("/recipes");
+    })
+    .RequireAuthorization();
+
+
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();

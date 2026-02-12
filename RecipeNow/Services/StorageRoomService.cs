@@ -111,4 +111,27 @@ public class StorageRoomService
             .Where(sr => sr.UserId == userId  )
             .ToListAsync();
     }
+    
+    
+    public async Task DeleteStorageRoomAsync(int id)
+    {
+        StorageRoom storageRoom = await _context.StorageRooms.FindAsync(id);
+        var user = await _userService.GetUserAsync();
+        var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (storageRoom is null) throw new InvalidOperationException("Vorratsraum nicht gefunden.");
+        if(storageRoom.UserId != userId) throw  new InvalidOperationException("Nur der Ersteller kann sein Vorratsraum löschen.");
+        _context.StorageRooms.Remove(storageRoom);
+        await _context.SaveChangesAsync();
+    }
+    
+    public async Task UpdateStorageRoomAsync(StorageRoom storageRoom)
+    {
+        var user = await _userService.GetUserAsync();
+        var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+        if(storageRoom.UserId != userId) throw  new InvalidOperationException("Nur der Ersteller kann sein Vorratsraum bearbeiten.");
+        StorageRoom entity = await _context.StorageRooms.FindAsync(storageRoom.Id);
+        if (entity is null) throw new InvalidOperationException("Vorratsraum nicht gefunden.");
+        entity.Name = storageRoom.Name;
+        await _context.SaveChangesAsync();
+    }
 }
