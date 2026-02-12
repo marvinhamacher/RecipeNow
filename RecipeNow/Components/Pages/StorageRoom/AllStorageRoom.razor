@@ -6,57 +6,79 @@
 @inject StorageRoomService StorageRoomService
 @inject IJSRuntime JS
 
-<h1>Vorratsräume:</h1>
+<h1 class="mb-4">Vorratsräume</h1>
 
-<div class="card">
-    <div class="card-body">
-        <!-- Button öffnet das Bootstrap-Modal -->
-        <button class="btn btn-primary mb-3"
-                data-bs-toggle="modal"
-                data-bs-target="#storageRoomModal"
-                @onclick="PrepareNewRoom"
-                type="button">
-            Neuer Raum
-        </button>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <button class="btn btn-primary shadow-sm px-4"
+            @onclick="NewRoomClicked"
+            type="button">
+        + Neuer Raum
+    </button>
 
-        <div class="row">
-            @foreach (var room in _rooms)
-            {
-                <div class="col-md-6">
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <h5 class="card-title">@room.Name</h5>
-                            <p class="card-text">Anzahl Schränke: @(room.StorageRoomShelf?.Count ?? 0)</p>
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
-    </div>
+    <button class="btn btn-outline-secondary shadow-sm"
+            disabled>Inventur (PDF)</button>
 </div>
 
-<!-- Modal -->
+<div class="row g-3">
+    @foreach (var room in _rooms)
+    {
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100 position-relative">
+
+                <div class="dropdown position-absolute top-0 end-0 m-2">
+                    <button class="btn btn-sm btn-light"
+                            data-bs-toggle="dropdown"
+                            type="button">
+                        ⋮
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                        <li>
+                            <button class="dropdown-item"
+                                    @onclick="() => StartEdit(room)">
+                                Bearbeiten
+                            </button>
+                        </li>
+                        <li>
+                            <button class="dropdown-item text-danger"
+                                    @onclick="() => ConfirmDelete(room)">
+                                Löschen
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="card-body">
+                    <h5 class="card-title fw-semibold">@room.Name</h5>
+                    <span class="badge bg-light text-dark border">
+                        @(room.StorageRoomShelf?.Count ?? 0) Schränke
+                    </span>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Create / Edit Modal -->
 <div class="modal fade" id="storageRoomModal" tabindex="-1" aria-hidden="true" @ref="_modalEl">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content shadow">
             <EditForm EditContext="_editContext"
-                      OnValidSubmit="CreateRoom"
-                      FormName="StorageRoomForm" >
+                      OnValidSubmit="SaveRoom"
+                      FormName="StorageRoomForm">
 
                 <DataAnnotationsValidator />
                 <ValidationSummary class="text-danger" />
 
                 <div class="modal-header">
                     <h5 class="modal-title">@(_isEdit ? "Vorratsraum bearbeiten" : "Neuen Vorratsraum anlegen")</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
 
                 <div class="modal-body">
                     <label class="form-label">Name</label>
                     <InputText class="form-control"
                                @bind-Value="_newRoomModel.Name" />
-                    <ValidationMessage For="@(() => _newRoomModel.Name)" class="text-danger" />
-
+                    <ValidationMessage For="@(() => _newRoomModel.Name)" />
                     @if (!string.IsNullOrWhiteSpace(_error))
                     {
                         <div class="text-danger mt-2">@_error</div>
@@ -72,44 +94,65 @@
         </div>
     </div>
 </div>
-<script src="/StorageRoom/JS/bootstrapModalHide.js"></script>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true" @ref="_deleteModalEl">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content shadow">
+
+            <div class="modal-header">
+                <h5 class="modal-title text-danger">Löschen bestätigen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                Möchtest du <strong>@_roomToDelete?.Name</strong> wirklich löschen?
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                <button type="button" class="btn btn-danger" @onclick="DeleteRoom">Löschen</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    window.bootstrapModalShow = (el) => { if (el) new bootstrap.Modal(el).show(); }
+    window.bootstrapModalHide = (el) => { const m = bootstrap.Modal.getInstance(el); if (m) m.hide(); }
+</script>
+
 @code {
-    private bool _interactive;
     private List<StorageRoom> _rooms = new();
     private NewRoomModel _newRoomModel = new();
     private EditContext _editContext = default!;
-    
-    private ElementReference _modalEl;
-    
     private bool _isEdit;
     private string? _error;
-    
-    private void ResetForm()
-    {
-        _newRoomModel = new NewRoomModel();
-        _editContext = new EditContext(_newRoomModel);
-    }
-    
+
+    private StorageRoom? _editingRoom;
+    private StorageRoom? _roomToDelete;
+
+    private ElementReference _modalEl;
+    private ElementReference _deleteModalEl;
+
     public class NewRoomModel
     {
         [Required(ErrorMessage = "Name ist erforderlich")]
         public string Name { get; set; } = string.Empty;
     }
-    
-    protected override void OnAfterRender(bool firstRender)
-    {
-        if (firstRender) { _interactive = true; StateHasChanged(); }
-    }
-    
-    protected override void OnInitialized()
-    {
-        ResetForm();
-    }
-    
+
     protected override async Task OnInitializedAsync()
     {
         ResetForm();
         await LoadRooms();
+    }
+
+    private void ResetForm()
+    {
+        _newRoomModel = new NewRoomModel();
+        _editContext = new EditContext(_newRoomModel);
+        _error = null;
     }
 
     private async Task LoadRooms()
@@ -117,30 +160,62 @@
         _rooms = await StorageRoomService.GetAllStorageRoomsByCurrentUserAsync();
     }
 
-    private Task PrepareNewRoom()
+    private async Task NewRoomClicked()
     {
-        Console.WriteLine("Preparing");
+        _isEdit = false;
+        _editingRoom = null;
         ResetForm();
-        return Task.CompletedTask;
+        await JS.InvokeVoidAsync("bootstrapModalShow", _modalEl);
     }
 
-    private async Task CreateRoom(EditContext context)
+    private async Task StartEdit(StorageRoom room)
     {
-        if (!context.Validate())
+        _isEdit = true;
+        _editingRoom = room;
+
+        _newRoomModel = new NewRoomModel { Name = room.Name };
+        _editContext = new EditContext(_newRoomModel);
+
+        await JS.InvokeVoidAsync("bootstrapModalShow", _modalEl);
+    }
+
+    private async Task SaveRoom(EditContext context)
+    {
+        if (!context.Validate()) return;
+
+        try
         {
-            Console.WriteLine("Validation failed: " + string.Join(", ", context.GetValidationMessages()));
-            return;
+            if (_isEdit && _editingRoom != null)
+            {
+                _editingRoom.Name = _newRoomModel.Name;
+                await StorageRoomService.UpdateStorageRoomAsync(_editingRoom);
+            }
+            else
+            {
+                await StorageRoomService.AddStorageRoomAsync(_newRoomModel.Name);
+            }
+
+            await LoadRooms();
+            await JS.InvokeVoidAsync("bootstrapModalHide", _modalEl);
         }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
 
-        Console.WriteLine("Validation passed: " + _newRoomModel.Name);
+    private async Task ConfirmDelete(StorageRoom room)
+    {
+        _roomToDelete = room;
+        await JS.InvokeVoidAsync("bootstrapModalShow", _deleteModalEl);
+    }
 
-        // StorageRoom speichern
-        await StorageRoomService.AddStorageRoomAsync(_newRoomModel.Name);
+    private async Task DeleteRoom()
+    {
+        if (_roomToDelete == null) return;
 
-        // Räume neu laden
+        await StorageRoomService.DeleteStorageRoomAsync(_roomToDelete.Id);
         await LoadRooms();
-        
-        await JS.InvokeVoidAsync("bootstrapModalHide", _modalEl);
-        
+        await JS.InvokeVoidAsync("bootstrapModalHide", _deleteModalEl);
     }
 }
