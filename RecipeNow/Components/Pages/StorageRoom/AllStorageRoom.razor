@@ -1,4 +1,5 @@
 ﻿@page "/StorageRoom"
+@rendermode InteractiveServer
 @using System.ComponentModel.DataAnnotations
 @using RecipeNow.Data.Entities.RecipeSystem
 @using RecipeNow.Services
@@ -13,7 +14,8 @@
         <button class="btn btn-primary mb-3"
                 data-bs-toggle="modal"
                 data-bs-target="#storageRoomModal"
-                @onclick="PrepareNewRoom">
+                @onclick="PrepareNewRoom"
+                type="button">
             Neuer Raum
         </button>
 
@@ -34,49 +36,79 @@
 </div>
 
 <!-- Modal -->
-<div class="modal fade" id="storageRoomModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="storageRoomModal" tabindex="-1" aria-hidden="true" @ref="_modalEl">
     <div class="modal-dialog">
         <div class="modal-content">
-            <EditForm EditContext="_editContext" OnSubmit="CreateRoom" FormName="SNForm">
+            <EditForm EditContext="_editContext"
+                      OnValidSubmit="CreateRoom"
+                      FormName="StorageRoomForm" >
+
                 <DataAnnotationsValidator />
                 <ValidationSummary class="text-danger" />
 
                 <div class="modal-header">
-                    <h5 class="modal-title">Neuen Vorratsraum anlegen</h5>
+                    <h5 class="modal-title">@(_isEdit ? "Vorratsraum bearbeiten" : "Neuen Vorratsraum anlegen")</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
                 </div>
 
                 <div class="modal-body">
                     <label class="form-label">Name</label>
-                    <InputText class="form-control" @bind-Value="_newRoomModel.Name" />
+                    <InputText class="form-control"
+                               @bind-Value="_newRoomModel.Name" />
                     <ValidationMessage For="@(() => _newRoomModel.Name)" class="text-danger" />
+
+                    @if (!string.IsNullOrWhiteSpace(_error))
+                    {
+                        <div class="text-danger mt-2">@_error</div>
+                    }
                 </div>
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
                     <button type="submit" class="btn btn-primary">Speichern</button>
                 </div>
+
             </EditForm>
         </div>
     </div>
 </div>
-
+<script src="/StorageRoom/JS/bootstrapModalHide.js"></script>
 @code {
+    private bool _interactive;
     private List<StorageRoom> _rooms = new();
     private NewRoomModel _newRoomModel = new();
-    private EditContext _editContext = null!;
-
+    private EditContext _editContext = default!;
+    
+    private ElementReference _modalEl;
+    
+    private bool _isEdit;
+    private string? _error;
+    
+    private void ResetForm()
+    {
+        _newRoomModel = new NewRoomModel();
+        _editContext = new EditContext(_newRoomModel);
+    }
+    
     public class NewRoomModel
     {
         [Required(ErrorMessage = "Name ist erforderlich")]
         public string Name { get; set; } = string.Empty;
     }
-
+    
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender) { _interactive = true; StateHasChanged(); }
+    }
+    
+    protected override void OnInitialized()
+    {
+        ResetForm();
+    }
+    
     protected override async Task OnInitializedAsync()
     {
-        _newRoomModel = new NewRoomModel();
-        _editContext = new EditContext(_newRoomModel);
-
+        ResetForm();
         await LoadRooms();
     }
 
@@ -85,15 +117,11 @@
         _rooms = await StorageRoomService.GetAllStorageRoomsByCurrentUserAsync();
     }
 
-    private async Task PrepareNewRoom()
+    private Task PrepareNewRoom()
     {
-        // Neues Model + EditContext erzeugen
-        _newRoomModel = new NewRoomModel();
-        _editContext = new EditContext(_newRoomModel);
-
-        // Warten, bis Blazor die Bindings aktualisiert hat
-        await Task.Yield();
-        StateHasChanged();
+        Console.WriteLine("Preparing");
+        ResetForm();
+        return Task.CompletedTask;
     }
 
     private async Task CreateRoom(EditContext context)
@@ -111,6 +139,8 @@
 
         // Räume neu laden
         await LoadRooms();
+        
+        await JS.InvokeVoidAsync("bootstrapModalHide", _modalEl);
         
     }
 }
