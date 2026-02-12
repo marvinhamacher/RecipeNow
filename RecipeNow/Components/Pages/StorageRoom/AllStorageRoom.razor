@@ -3,17 +3,18 @@
 @using RecipeNow.Data.Entities.RecipeSystem
 @using RecipeNow.Services
 @inject StorageRoomService StorageRoomService
-@inject UserService UserService
 
 <h1>Vorratsräume:</h1>
 
 <div class="card">
     <div class="card-body">
-        <div class="btn-group mb-3">
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#storageRoomModal" @onclick="PrepareNewRoom">
-                Neuer Raum
-            </button>
-        </div>
+        <!-- Button öffnet das Bootstrap-Modal -->
+        <button class="btn btn-primary mb-3"
+                data-bs-toggle="modal"
+                data-bs-target="#storageRoomModal"
+                @onclick="PrepareNewRoom">
+            Neuer Raum
+        </button>
 
         <div class="row">
             @foreach (var room in _rooms)
@@ -31,11 +32,11 @@
     </div>
 </div>
 
-<!-- Modal für neuen Raum -->
+<!-- Modal -->
 <div class="modal fade" id="storageRoomModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <EditForm Model="_newRoomModel" OnValidSubmit="CreateRoom" FormName="StorageRoomForm">
+            <EditForm EditContext="_editContext" OnValidSubmit="CreateRoom">
                 <DataAnnotationsValidator />
                 <ValidationSummary class="text-danger" />
 
@@ -46,7 +47,7 @@
 
                 <div class="modal-body">
                     <label class="form-label">Name</label>
-                    <InputText class="form-control" @bind-Value="_newRoomModel.Name" @bind-Value:event="oninput" />
+                    <InputText class="form-control" @bind-Value="_newRoomModel.Name" />
                     <ValidationMessage For="@(() => _newRoomModel.Name)" class="text-danger" />
                 </div>
 
@@ -60,18 +61,22 @@
 </div>
 
 @code {
-
-    public sealed class NewRoomModel
-    {
-        [Required(ErrorMessage = "Name ist erforderlich")] 
-        public string Name { get; set; } = string.Empty;
-    }
-    
     private List<StorageRoom> _rooms = new();
     private NewRoomModel _newRoomModel = new();
+    private EditContext _editContext = null!;
+
+    public class NewRoomModel
+    {
+        [Required(ErrorMessage = "Name ist erforderlich")]
+        public string Name { get; set; } = string.Empty;
+    }
 
     protected override async Task OnInitializedAsync()
     {
+        // Initial Load
+        _newRoomModel = new NewRoomModel();
+        _editContext = new EditContext(_newRoomModel);
+
         await LoadRooms();
     }
 
@@ -80,21 +85,25 @@
         _rooms = await StorageRoomService.GetAllStorageRoomsByCurrentUserAsync();
     }
 
-// Modal vorbereiten
     private void PrepareNewRoom()
     {
+        // Jedes Mal, wenn das Modal geöffnet wird, neues Model + EditContext
         _newRoomModel = new NewRoomModel();
+        _editContext = new EditContext(_newRoomModel);
     }
 
-// OnValidSubmit
     private async Task CreateRoom()
     {
+        if (!_editContext.Validate())
+        {
+            // Validation fehlgeschlagen
+            return;
+        }
+
+        // StorageRoom speichern
         await StorageRoomService.AddStorageRoomAsync(_newRoomModel.Name);
 
+        // Liste neu laden
         await LoadRooms();
-
-        PrepareNewRoom(); // Model zurücksetzen
-        StateHasChanged();
     }
-
 }
