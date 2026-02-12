@@ -16,6 +16,7 @@ builder.Services.AddRazorPages();
 // Falls Services benutzt werden:
 builder.Services.AddScoped<RecipeService>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<StorageRoomService>();
 builder.Services.AddScoped<IRecipeService, RecipeService>();
 builder.Services.Configure<UploadSettings>(
     builder.Configuration.GetSection("UploadSettings"));
