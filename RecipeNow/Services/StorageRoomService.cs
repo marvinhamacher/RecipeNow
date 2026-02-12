@@ -64,7 +64,7 @@ public class StorageRoomService
     {
         var user = await _userService.GetUserAsync();
         var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
-        storageRoom.UserId = userId;
+        storageRoom.UserId = userId!;
         _context.StorageRooms.Add(storageRoom);
         await _context.SaveChangesAsync();
     }

@@ -19,7 +19,7 @@
                     <div class="card mb-3">
                         <div class="card-body">
                             <h5 class="card-title">@storageRoom.Name</h5>
-                            <p class="card-text">Menge an Schränke: @storageRoom.StorageRoomShelf.Count</p>
+                            <p class="card-text">Menge an Schränke: @(storageRoom.StorageRoomShelf?.Count ?? 0)</p>
                             <div class="btn-group" role="group" aria-label="Storage Room Buttons">
                                 <button type="button"
                                         class="btn btn-primary"
@@ -32,31 +32,37 @@
                     </div>
                 </div>
             }
-
         </div>
     </div>
-
 
     <div class="modal fade" id="storageRoom" tabindex="-1" aria-labelledby="storageRoomLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <EditForm EditContext="_editContext" OnValidSubmit="SaveRoomAsync" FormName="CreateStorageRoom">
+                <EditForm Model="_editModel"
+                          OnValidSubmit="SaveRoomAsync"
+                          FormName="CreateStorageRoom">
                     <DataAnnotationsValidator />
+
                     <div class="modal-header">
                         <h5 class="modal-title" id="storageRoomLabel">Neuen Vorratsraum anlegen</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
+
                     <div class="modal-body">
-                        <div class="modal-body">
-                            <div class="row g-3">
-                                <div class="col-12">
-                                    <label class="form-label">Name</label>
-                                    <InputText class="form-control" @bind-Value="_editModel.Name"/>
-                                    <ValidationMessage For="@(() => _editModel.Name)" class="text-danger"/>
-                                </div>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">Name</label>
+
+                                <!-- oninput: Wert ist garantiert aktuell beim Submit -->
+                                <InputText class="form-control"
+                                           @bind-Value="_editModel.Name"
+                                           @bind-Value:event="oninput" />
+
+                                <ValidationMessage For="@(() => _editModel.Name)" class="text-danger" />
                             </div>
                         </div>
                     </div>
+
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
                         <button type="submit" class="btn btn-primary">Speichern</button>
@@ -68,44 +74,30 @@
 </div>
 
 @code {
-    private List<StorageRoom> _rooms = new List<StorageRoom>();
-    private bool _isAuthenticated = false;
-    EditContext _editContext = null!;
+    private List<StorageRoom> _rooms = new();
 
-
-    protected async Task SaveRoomAsync()
-    {
-        try
-        {
-            await StorageRoomService.AddStorageRoomAsync(_editModel);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
-    }
-    
-    
-    private StorageRoom _editModel = new StorageRoom()
+    private StorageRoom _editModel = new()
     {
         UserId = "",
         Name = "",
         StorageRoomShelf = new List<Shelf>()
     };
+
     protected override async Task OnInitializedAsync()
     {
-        _editContext = new EditContext(_editModel);
-        try
-        {
-            _isAuthenticated = await UserService.IsAuthenticated();
+        var isAuthenticated = await UserService.IsAuthenticated();
+        if (isAuthenticated)
             _rooms = await StorageRoomService.GetAllStorageRoomsByCurrentUserAsync();
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine("Error couldnt load Storage Services " + e);
-            throw;
-        }
     }
 
+    protected async Task SaveRoomAsync()
+    {
+        await StorageRoomService.AddStorageRoomAsync(_editModel);
+
+        _rooms = await StorageRoomService.GetAllStorageRoomsByCurrentUserAsync();
+
+        _editModel = new StorageRoom { UserId = "", Name = "", StorageRoomShelf = new List<Shelf>() };
+
+        StateHasChanged();
+    }
 }
