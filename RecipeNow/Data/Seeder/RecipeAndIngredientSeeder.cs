@@ -416,12 +416,12 @@ public static async Task SeedRecipesAsync(
             },
             new
             {
-                Name = "Tomaten-Basilikum-Pasta",
+                Name = "Tomate-Basilikum-Pasta",
                 Description = "Fruchtige Tomaten, Basilikum und Olivenöl – simpel & gut.",
                 Prep = 10,
                 Cook = 18,
                 Difficulty = CookingDifficulty.Easy,
-                ImageFile = "/static/Images/RecipeStatic/tomaten-basilikum-pasta.png",
+                ImageFile = "/static/Images/RecipeStatic/tomate-basilikum-pasta.png",
                 Ingredients = new (string Name, decimal Amount)[]
                 {
                     ("Nudeln", 200m),
@@ -492,7 +492,7 @@ public static async Task SeedRecipesAsync(
                 Prep = 10,
                 Cook = 35,
                 Difficulty = CookingDifficulty.Easy,
-                ImageFile = "/static/Images/RecipeStatic/ofenkartoffeln.png",
+                ImageFile = "/static/Images/RecipeStatic/ofenkartoffel.png",
                 Ingredients = new (string Name, decimal Amount)[]
                 {
                     ("Kartoffeln", 600m),
