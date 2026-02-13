@@ -4,6 +4,9 @@
 @inject IRecipeService RecipeService
 @inject UserService UserService
 @inject NavigationManager NavigationManager
+@inject IFileProviderService FileProviderService
+@inject IJSRuntime JS
+@rendermode InteractiveServer
 
 <div class="container my-4">
     @if (_recipe is null)
@@ -16,6 +19,7 @@
     }
     else
     {
+        <script></script>
         <div class="card shadow-sm">
             <div class="card-body">
                 <div class="d-flex flex-wrap align-items-start justify-content-between gap-3">
@@ -26,7 +30,7 @@
                         </div>
                     </div>
 
-                    <div class="d-flex gap-2">
+                    <div class="d-flex gap-2 align-items-center">
                         @if (_isSameUser)
                         {
                             <a href="/recipes/edit-recipe/@_recipe.Id" class="btn btn-outline-primary">
@@ -40,6 +44,27 @@
                                 Löschen
                             </button>
                         }
+
+                        <!-- EXPORT DROPDOWN -->
+                        <div class="dropdown">
+                            <button class="btn btn-success dropdown-toggle"
+                                    type="button"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                Export
+                            </button>
+
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <button class="dropdown-item" @onclick="DownloadTxt">TXT Export
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="dropdown-item" @onclick="DownloadPdf">PDF Export
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
 
@@ -152,6 +177,7 @@
                 </div>
             </div>
         </div>
+
         <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -216,5 +242,32 @@
         _isSameUser = !string.IsNullOrWhiteSpace(currentUserId)
                       && string.Equals(_recipe.UserId, currentUserId, StringComparison.Ordinal);
     }
-    
+
+    private async Task DownloadTxt()
+    {
+        if (_recipe is null) return;
+
+        var bytes = await FileProviderService.CreateRecipeTxtBlob(_recipe.Id);
+        var base64 = Convert.ToBase64String(bytes);
+
+        await JS.InvokeVoidAsync(
+            "downloadFile",
+            $"rezept_{_recipe.Id}.txt",
+            "text/plain",
+            base64);
+    }
+
+    private async Task DownloadPdf()
+    {
+        if (_recipe is null) return;
+
+        var stream = await FileProviderService.CreateRecipePdfStream(_recipe.Id);
+
+        using var streamRef = new DotNetStreamReference(stream);
+
+        await JS.InvokeVoidAsync(
+            "downloadFileFromStream",
+            $"rezept_{_recipe.Id}.pdf",
+            streamRef);
+    }
 }
