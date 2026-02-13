@@ -1,5 +1,7 @@
 ﻿@page "/StorageRoom/{Id:int}"
+@using System.ComponentModel.DataAnnotations
 @using System.Security.Claims
+@using Microsoft.EntityFrameworkCore.Update.Internal
 @using RecipeNow.Data.Entities.RecipeSystem
 @using RecipeNow.Services
 @inject StorageRoomService StorageRoomService
@@ -37,6 +39,27 @@
         <div class="card mt-4">
             <div class="card-header">
                 <h5>@shelf.ContentDescription</h5>
+                <div class="dropdown position-absolute top-0 end-0 m-2">
+                    <button class="btn btn-sm btn-light"
+                            data-bs-toggle="dropdown"
+                            type="button">
+                        ⋮
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                        <li>
+                            <button class="dropdown-item"
+                                    @onclick="() => StartEdit(shelf)">
+                                Bearbeiten
+                            </button>
+                        </li>
+                        <li>
+                            <button class="dropdown-item text-danger"
+                                    @onclick="() => ConfirmDelete(shelf)">
+                                Löschen
+                            </button>
+                        </li>
+                    </ul>
+                </div>
             </div>
             <div class="card-body">
                 @for (int x = 0; x < shelf.Width; x++)
@@ -62,11 +85,118 @@ else
     </h3>
 }
 
+<!-- Create / Edit Modal -->
+<div class="modal fade" id="addShelfModal" tabindex="-1" aria-hidden="true" @ref="_modalEl">
+    <div class="modal-dialog">
+        <div class="modal-content shadow">
+            <EditForm EditContext="_editContext"
+                      OnValidSubmit="SaveShelf"
+                      FormName="StorageRoomForm">
+
+                <DataAnnotationsValidator />
+                <ValidationSummary class="text-danger" />
+
+                <div class="modal-header">
+                    <h5 class="modal-title">@(_isEdit ? "Schrank bearbeiten" : "Neuen Schrank anlegen")</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <label class="form-label">Inhaltsbeschriftung</label>
+                    <InputText class="form-control"
+                               @bind-Value="_newShelfModel.ContentDescription" />
+                    <ValidationMessage For="@(() => _newShelfModel.ContentDescription)" />
+                    @if (!string.IsNullOrWhiteSpace(_error))
+                    {
+                        <div class="text-danger mt-2">@_error</div>
+                    }
+                    
+                    <label class="form-label">Breite</label>
+                    <InputNumber class="form-control"
+                               @bind-Value="_newShelfModel.Width" />
+                    <ValidationMessage For="@(() => _newShelfModel.Width)" />
+                    @if (!string.IsNullOrWhiteSpace(_error))
+                    {
+                        <div class="text-danger mt-2">@_error</div>
+                    }
+                    
+                    <label class="form-label">Höhe</label>
+                    <InputNumber class="form-control"
+                                 @bind-Value="_newShelfModel.Height" />
+                    <ValidationMessage For="@(() => _newShelfModel.Height)" />
+                    @if (!string.IsNullOrWhiteSpace(_error))
+                    {
+                        <div class="text-danger mt-2">@_error</div>
+                    }
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="submit" class="btn btn-primary">Speichern</button>
+                </div>
+
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true" @ref="_deleteModalEl">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content shadow">
+
+            <div class="modal-header">
+                <h5 class="modal-title text-danger">Löschen bestätigen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                Möchtest du <strong>@_shelfToDelete?.ContentDescription</strong> wirklich löschen?
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                <button type="button" class="btn btn-danger" @onclick="DeleteShelf">Löschen</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    window.bootstrapModalShow = (el) => { if (el) new bootstrap.Modal(el).show(); }
+    window.bootstrapModalHide = (el) => { const m = bootstrap.Modal.getInstance(el); if (m) m.hide(); }
+</script>
+
 
 @code {
     [Parameter] public int Id { get; set; }
+    private List<Shelf> _shelves = new();
     private bool _sameUser = false;
+    private NewShelfModel _newShelfModel = new();
     private StorageRoom _storageRoom = null;
+    private EditContext _editContext = default!;
+    private bool _isEdit;
+    private string? _error;
+    
+    private Shelf? _editingShelf;
+    private Shelf? _shelfToDelete;
+    
+    private ElementReference _modalEl;
+    private ElementReference _deleteModalEl;
+    
+    public class NewShelfModel
+    {
+        [Required(ErrorMessage = "Inhaltsbeschriftung ist erforderlich")]
+        public string ContentDescription { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Breite ist erforderlich")]
+        public int Width { get; set; } = 0;
+        
+        [Required(ErrorMessage = "Height ist erforderlich")]
+        public int Height { get; set; } = 0;
+    }
     
     protected override async Task OnInitializedAsync()
     {
@@ -79,6 +209,87 @@ else
                       && string.Equals(room.UserId, currentUserId, StringComparison.Ordinal);
         if (room == null) NavigationManager.NavigateTo("/storagerooms", forceLoad: true);
         
+        ResetForm();
+        await LoadShelves(Id);
     }
     
+    private async Task NewShelfClicked()
+    {
+        _isEdit = false;
+        _editingShelf = null;
+        ResetForm();
+        await JS.InvokeVoidAsync("bootstrapModalShow", _modalEl);
+    }
+    
+    private void ResetForm()
+    {
+        _newShelfModel = new NewShelfModel();
+        _editContext = new EditContext(_newShelfModel);
+        _error = null;
+    }
+    
+    private async Task LoadShelves(int storageRoomId)
+    {
+        _shelves = await StorageRoomService.GetStorageRoomShelfAsync(storageRoomId);
+    }
+    
+    private async Task StartEdit(Shelf shelf)
+    {
+        _isEdit = true;
+        _editingShelf = shelf;
+
+        _newShelfModel = new NewShelfModel()
+        {
+            ContentDescription = shelf.ContentDescription,
+            Width = shelf.Width,
+            Height = shelf.Height
+        };
+        _editContext = new EditContext(_newShelfModel);
+
+        await JS.InvokeVoidAsync("bootstrapModalShow", _modalEl);
+    }
+
+    private async Task SaveShelf(EditContext context)
+    {
+        if (!context.Validate()) return;
+
+        try
+        {
+            if (_isEdit && _editingShelf != null)
+            {
+                _editingShelf.ContentDescription = _newShelfModel.ContentDescription;
+                await StorageRoomService.UpdateShelfContentDescriptionAsync(_editingShelf.ContentDescription, _editingShelf.Id);
+            }
+            else
+            {
+                await StorageRoomService.AddShelfAsync(Id,
+                    _newShelfModel.ContentDescription, 
+                    _newShelfModel.Height, 
+                    _newShelfModel.Width);
+            }
+
+            await LoadShelves(Id);
+            await JS.InvokeVoidAsync("bootstrapModalHide", _modalEl);
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+    
+    
+    private async Task ConfirmDelete(Shelf shelf)
+    {
+        _shelfToDelete = shelf;
+        await JS.InvokeVoidAsync("bootstrapModalShow", _deleteModalEl);
+    }
+
+    private async Task DeleteShelf()
+    {
+        if (_shelfToDelete == null) return;
+
+        await StorageRoomService.DeleteShelfAsync(_shelfToDelete.Id, Id);
+        await LoadShelves(Id);
+        await JS.InvokeVoidAsync("bootstrapModalHide", _deleteModalEl);
+    }
 }

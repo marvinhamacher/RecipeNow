@@ -17,13 +17,13 @@ public class StorageRoomService
         _userService = userService;
     }
 
-    public async Task AddShelfAsync(int storageRoomId, String shelfName, int height, int width)
+    public async Task AddShelfAsync(int storageRoomId, String contentDescription, int height, int width)
     {
         StorageRoom storageRoom = await _context.StorageRooms.FindAsync(storageRoomId);
         storageRoom?.StorageRoomShelf.Add(
             new Shelf
             {
-                ContentDescription = shelfName,
+                ContentDescription = contentDescription,
                 Height = height,
                 Width = width,
                 StorageRoomId = storageRoomId
@@ -39,10 +39,10 @@ public class StorageRoomService
         await _context.SaveChangesAsync();
     }
 
-    public async Task UpdateShelfNameAsync(String newName, int id)
+    public async Task UpdateShelfContentDescriptionAsync(String newContentDescription, int id)
     {
         Shelf shelf = await _context.Shelves.FindAsync(id);
-        shelf?.ContentDescription = newName;
+        shelf?.ContentDescription = newContentDescription;
         await _context.SaveChangesAsync();
     }
 
