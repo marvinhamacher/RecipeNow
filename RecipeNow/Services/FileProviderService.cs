@@ -8,10 +8,11 @@ public class FileProviderService : IFileProviderService
 {
     
     private readonly IRecipeService _recipeService;
-
-    public FileProviderService(IRecipeService recipeService)
+    private readonly IWebHostEnvironment _env;
+    public FileProviderService(IRecipeService recipeService, IWebHostEnvironment env)
     {
         _recipeService = recipeService;
+        _env = env;
     }
     
     public async Task<byte[]> CreateRecipeTxtBlob(int recipeId)
@@ -52,12 +53,16 @@ public class FileProviderService : IFileProviderService
                     page.Content().Column(column =>
                     {
                         column.Spacing(10);
-
-                        // Rezeptbild (falls vorhanden)
-                        if (!string.IsNullOrEmpty(recipe.ImagePath) && File.Exists(recipe.ImagePath))
+                        var fullPath = Path.Combine(_env.WebRootPath, recipe.ImagePath.TrimStart('/'));
+                        if (File.Exists(fullPath))
                         {
-                            column.Item().Image(recipe.ImagePath, ImageScaling.FitWidth);
+                            var imageBytes = File.ReadAllBytes(fullPath);
+
+                            column.Item()
+                                .Image(imageBytes)
+                                .FitWidth();
                         }
+
 
                         column.Item().Text($"Beschreibung: {recipe.Description}");
                         column.Item().Text($"Zubereitungszeit: {recipe.PreparationTime} Minuten");
