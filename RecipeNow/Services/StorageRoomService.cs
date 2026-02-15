@@ -49,16 +49,26 @@ public class StorageRoomService
     public async Task<List<Shelf>> GetStorageRoomShelfAsync(int storageRoomId)
     {
         var storageRoom = await _context.StorageRooms
-            .Include(sr => sr.StorageRoomShelf)
+            .Include(sr => sr.StorageRoomShelf) // load shelves
+            .ThenInclude(s => s.ShelfIngredients)           // load ShelfIngredients
+            .ThenInclude(si => si.Ingredient)                    // load Ingredients
             .FirstOrDefaultAsync(sr => sr.Id == storageRoomId);
 
         return storageRoom?.StorageRoomShelf?.ToList() ?? new List<Shelf>();
     }
-
-
-    public async Task AddIngredientToShelfAsync(ShelfIngredient shelfIngredient)
+    
+    public async Task AddIngredientToShelfAsync(ShelfIngredient entity)
     {
-        _context.ShelfIngredients.Add(shelfIngredient);
+        var exists = await _context.ShelfIngredients
+            .AnyAsync(x =>
+                x.ShelfId == entity.ShelfId &&
+                x.Row == entity.Row &&
+                x.Column == entity.Column);
+
+        if (exists)
+            throw new InvalidOperationException("Slot belegt");
+
+        _context.ShelfIngredients.Add(entity);
         await _context.SaveChangesAsync();
     }
 
@@ -76,21 +86,39 @@ public class StorageRoomService
         await _context.SaveChangesAsync();
     }
 
-    public Task SwapIngredientPositionsWithAnotherAsync(int shelfIngredient1Id, int shelfIngredient2Id)
+    public async Task SwapIngredientPositionsWithAnotherAsync(int shelfIngredient1Id, int shelfIngredient2Id)
     {
-        //_dbcontext.ShelfIngredients.Find(shelfIngredient1Id) 
-        //_dbcontext.ShelfIngredients.Find(shelfIngredient2Id) 
-        throw new NotImplementedException();
+        var a = await _context.ShelfIngredients.FindAsync(shelfIngredient1Id);
+        var b = await _context.ShelfIngredients.FindAsync(shelfIngredient2Id);
+
+        if (a == null || b == null) return;
+
+        (a.Row, b.Row) = (b.Row, a.Row);
+        (a.Column, b.Column) = (b.Column, a.Column);
+
+        await _context.SaveChangesAsync();
     }
 
-    public Task ChangeIngredientPosition(ShelfIngredient ingredient, int newColumn, int newRow)
+    public async Task ChangeIngredientPosition(ShelfIngredient ingredient, int newColumn, int newRow)
     {
-        // if(GetShelfIngredientByPositionAsync(ingredient.ShelfId, newColumn, newRow) != null) SwapIngredientPositionsWithAnotherAsync(ingredient.Id, GetShelfIngredientByPositionAsync(ingredient.ShelfId, newColumn, newRow).Id);
-        //TODO;
-        // hole aus ShelfIngredient den Shelf und schau ob auf positon newColumn und newRow bereits ein Ingredient steht
-        // wenn ja > swap
-        // wenn nein > einfach platzieren
-        throw new NotImplementedException();
+        var other = await GetShelfIngredientByPositionAsync(
+            ingredient.ShelfId,
+            newColumn,
+            newRow);
+
+        if (other != null)
+        {
+            await SwapIngredientPositionsWithAnotherAsync(
+                ingredient.Id,
+                other.Id);
+            return;
+        }
+
+        ingredient.Column = newColumn;
+        ingredient.Row = newRow;
+
+        _context.ShelfIngredients.Update(ingredient);
+        await _context.SaveChangesAsync();
     }
     
     public async Task<StorageRoom?> GetStorageRoomByIdAsync(int id)
