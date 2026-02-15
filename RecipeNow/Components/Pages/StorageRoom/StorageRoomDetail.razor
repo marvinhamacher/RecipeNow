@@ -1,69 +1,34 @@
 ﻿@page "/StorageRoom/{Id:int}"
 @using System.ComponentModel.DataAnnotations
 @using System.Security.Claims
-@using Microsoft.EntityFrameworkCore.Update.Internal
 @using RecipeNow.Data.Entities.RecipeSystem
 @using RecipeNow.Services
+
 @inject StorageRoomService StorageRoomService
 @inject UserService UserService
 @inject NavigationManager NavigationManager
 @inject IIngredientService IngredientService
-@rendermode InteractiveServer
 @inject IJSRuntime JS
-<!--TODO:
-- Schauen ob das der Sameuser ist via UserService (gibt schon eine ähnliche Umsetzung in RecipeDetail) 
-- In den Befüllten Positionen Dragable Images
-- Jedes Bild hat unten rechts die menge ganz klein (bsp 2x)
-- Jedes ShelfIngredient hat einen farbigen Rand für die Haltbarkeit (Grün: Länger als Ne Woche übrig;
- Gelb Morgen Fällig; Rot abgelaufen) 
-- Rechtsklich öffnet Delete Modal?
-- Modal für ShelfAdd
-- Modal für ShelfIngredientAdd
-- Optional: Downloadable PDF zur Inventur == Eigener Service 
-  - Format foreach shelf in StorageRoom.shelves => foreach shelf ingredient in shelf.shelfIngredients 
--->
+
+@rendermode InteractiveServer
+
 <link rel="stylesheet" href="StorageRoom/CSS/ShelfIngredient.css">
+
 @if (_sameUser && _storageRoom != null)
 {
     <h3>Vorratsraum: @_storageRoom.Name</h3>
-    <div class="btn-group">
-        <button class="btn btn-primary shadow-sm px-4"
-                @onclick="NewShelfClicked"
-                type="button">
-            + Neuer Schrank
-        </button>
-        <button class="btn btn-outline-secondary shadow-sm"
-                disabled>Inventur (PDF)</button>
+
+    <div class="btn-group mb-3">
+        <button class="btn btn-primary" @onclick="NewShelfClicked">+ Neuer Schrank</button>
     </div>
 
-    @* @foreach(var shelf in _storageRoom.StorageRoomShelf) *@
-    @foreach(var shelf in _shelves)
+    @foreach (var shelf in _shelves)
     {
         <div class="card mt-4">
             <div class="card-header">
                 <h5>@shelf.ContentDescription</h5>
-                <div class="dropdown position-absolute top-0 end-0 m-2">
-                    <button class="btn btn-sm btn-light"
-                            data-bs-toggle="dropdown"
-                            type="button">
-                        ⋮
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                        <li>
-                            <button class="dropdown-item"
-                                    @onclick="() => StartEdit(shelf)">
-                                Bearbeiten
-                            </button>
-                        </li>
-                        <li>
-                            <button class="dropdown-item text-danger"
-                                    @onclick="() => ConfirmDelete(shelf)">
-                                Löschen
-                            </button>
-                        </li>
-                    </ul>
-                </div>
             </div>
+
             <div class="card-body">
                 @for (int row = 1; row <= shelf.Height; row++)
                 {
@@ -72,24 +37,26 @@
                         {
                             var r = row;
                             var c = col;
-                            var si = shelf.ShelfIngredients
-                                .FirstOrDefault(x => x.Row == r && x.Column == c);
-                            
-                            if (si == null)
-                            {
-                                <div class="slot empty"
-                                     @onclick="@(() => OpenAddIngredientModal(shelf.Id, c, r))"
-                                     >
-                                    +
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="slot filled @GetExpiryClass(si)" draggable="true">
-                                    <img src="@si.Ingredient.ImagePath" />
+                            var si = shelf.ShelfIngredients.FirstOrDefault(x => x.Row == r && x.Column == c);
+
+                            <div class="slot @(si == null ? "empty" : $"filled {GetExpiryClass(si)}")"
+                                 draggable="@(si != null)"
+                                 @ondragstart="@(si != null ? () => StartDrag(si.Id) : null)"
+                                 @ondragover:preventDefault
+                                 @ondrop="() => HandleDrop(shelf.Id, r, c)"
+                                 @onclick="@(si == null ? () => OpenAddIngredientModal(shelf.Id, c, r) : null)">
+
+                                @if (si == null)
+                                {
+                                    <span>+</span>
+                                }
+                                else
+                                {
+                                    <img src="@si.Ingredient?.ImagePath" />
                                     <span class="amount">@si.Amount x</span>
-                                </div>
-                            }
+                                }
+
+                            </div>
                         }
                     </div>
                 }
@@ -99,23 +66,16 @@
 }
 else
 {
-    <h3>Vorratsraum konnte nicht geladen werden weil entweder:
-        <ul>
-            <li> du nicht angemeldet bist. </li>
-            <li> du keinen Zugriff auf diesen Vorratsraum hast</li>
-            <li> die Daten nicht erfolgreich geladen werden konnten</li>
-        </ul>
+    <h3>
+        Vorratsraum konnte nicht geladen werden oder du hast keinen Zugriff.
     </h3>
 }
 
-<!-- Create / Edit Modal -->
-<div class="modal fade" id="addShelfModal" tabindex="-1" aria-hidden="true" @ref="_modalEl">
+<!-- Create / Edit Shelf Modal -->
+<div class="modal fade" id="addShelfModal" @ref="_modalEl">
     <div class="modal-dialog">
         <div class="modal-content shadow">
-            <EditForm EditContext="_editContext"
-                      OnValidSubmit="SaveShelf"
-                      FormName="StorageRoomForm">
-
+            <EditForm EditContext="_editContext" OnValidSubmit="SaveShelf">
                 <DataAnnotationsValidator />
                 <ValidationSummary class="text-danger" />
 
@@ -126,27 +86,17 @@ else
 
                 <div class="modal-body">
                     <label class="form-label">Inhaltsbeschriftung</label>
-                    <InputText class="form-control"
-                               @bind-Value="_newShelfModel.ContentDescription" />
+                    <InputText class="form-control" @bind-Value="_newShelfModel.ContentDescription" />
                     <ValidationMessage For="@(() => _newShelfModel.ContentDescription)" />
-                    @if (!string.IsNullOrWhiteSpace(_error))
-                    {
-                        <div class="text-danger mt-2">@_error</div>
-                    }
-                    
-                    <label class="form-label">Breite</label>
-                    <InputNumber class="form-control"
-                               @bind-Value="_newShelfModel.Width" />
+
+                    <label class="form-label mt-2">Breite</label>
+                    <InputNumber class="form-control" @bind-Value="_newShelfModel.Width" />
                     <ValidationMessage For="@(() => _newShelfModel.Width)" />
-                    @if (!string.IsNullOrWhiteSpace(_error))
-                    {
-                        <div class="text-danger mt-2">@_error</div>
-                    }
-                    
-                    <label class="form-label">Höhe</label>
-                    <InputNumber class="form-control"
-                                 @bind-Value="_newShelfModel.Height" />
+
+                    <label class="form-label mt-2">Höhe</label>
+                    <InputNumber class="form-control" @bind-Value="_newShelfModel.Height" />
                     <ValidationMessage For="@(() => _newShelfModel.Height)" />
+
                     @if (!string.IsNullOrWhiteSpace(_error))
                     {
                         <div class="text-danger mt-2">@_error</div>
@@ -157,210 +107,210 @@ else
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
                     <button type="submit" class="btn btn-primary">Speichern</button>
                 </div>
-
             </EditForm>
         </div>
     </div>
 </div>
 
-
-<!-- Delete Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true" @ref="_deleteModalEl">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content shadow">
-
-            <div class="modal-header">
-                <h5 class="modal-title text-danger">Löschen bestätigen</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-
-            <div class="modal-body">
-                Möchtest du <strong>@_shelfToDelete?.ContentDescription</strong> wirklich löschen?
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-                <button type="button" class="btn btn-danger" @onclick="DeleteShelf">Löschen</button>
-            </div>
-
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" @ref="_AddShelfIngredientEl">
+<!-- Add Ingredient Modal -->
+<div class="modal fade" @ref="_addShelfIngredientEl">
     <div class="modal-dialog">
         <div class="modal-content">
-
             <div class="modal-header">
                 <h5>Zutat platzieren</h5>
-                <button class="btn-close"
-                        @onclick="CloseAddModal"></button>
+                <button class="btn-close" @onclick="CloseAddModal"></button>
             </div>
 
             <div class="modal-body">
-
-                <EditForm Model="_newShelfIngredientModel"
-                          OnValidSubmit="SaveShelfIngredient">
-
+                <EditForm Model="_newShelfIngredientModel" OnValidSubmit="SaveShelfIngredient">
                     <DataAnnotationsValidator />
 
                     <div class="mb-3">
                         <label>Zutat</label>
-                        <InputSelect class="form-select"
-                                     @bind-Value="_newShelfIngredientModel.IngredientId">
+                        <InputSelect class="form-select" @bind-Value="_newShelfIngredientModel.IngredientId">
                             <option value="">-- wählen --</option>
                             @foreach (var i in _ingredients)
                             {
-                                <option value="@i.Id">
-                                    @i.Name
-                                </option>
+                                <option value="@i.Id">@i.Name</option>
                             }
                         </InputSelect>
                     </div>
 
                     <div class="mb-3">
                         <label>Menge</label>
-                        <InputNumber class="form-control"
-                                     @bind-Value="_newShelfIngredientModel.Amount" />
+                        <InputNumber class="form-control" @bind-Value="_newShelfIngredientModel.Amount" />
                     </div>
 
                     <div class="mb-3">
                         <label>Ablaufdatum</label>
-                        <InputDate class="form-control"
-                                   @bind-Value="_newShelfIngredientModel.ExpirationDate" />
+                        <InputDate class="form-control" @bind-Value="_newShelfIngredientModel.ExpirationDate" />
                     </div>
 
-                    <button class="btn btn-primary">
-                        Speichern
-                    </button>
-
+                    <button class="btn btn-primary">Speichern</button>
                 </EditForm>
-
             </div>
-
         </div>
     </div>
 </div>
-
 
 <script>
     window.bootstrapModalShow = (el) => { if (el) new bootstrap.Modal(el).show(); }
     window.bootstrapModalHide = (el) => { const m = bootstrap.Modal.getInstance(el); if (m) m.hide(); }
 </script>
 
-
 @code {
-    [Parameter] public int Id { get; set; }
-    private List<Shelf> _shelves = new();
-    private bool _sameUser = false;
-    private NewShelfModel _newShelfModel = new();
-    private NewShelfIngredientModel _newShelfIngredientModel = new();
-    private StorageRoom _storageRoom = null;
-    private EditContext _editContext = default!;
-    private bool _isEdit;
-    private string? _error;
-    
-    private Shelf? _editingShelf;
-    private Shelf? _shelfToDelete;
-    
-    private ElementReference _modalEl;
-    private ElementReference _deleteModalEl;
-    private ElementReference _AddShelfIngredientEl;
-    
-    public required Shelf Shelf { get; set; }
-    public required Ingredient Ingredient { get; set; }
 
-    
+    [Parameter] public int Id { get; set; }
+
+    private StorageRoom? _storageRoom;
+    private List<Shelf> _shelves = new();
+    private List<Ingredient> _ingredients = new();
+
+    private bool _sameUser;
     private int? _draggedShelfIngredientId;
-    
+
     private int _modalShelfId;
     private int _modalRow;
     private int _modalCol;
-    
-    private List<Ingredient> _ingredients = new();
-    
-    
-    public class NewShelfIngredientModel
-    {
-        public int IngredientId { get; set; }
-        public int Amount { get; set; }
-        public DateTime ExpirationDate { get; set; } = DateTime.Today.AddDays(7);
-    }
-    
-    async Task OpenAddIngredientModal(int shelfId, int col, int row)
-    {
-        _modalShelfId = shelfId;
-        _modalCol = col;
-        _modalRow = row;
 
-        _newShelfIngredientModel = new NewShelfIngredientModel();
+    private ElementReference _modalEl;
+    private ElementReference _addShelfIngredientEl;
 
-        Console.WriteLine("openend shelf: " + shelfId + ", col: " + col + ", row: " + row);
+    private NewShelfModel _newShelfModel = new();
+    private EditContext _editContext = default!;
+    private bool _isEdit;
+    private string? _error;
 
-        await JS.InvokeVoidAsync("bootstrapModalShow", _AddShelfIngredientEl);
-    }
-    
+    private NewShelfIngredientModel _newShelfIngredientModel = new();
+
     public class NewShelfModel
     {
         [Required(ErrorMessage = "Inhaltsbeschriftung ist erforderlich")]
         public string ContentDescription { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Breite ist erforderlich")]
-        public int Width { get; set; } = 0;
-        
-        [Required(ErrorMessage = "Height ist erforderlich")]
-        public int Height { get; set; } = 0;
+        public int Width { get; set; }
+
+        [Required(ErrorMessage = "Höhe ist erforderlich")]
+        public int Height { get; set; }
     }
-    
+
+    public class NewShelfIngredientModel
+    {
+        public int IngredientId { get; set; }
+        public int Amount { get; set; }
+        public DateTime ExpirationDate { get; set; } = DateTime.Today.AddDays(7);
+    }
+
     protected override async Task OnInitializedAsync()
     {
         var room = await StorageRoomService.GetStorageRoomByIdAsync(Id);
-        _ingredients = (await IngredientService.LoadAllAsync()).ToList();
-        if(room==null) return;
+        if (room == null)
+        {
+            NavigationManager.NavigateTo("/storagerooms", true);
+            return;
+        }
+
         _storageRoom = room;
+
         var currentUser = await UserService.GetUserAsync();
         var currentUserId = currentUser.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
         _sameUser = !string.IsNullOrWhiteSpace(currentUserId)
-                      && string.Equals(room.UserId, currentUserId, StringComparison.Ordinal);
-        if (room == null) NavigationManager.NavigateTo("/storagerooms", forceLoad: true);
-        
+                    && string.Equals(room.UserId, currentUserId, StringComparison.Ordinal);
+
+        _ingredients = (await IngredientService.LoadAllAsync()).ToList();
+
+        await LoadShelves();
         ResetForm();
-        await LoadShelves(Id);
     }
-    
-    private async Task NewShelfClicked()
-    {
-        _isEdit = false;
-        _editingShelf = null;
-        ResetForm();
-        await JS.InvokeVoidAsync("bootstrapModalShow", _modalEl);
-    }
-    
+
     private void ResetForm()
     {
         _newShelfModel = new NewShelfModel();
         _editContext = new EditContext(_newShelfModel);
         _error = null;
     }
-    
-    private async Task LoadShelves(int storageRoomId)
+
+    private async Task LoadShelves()
     {
-        _shelves = await StorageRoomService.GetStorageRoomShelfAsync(storageRoomId);
+        _shelves = await StorageRoomService.GetStorageRoomShelfAsync(Id);
     }
-    
+
+    private async Task NewShelfClicked()
+    {
+        _isEdit = false;
+        ResetForm();
+        await JS.InvokeVoidAsync("bootstrapModalShow", _modalEl);
+    }
+
+    private void StartDrag(int id) => _draggedShelfIngredientId = id;
+
+    private async Task HandleDrop(int shelfId, int row, int col)
+    {
+        if (_draggedShelfIngredientId == null) return;
+
+        await StorageRoomService.UpdateShelfIngredientPositionAsync(
+            _draggedShelfIngredientId.Value,
+            col,
+            row,
+            shelfId);
+
+        _draggedShelfIngredientId = null;
+        await LoadShelves();
+    }
+
+    private async Task OpenAddIngredientModal(int shelfId, int col, int row)
+    {
+        _modalShelfId = shelfId;
+        _modalCol = col;
+        _modalRow = row;
+        _newShelfIngredientModel = new();
+        await JS.InvokeVoidAsync("bootstrapModalShow", _addShelfIngredientEl);
+    }
+
+    private async Task CloseAddModal()
+    {
+        await JS.InvokeVoidAsync("bootstrapModalHide", _addShelfIngredientEl);
+    }
+
+    private async Task SaveShelfIngredient()
+    {
+        var entity = new ShelfIngredient
+        {
+            ShelfId = _modalShelfId,
+            Column = _modalCol,
+            Row = _modalRow,
+            IngredientId = _newShelfIngredientModel.IngredientId,
+            Amount = _newShelfIngredientModel.Amount,
+            ExpirationDate = _newShelfIngredientModel.ExpirationDate
+        };
+
+        await StorageRoomService.AddIngredientToShelfAsync(entity);
+
+        await CloseAddModal();
+        await LoadShelves();
+    }
+
+    private string GetExpiryClass(ShelfIngredient si)
+    {
+        var days = (si.ExpirationDate - DateTime.Today).TotalDays;
+        if (days < 0) return "exp-red";
+        if (days <= 1) return "exp-orange";
+        if (days <= 7) return "exp-yellow";
+        return "exp-green";
+    }
+
     private async Task StartEdit(Shelf shelf)
     {
         _isEdit = true;
-        _editingShelf = shelf;
-
-        _newShelfModel = new NewShelfModel()
+        _newShelfModel = new NewShelfModel
         {
             ContentDescription = shelf.ContentDescription,
             Width = shelf.Width,
             Height = shelf.Height
         };
         _editContext = new EditContext(_newShelfModel);
-
         await JS.InvokeVoidAsync("bootstrapModalShow", _modalEl);
     }
 
@@ -370,81 +320,21 @@ else
 
         try
         {
-            if (_isEdit && _editingShelf != null)
+            if (_isEdit)
             {
-                _editingShelf.ContentDescription = _newShelfModel.ContentDescription;
-                await StorageRoomService.UpdateShelfContentDescriptionAsync(_editingShelf.ContentDescription, _editingShelf.Id);
+                await StorageRoomService.UpdateShelfContentDescriptionAsync(_newShelfModel.ContentDescription, _storageRoom!.Id);
             }
             else
             {
-                await StorageRoomService.AddShelfAsync(Id,
-                    _newShelfModel.ContentDescription, 
-                    _newShelfModel.Height, 
-                    _newShelfModel.Width);
+                await StorageRoomService.AddShelfAsync(Id, _newShelfModel.ContentDescription, _newShelfModel.Height, _newShelfModel.Width);
             }
 
-            await LoadShelves(Id);
+            await LoadShelves();
             await JS.InvokeVoidAsync("bootstrapModalHide", _modalEl);
         }
         catch (Exception ex)
         {
             _error = ex.Message;
         }
-    }
-    
-    
-    async Task CloseAddModal()
-    {
-        await JS.InvokeVoidAsync("bootstrapModalHide", _AddShelfIngredientEl);
-    }
-    
-    private async Task ConfirmDelete(Shelf shelf)
-    {
-        _shelfToDelete = shelf;
-        await JS.InvokeVoidAsync("bootstrapModalShow", _deleteModalEl);
-    }
-
-    private async Task DeleteShelf()
-    {
-        if (_shelfToDelete == null) return;
-
-        await StorageRoomService.DeleteShelfAsync(_shelfToDelete.Id, Id);
-        await LoadShelves(Id);
-        await JS.InvokeVoidAsync("bootstrapModalHide", _deleteModalEl);
-    }
-    
-    void StartDrag(int id)
-    {
-        _draggedShelfIngredientId = id;
-    }
-    
-    string GetExpiryClass(ShelfIngredient si)
-    {
-        var days = (si.ExpirationDate - DateTime.Today).TotalDays;
-
-        if (days < 0) return "exp-red";
-        if (days <= 1) return "exp-orange";
-        if (days <= 7) return "exp-yellow";
-        return "exp-green";
-    }
-    
-    async Task SaveShelfIngredient()
-    {
-        var entity = new ShelfIngredient
-        {
-            ShelfId = _modalShelfId,
-            Column = _modalCol,
-            Row = _modalRow,
-            IngredientId = _newShelfIngredientModel.IngredientId,
-            Amount = _newShelfIngredientModel.Amount,
-            ExpirationDate = _newShelfIngredientModel.ExpirationDate,
-            Shelf = null,
-            Ingredient = null,
-        };
-
-        await StorageRoomService.AddIngredientToShelfAsync(entity);
-
-        await CloseAddModal();
-        await LoadShelves(Id);
     }
 }

@@ -5,30 +5,26 @@ namespace RecipeNow.Data.Entities.RecipeSystem;
 public class ShelfIngredient
 {
     public int Id { get; set; }
-    
+
     [Required(ErrorMessage = "Darf nicht leer sein")]
     public DateTime ExpirationDate { get; set; }
     
-    
-    [Required(ErrorMessage = "Darf nicht leer sein")]
-    public required int ShelfId { get; set; }
-    [Required(ErrorMessage = "Darf nicht leer sein")]
-    public required Shelf Shelf { get; set; } = null!;
+    [Required]
+    public int ShelfId { get; set; }
 
-    [Required(ErrorMessage = "Darf nicht leer sein")]
-    public required int IngredientId { get; set; }
-    [Required(ErrorMessage = "Darf nicht leer sein")]
-    public required Ingredient Ingredient { get; set; } = null!;
+    [Required]
+    public int IngredientId { get; set; }
     
-    
-    [Required(ErrorMessage = "Darf nicht leer sein")]
+    public Shelf? Shelf { get; set; }
+
+    public Ingredient? Ingredient { get; set; }
+
+    [Required]
     public int Amount { get; set; }
-    
-    [Required(ErrorMessage = "Darf nicht leer sein")]
+
+    [Required]
     public int Row { get; set; }
-    
-    [Required(ErrorMessage = "Darf nicht leer sein")]
+
+    [Required]
     public int Column { get; set; }
-    
-    
 }

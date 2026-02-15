@@ -95,6 +95,7 @@ public class StorageRoomService
 
         (a.Row, b.Row) = (b.Row, a.Row);
         (a.Column, b.Column) = (b.Column, a.Column);
+        (a.ShelfId, b.ShelfId) = (b.ShelfId, a.ShelfId);
 
         await _context.SaveChangesAsync();
     }
@@ -160,6 +161,33 @@ public class StorageRoomService
         StorageRoom entity = await _context.StorageRooms.FindAsync(storageRoom.Id);
         if (entity is null) throw new InvalidOperationException("Vorratsraum nicht gefunden.");
         entity.Name = storageRoom.Name;
+        await _context.SaveChangesAsync();
+    }
+
+
+    public async Task UpdateShelfIngredientPositionAsync(int sourceShelfIngredientId, int targetColumn, int targetRow, int targetShelfId)
+    {
+        var ingredient = await _context.ShelfIngredients.FindAsync(sourceShelfIngredientId);
+        if (ingredient == null) return;
+
+        var other = await GetShelfIngredientByPositionAsync(
+            targetShelfId,
+            targetColumn,
+            targetRow);
+
+        if (other != null)
+        {
+            await SwapIngredientPositionsWithAnotherAsync(
+                ingredient.Id,
+                other.Id);
+            return;
+        }
+
+        ingredient.Column = targetColumn;
+        ingredient.Row = targetRow;
+        ingredient.ShelfId = targetShelfId;
+
+        _context.ShelfIngredients.Update(ingredient);
         await _context.SaveChangesAsync();
     }
 }
