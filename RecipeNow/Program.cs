@@ -37,8 +37,8 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => {
         .AddEntityFrameworkStores<AuthDbContext>()
         .AddDefaultTokenProviders();
 // Falls Services benutzt werden:
-builder.Services.AddScoped<RecipeService>();
-builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<IRecipeService, RecipeService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IIngredientService, IngredientService>();
 builder.Services.AddAuthentication(options =>
         {

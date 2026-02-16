@@ -20,7 +20,7 @@ public class ShelfIngredient
     public Ingredient? Ingredient { get; set; }
 
     [Required]
-    public int Amount { get; set; }
+    public decimal Amount { get; set; }
 
     [Required]
     public int Row { get; set; }
