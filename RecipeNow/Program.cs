@@ -114,10 +114,18 @@ app.MapPost("/recipes/delete/{id:int}", async (int id, IRecipeService recipeServ
 app.MapPost("/StorageRoom/delete/{id:int}", async (int id, StorageRoomService storageRoomService) =>
     {
         await storageRoomService.DeleteStorageRoomAsync(id);
-        return Results.Redirect("/recipes");
+        return Results.Redirect("");
     })
     .RequireAuthorization();
 
+app.MapPost("/StorageRoom/{Id:int}/delete/{ShelfId:int}", async (int Id, int ShelfId, StorageRoomService storageRoomService) =>
+    {
+        await storageRoomService.DeleteShelfAsync(ShelfId, Id);
+        return Results.Redirect("/StorageRoom/"+Id);
+    })
+    .RequireAuthorization();
+
+////StorageRoom/@_deleteModel.Id/delete/@_deleteModel.ShelfId
 
 
 app.MapRazorComponents<App>()

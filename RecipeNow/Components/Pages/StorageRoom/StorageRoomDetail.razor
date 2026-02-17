@@ -1,6 +1,7 @@
 ﻿@page "/StorageRoom/{Id:int}"
 @using System.ComponentModel.DataAnnotations
 @using System.Security.Claims
+@using Microsoft.EntityFrameworkCore
 @using RecipeNow.Data.Entities.RecipeSystem
 @using RecipeNow.Services
 
@@ -27,6 +28,21 @@
         <div class="card mt-4">
             <div class="card-header">
                 <h5>@shelf.ContentDescription</h5>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" type="button">
+                        ⋮
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                        <li>
+                            <button class="dropdown-item" @onclick="() => StartEdit(shelf)">
+                                Bearbeiten
+                            </button>
+                            <button class="dropdown-item" @onclick="() => StartDelete(shelf.Id)">
+                                Löschen
+                            </button>
+                        </li>
+                    </ul>
+                </div>    
             </div>
 
             <div class="card-body">
@@ -153,6 +169,28 @@ else
     </div>
 </div>
 
+<div class="modal fade" @ref="_deleteModalEl">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Löschen</h5>
+                <button class="btn-close" @onclick="CloseDeleteModal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Wollen sie den Schrank löschen?</p>
+            </div>
+            <div class="modal-footer">
+                <form action="/StorageRoom/@_deleteModel.Id/delete/@_deleteModel.ShelfId" method="post" style="display:inline">
+                    <AntiforgeryToken/>
+                    <button type="submit" class="btn btn-danger">
+                        Löschen
+                    </button>
+                </form>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>    
 <script>
     window.bootstrapModalShow = (el) => { if (el) new bootstrap.Modal(el).show(); }
     window.bootstrapModalHide = (el) => { const m = bootstrap.Modal.getInstance(el); if (m) m.hide(); }
@@ -172,11 +210,14 @@ else
     private int _modalShelfId;
     private int _modalRow;
     private int _modalCol;
+    private int _deleteModalId;
 
     private ElementReference _modalEl;
     private ElementReference _addShelfIngredientEl;
+    private ElementReference _deleteModalEl;
 
     private NewShelfModel _newShelfModel = new();
+    private DeleteModel _deleteModel = new();
     private EditContext _editContext = default!;
     private bool _isEdit;
     private string? _error;
@@ -200,6 +241,12 @@ else
         public int IngredientId { get; set; }
         public int Amount { get; set; }
         public DateTime ExpirationDate { get; set; } = DateTime.Today.AddDays(7);
+    }
+    
+    public class DeleteModel
+    {
+        public int Id { get; set; }
+        public int ShelfId { get; set; }
     }
 
     protected override async Task OnInitializedAsync()
@@ -271,7 +318,12 @@ else
 
     private async Task CloseAddModal()
     {
-        await JS.InvokeVoidAsync("bootstrapModalHide", _addShelfIngredientEl);
+        await JS.InvokeVoidAsync("bootstrapModalHide", _deleteModalEl);
+    }
+    
+    private async Task CloseDeleteModal()
+    {
+        await JS.InvokeVoidAsync("bootstrapModalHide", _deleteModalEl);
     }
 
     private async Task SaveShelfIngredient()
@@ -313,6 +365,18 @@ else
         _editContext = new EditContext(_newShelfModel);
         await JS.InvokeVoidAsync("bootstrapModalShow", _modalEl);
     }
+    
+    private async Task StartDelete(int id)
+    {
+        _isEdit = true;
+        _deleteModel = new DeleteModel 
+        { 
+            Id = Id,
+            ShelfId = id 
+        };
+        await JS.InvokeVoidAsync("bootstrapModalShow", _deleteModalEl);
+    }
+    
 
     private async Task SaveShelf(EditContext context)
     {

@@ -33,9 +33,12 @@ public class StorageRoomService
     }
 
     public async Task DeleteShelfAsync(int shelfId, int storageRoomId)
-    {
-        StorageRoom storageRoom = await _context.StorageRooms.FindAsync(storageRoomId);
-        storageRoom?.StorageRoomShelf.Remove(storageRoom.StorageRoomShelf.FirstOrDefault(s => s.Id == shelfId));
+    { 
+        var storageRoom = await _context.StorageRooms
+            .Include(sr => sr.StorageRoomShelf) 
+            .FirstOrDefaultAsync(sr => sr.Id == storageRoomId);
+        Shelf shelf = storageRoom.StorageRoomShelf.FirstOrDefault(s => s.Id == shelfId);
+        storageRoom?.StorageRoomShelf.Remove(shelf);
         await _context.SaveChangesAsync();
     }
 

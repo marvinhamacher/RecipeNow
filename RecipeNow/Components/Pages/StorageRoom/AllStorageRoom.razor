@@ -5,7 +5,7 @@
 @using RecipeNow.Services
 @inject StorageRoomService StorageRoomService
 @inject IJSRuntime JS
-
+@inject NavigationManager NavigationManager
 <h1 class="mb-4">Vorratsräume</h1>
 
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -52,6 +52,10 @@
                     <span class="badge bg-light text-dark border">
                         @(room.StorageRoomShelf?.Count ?? 0) Schränke
                     </span>
+                    <a class="btn btn-sm btn-primary"
+                       href="@($"StorageRoom/{room.Id}")">
+                        Zum Raum
+                    </a>
                 </div>
             </div>
         </div>
