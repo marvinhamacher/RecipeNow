@@ -104,15 +104,22 @@ else
                     <label class="form-label">Inhaltsbeschriftung</label>
                     <InputText class="form-control" @bind-Value="_newShelfModel.ContentDescription" />
                     <ValidationMessage For="@(() => _newShelfModel.ContentDescription)" />
+                    @if(_isEdit)
+                    {
+                        <div class="form-text">
+                            Aktuelle Kapazität: @(_newShelfModel.Height * _newShelfModel.Width) Fächer
+                        </div>
+                    }
+                    else
+                    {
+                        <label class="form-label mt-2">Breite</label>
+                        <InputNumber class="form-control" @bind-Value="_newShelfModel.Width" />
+                        <ValidationMessage For="@(() => _newShelfModel.Width)" />
 
-                    <label class="form-label mt-2">Breite</label>
-                    <InputNumber class="form-control" @bind-Value="_newShelfModel.Width" />
-                    <ValidationMessage For="@(() => _newShelfModel.Width)" />
-
-                    <label class="form-label mt-2">Höhe</label>
-                    <InputNumber class="form-control" @bind-Value="_newShelfModel.Height" />
-                    <ValidationMessage For="@(() => _newShelfModel.Height)" />
-
+                        <label class="form-label mt-2">Höhe</label>
+                        <InputNumber class="form-control" @bind-Value="_newShelfModel.Height" />
+                        <ValidationMessage For="@(() => _newShelfModel.Height)" />
+                    }
                     @if (!string.IsNullOrWhiteSpace(_error))
                     {
                         <div class="text-danger mt-2">@_error</div>
@@ -210,7 +217,7 @@ else
     private int _modalShelfId;
     private int _modalRow;
     private int _modalCol;
-    private int _deleteModalId;
+    private int _editingShelfId;
 
     private ElementReference _modalEl;
     private ElementReference _addShelfIngredientEl;
@@ -356,6 +363,7 @@ else
     private async Task StartEdit(Shelf shelf)
     {
         _isEdit = true;
+        _editingShelfId = shelf.Id;
         _newShelfModel = new NewShelfModel
         {
             ContentDescription = shelf.ContentDescription,
@@ -386,7 +394,7 @@ else
         {
             if (_isEdit)
             {
-                await StorageRoomService.UpdateShelfContentDescriptionAsync(_newShelfModel.ContentDescription, _storageRoom!.Id);
+                await StorageRoomService.UpdateShelfContentDescriptionAsync(_newShelfModel.ContentDescription, _editingShelfId);
             }
             else
             {
