@@ -7,7 +7,7 @@ using RecipeNow.Data.Contexts;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Security.Claims;
 
-public class UserService
+public class UserService : IUserService
 {
     private readonly AuthDbContext _dbContext;
     private readonly AuthenticationStateProvider _authStateProvider;

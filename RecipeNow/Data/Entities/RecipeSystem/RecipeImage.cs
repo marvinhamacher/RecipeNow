@@ -6,14 +6,14 @@ public class RecipeImage
 {
     public int Id { get; set; }
 
-    [Required]
+    [Required (ErrorMessage = "Darf nicht leer sein")]
     public int RecipeId { get; set; }
 
-    [Required]
+    [Required (ErrorMessage = "Darf nicht leer sein")]
     public Recipe Recipe { get; set; } = null!;
 
-    [Required]
-    [MaxLength(255)]
+    [Required (ErrorMessage = "Darf nicht leer sein")]
+    [MaxLength(255, ErrorMessage = "Auf 255 Charaktere begrenzt")]
     public string ImagePath { get; set; } = string.Empty;
 
     public bool IsPrimary { get; set; }

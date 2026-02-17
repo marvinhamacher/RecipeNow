@@ -1,11 +1,12 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
-    </PropertyGroup>
+      <UserSecretsId>81d3019f-95f4-4071-a0b9-b0b10cb36c4e</UserSecretsId>
+  </PropertyGroup>
 
     <ItemGroup>
         <!-- EF Core Sqlite-->
@@ -23,7 +24,7 @@
       <Folder Include="Data\Enumerators\Authentication\" />
       <Folder Include="wwwroot\images\ingredients\" />
       <Folder Include="wwwroot\images\Recipes\" />
-      <Folder Include="wwwroot\static\Images\" />
+      <Folder Include="wwwroot\static\Images\IngredientStatic\" />
     </ItemGroup>
 
 </Project>
