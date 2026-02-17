@@ -16,6 +16,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddRazorPages();
 // Falls Services benutzt werden:
+builder.Services.AddScoped<IFileProviderService, FileProviderService>();
 builder.Services.AddScoped<RecipeService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<StorageRoomService>();
@@ -130,5 +131,5 @@ app.MapPost("/StorageRoom/{Id:int}/delete/{ShelfId:int}", async (int Id, int She
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
-
+QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 app.Run();
