@@ -37,6 +37,14 @@
                             <ValidationMessage For="@(() => _recipe.Description)" />
                         </div>
                     </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Anleitung</label>
+                        <InputTextArea class="form-control" @bind-Value="_recipe.CookingInstructions" />
+                        <div class="text-danger">
+                            <ValidationMessage For="@(() => _recipe.CookingInstructions)" />
+                        </div>
+                    </div>
 
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
@@ -151,6 +159,7 @@
     {
         Name = "",
         Description = "",
+        CookingInstructions = "",
         PreparationTime = 0,
         CookingTime = 0,
         CookingDifficulty = CookingDifficulty.Medium,

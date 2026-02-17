@@ -14,6 +14,10 @@ public class Recipe
     public string? Description { get; set; }
     
     [Required]
+    [MaxLength(1000)]
+    public required string CookingInstructions { get; set; } = string.Empty; 
+    
+    [Required]
     [Range(0, int.MaxValue)]
     public required int PreparationTime { get; set; }
     
