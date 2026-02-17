@@ -1,9 +1,12 @@
 ﻿@page "/StorageRoom/{Id:int}"
 @using System.ComponentModel.DataAnnotations
+@using System.Reflection
 @using System.Security.Claims
 @using Microsoft.EntityFrameworkCore
 @using RecipeNow.Data.Entities.RecipeSystem
+@using RecipeNow.Data.Enumerators
 @using RecipeNow.Services
+@using RecipeNow.Helper
 
 @inject StorageRoomService StorageRoomService
 @inject UserService UserService
@@ -69,7 +72,9 @@
                                 else
                                 {
                                     <img src="@si.Ingredient?.ImagePath" />
-                                    <span class="amount">@si.Amount x</span>
+                                    <span class="amount">
+                                        @si.Amount.ToString("0.##") @(si.Ingredient?.Measurement.GetDisplayName())
+                                    </span>
                                 }
 
                             </div>
@@ -325,7 +330,7 @@ else
 
     private async Task CloseAddModal()
     {
-        await JS.InvokeVoidAsync("bootstrapModalHide", _deleteModalEl);
+        await JS.InvokeVoidAsync("bootstrapModalHide", _addShelfIngredientEl);
     }
     
     private async Task CloseDeleteModal()
