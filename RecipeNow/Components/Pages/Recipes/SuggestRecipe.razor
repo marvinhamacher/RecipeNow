@@ -1,0 +1,30 @@
+﻿@page "/suggestRecipe"
+@using System.Security.Claims
+@using RecipeNow.Data.Entities.RecipeSystem
+@using RecipeNow.Services
+@inject IRecipeService RecipeService
+@inject IUserService UserService
+<h3>SuggestRecipe</h3>
+
+@code {
+    
+    private List<Recipe> _suggestedRecipes = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await UserService.GetUserAsync();
+        var userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            Console.WriteLine("Kein UserId gefunden");
+            return;
+        }
+
+        _suggestedRecipes = await RecipeService.SuggestRecipesAsync(userId);
+
+        foreach (var r in _suggestedRecipes)
+            Console.WriteLine($"Treffer: {r.Name}");
+    }
+    
+}

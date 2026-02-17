@@ -7,11 +7,15 @@
 
 .recipe-overview {
     width: 18rem;
-    height: 12rem;
+    height: 21.5rem;
+}
+
+.recipe-overview .btn {
+    margin-top: auto;
 }
 
 .recipe-img {
-    height: 160px;
+    height: 12rem;
     object-fit: cover;
     width: 100%;
     display: block;

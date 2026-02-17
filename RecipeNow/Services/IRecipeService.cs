@@ -10,4 +10,12 @@ public interface IRecipeService
     Task<Recipe?> GetByIdAsync(int id);
     Task UpdateAsync(Recipe recipe, IEnumerable<IBrowserFile> newImages, IEnumerable<int> keptImageIds, IEnumerable<(int IngredientId, decimal Amount)> ingredients);
     Task DeleteAsync(int id);
+
+    Task<List<Recipe>> SuggestRecipesAsync(string userId);
+
+    Task<Dictionary<int, decimal>> BuildPantryAsync(string userId);
+
+    List<Recipe> FindBestRecipes(Dictionary<int, decimal> pantry, List<Recipe> recipes);
+
+    int CountMissing(Recipe recipe, Dictionary<int, decimal> pantry);
 }

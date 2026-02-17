@@ -225,4 +225,122 @@ public class RecipeService : IRecipeService
 
         await _context.SaveChangesAsync();
     }
+    
+    public async Task<List<Recipe>> SuggestRecipesAsync(string userId)
+    {
+        var pantry = await BuildPantryAsync(userId);
+    
+        var recipes = await _context.Recipes
+            .Include(r => r.RecipeIngredients)
+            .ThenInclude(ri => ri.Ingredient)
+            .ToListAsync();
+    
+        return FindBestRecipes(pantry, recipes);
+    }
+
+    public async Task<Dictionary<int, decimal>> BuildPantryAsync(string userId)
+    {
+        var now = DateTime.UtcNow;
+        
+        var shelfIngredients = await _context.StorageRooms
+            .Where(sr => sr.UserId == userId)
+            .SelectMany(sr => sr.StorageRoomShelf)
+            .SelectMany(s => s.ShelfIngredients)
+            .Where(si => si.ExpirationDate > now)
+            .ToListAsync();
+    
+        return shelfIngredients
+            .GroupBy(x => x.IngredientId)
+            .ToDictionary(
+                g => g.Key,
+                g => g.Sum(x => x.Amount)
+            );
+    }
+
+    public List<Recipe> FindBestRecipes(Dictionary<int, decimal> pantry, List<Recipe> recipes)
+    {
+        Console.WriteLine("Pantry:" + pantry);
+        int maxTolerance = recipes.Max(r => r.RecipeIngredients.Count);
+        
+        // Alle rezepte ausgeben die infrage kommen (zutaten da, nix abgelaufen)
+        // for (int tolerance = 0; tolerance <= maxTolerance; tolerance++)
+        // {
+        //     var matches = new List<Recipe>();
+        //
+        //     foreach (var recipe in recipes)
+        //     {
+        //         int missing = CountMissing(recipe, pantry);
+        //         Console.WriteLine("missing: " + missing);
+        //         Console.WriteLine("tolerance:" + tolerance);
+        //
+        //         if (missing <= tolerance)
+        //             matches.Add(recipe);
+        //     }
+        //
+        //     if (matches.Any())
+        //     {
+        //         var ordered = matches
+        //             .OrderBy(r => CalculateRecipeCost(r))
+        //             .ToList();
+        //
+        //         Console.WriteLine($"Treffer bei Toleranz {tolerance}");
+        //         foreach (var r in ordered)
+        //             Console.WriteLine($"{r.Name} | Cost={CalculateRecipeCost(r)}");
+        //
+        //         return ordered;
+        //     }
+        // }
+        
+        // das günstigste aus den gefundenen ausgeben
+        for (int tolerance = 0; tolerance <= maxTolerance; tolerance++)
+        {
+            var best = recipes
+                .Where(r => CountMissing(r, pantry) <= tolerance)
+                .OrderBy(r => CalculateRecipeCost(r))
+                .FirstOrDefault();
+
+            if (best != null)
+            {
+                Console.WriteLine($"Gewähltes Rezept: {best.Name}");
+                Console.WriteLine($"Kosten: {CalculateRecipeCost(best)}");
+                Console.WriteLine($"Tolerance: {tolerance}");
+                return new List<Recipe> { best }; // hab jetzt so gelassen weil hab bei alle rezepte ausgeben auch liste gegeben...
+            }
+        }
+    
+        return new List<Recipe>();
+    }
+    
+    public int CountMissing(Recipe recipe, Dictionary<int, decimal> pantry)
+    {
+        int missing = 0;
+    
+        foreach (var req in recipe.RecipeIngredients)
+        {
+            if (!pantry.TryGetValue(req.IngredientId, out var available)
+                || available < req.Amount)
+            {
+                missing++;
+            }
+        }
+    
+        return missing;
+    }
+    
+    private decimal CalculateRecipeCost(Recipe recipe)
+    {
+        decimal total = 0;
+
+        foreach (var ri in recipe.RecipeIngredients)
+        {
+            if (ri.Ingredient == null)
+            {
+                continue;
+            }
+            
+            total += ri.Amount * Convert.ToDecimal(ri.Ingredient.PricePerUnit);
+        }
+
+        return total;
+    }
 }

@@ -3,6 +3,7 @@
 @inject IRecipeService RecipeService
 @inject IIngredientService IngredientService
 @inject NavigationManager NavigationManager
+@using System.Security.Claims
 @using Microsoft.Extensions.Options
 @using RecipeNow.Config
 @using RecipeNow.Data.Entities.RecipeSystem
@@ -264,22 +265,21 @@
     {
         _submitAttempted = true;
 
-        if (_images.Count == 0)
+        if (!_editContext!.Validate())
             return;
 
-        var user = await UserService.GetUserAsync();
-        var userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (_images.Count == 0)
+            return; 
 
+        var user = await UserService.GetUserAsync();
+        var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrWhiteSpace(userId))
             return;
 
         _recipe.UserId = userId;
 
-        var ingredientRows = SelectedIngredients
-            .Select(x => (x.IngredientId, x.Amount));
-
+        var ingredientRows = SelectedIngredients.Select(x => (x.IngredientId, x.Amount));
         await RecipeService.AddAsync(_recipe, _images, ingredientRows);
-
         NavigationManager.NavigateTo("/");
     }
 }

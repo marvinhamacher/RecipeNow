@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using RecipeNow.Data.Enumerators;
 namespace RecipeNow.Data.Entities.RecipeSystem;
 
@@ -31,10 +31,11 @@ public class Recipe
     public required string UserId { get; set; } 
     
     [MaxLength(255)]
-    public string ImagePath { get; set; }
-    
-    public ICollection<RecipeImage> Images { get; set; }
-    
+    public string ImagePath { get; set; } = string.Empty;
+
+    public ICollection<RecipeImage> Images { get; set; } = new List<RecipeImage>();
+
     public ICollection<RecipeIngredient> RecipeIngredients { get; set; }
         = new List<RecipeIngredient>();
 }
+
