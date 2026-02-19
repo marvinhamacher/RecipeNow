@@ -1,0 +1,39 @@
+﻿/* Container für die Slots (Grid) */
+.shelf-grid {
+    display: inline-grid;
+    gap: 8px; /* Abstand zwischen den Slots */
+}
+
+/* Slot selbst bleibt fast gleich */
+.slot {
+    width: 80px;
+    height: 80px;
+    border: 2px dashed #ccc;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background-color: #f8f9fa; /* optional, damit Slots sichtbar sind */
+}
+
+.slot img {
+    max-width: 60px; /* kleiner als 100%, damit padding sichtbar bleibt */
+    max-height: 60px;
+}
+
+.amount {
+    position: absolute;
+    bottom: 2px;
+    right: 4px;
+    font-size: 11px;
+    background: white;
+    padding: 1px 3px;
+    border-radius: 3px;
+}
+
+
+.exp-green { border: 3px solid green; }
+.exp-yellow { border: 3px solid gold; }
+.exp-orange { border: 3px solid orange; }
+.exp-red { border: 3px solid red; }

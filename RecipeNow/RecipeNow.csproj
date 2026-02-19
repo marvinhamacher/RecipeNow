@@ -26,6 +26,7 @@
       <Folder Include="wwwroot\images\ingredients\" />
       <Folder Include="wwwroot\images\Recipes\" />
       <Folder Include="wwwroot\static\Images\IngredientStatic\" />
+      <Folder Include="wwwroot\StorageRoom\CSS\" />
     </ItemGroup>
 
 </Project>

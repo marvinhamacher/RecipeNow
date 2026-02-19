@@ -13,7 +13,6 @@
 
 @rendermode InteractiveServer
 
-<link rel="stylesheet" href="StorageRoom/CSS/ShelfIngredient.css">
 
 @if (_sameUser && _storageRoom != null)
 {
@@ -27,22 +26,27 @@
     {
         <div class="card mt-4">
             <div class="card-header">
-                <h5>@shelf.ContentDescription</h5>
-                <div class="dropdown">
-                    <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" type="button">
-                        ⋮
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                        <li>
-                            <button class="dropdown-item" @onclick="() => StartEdit(shelf)">
-                                Bearbeiten
-                            </button>
-                            <button class="dropdown-item" @onclick="() => StartDelete(shelf.Id)">
-                                Löschen
-                            </button>
-                        </li>
-                    </ul>
-                </div>    
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">@shelf.ContentDescription</h5>
+
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" type="button">
+                            ⋮
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                            <li>
+                                <button class="dropdown-item" @onclick="() => StartEdit(shelf)">
+                                    Bearbeiten
+                                </button>
+                            </li>
+                            <li>
+                                <button class="dropdown-item" @onclick="() => StartDelete(shelf.Id)">
+                                    Löschen
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
 
             <div class="card-body">
@@ -245,6 +249,7 @@ else
     public class NewShelfIngredientModel
     {
         public int IngredientId { get; set; }
+        [Required(ErrorMessage = "Menge ist erforderlich"),Range(1,2000, ErrorMessage =  "Menge darf nicht größer als 2000 und nicht kleiner als 1 sein")]
         public int Amount { get; set; }
         public DateTime ExpirationDate { get; set; } = DateTime.Today.AddDays(7);
     }
