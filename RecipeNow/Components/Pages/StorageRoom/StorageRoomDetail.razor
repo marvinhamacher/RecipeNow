@@ -235,10 +235,10 @@ else
         [Required(ErrorMessage = "Inhaltsbeschriftung ist erforderlich")]
         public string ContentDescription { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Breite ist erforderlich")]
+        [Required(ErrorMessage = "Breite ist erforderlich"), Range(1,20, ErrorMessage =  "Breite darf nicht größer als 20 und nicht kleiner als 1 sein")]
         public int Width { get; set; }
 
-        [Required(ErrorMessage = "Höhe ist erforderlich")]
+        [Required(ErrorMessage = "Höhe ist erforderlich"),Range(1,20, ErrorMessage =  "Höhe darf nicht größer als 20 und nicht kleiner als 1 sein")]
         public int Height { get; set; }
     }
 
