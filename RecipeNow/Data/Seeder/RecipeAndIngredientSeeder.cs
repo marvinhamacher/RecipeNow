@@ -553,10 +553,10 @@ public class RecipeAndIngredientSeeder
                 Difficulty = CookingDifficulty.Medium,
                 ImageFile = "/static/Images/RecipeStatic/zitronen-haehnchen.png",
                 CookingInstructions =
-                    "Hähnchenbrust trocken tupfen und mit Salz und Pfeffer würzen." +
-                    "Olivenöl in einer Pfanne erhitzen und das Fleisch bei mittlerer Hitze von beiden Seiten goldbraun anbraten." +
-                    "Knoblauch fein hacken und kurz mitbraten. Mit dem Saft einer Zitrone ablöschen und etwas Zitronenabrieb zugeben." +
-                    "Hitze reduzieren und das Hähnchen 8–10 Minuten gar ziehen lassen." +
+                    "Hähnchenbrust trocken tupfen und mit Salz und Pfeffer würzen. " +
+                    "Olivenöl in einer Pfanne erhitzen und das Fleisch bei mittlerer Hitze von beiden Seiten goldbraun anbraten. " +
+                    "Knoblauch fein hacken und kurz mitbraten. Mit dem Saft einer Zitrone ablöschen und etwas Zitronenabrieb zugeben. " +
+                    "Hitze reduzieren und das Hähnchen 8–10 Minuten gar ziehen lassen. " +
                     "Vor dem Servieren kurz ruhen lassen und in Scheiben schneiden.",
                 Ingredients = new (string Name, decimal Amount)[]
                 {
@@ -577,7 +577,7 @@ public class RecipeAndIngredientSeeder
                 Difficulty = CookingDifficulty.Easy,
                 ImageFile = "/static/Images/RecipeStatic/caprese-salat.png",
                 CookingInstructions =
-                    "Tomaten in gleichmäßige Scheiben schneiden. Auf einem Teller leicht überlappend anrichten." +
+                    "Tomaten in gleichmäßige Scheiben schneiden. Auf einem Teller leicht überlappend anrichten. " +
                     "Mit Salz und frisch gemahlenem Pfeffer würzen. Olivenöl gleichmäßig darüberträufeln. Basilikumblätter" +
                     " grob zupfen und über die Tomaten streuen. Kurz durchziehen lassen, damit sich die Aromen verbinden. " +
                     "Optional mit etwas Balsamico oder frischem Mozzarella ergänzen.",

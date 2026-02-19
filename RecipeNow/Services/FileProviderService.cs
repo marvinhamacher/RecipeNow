@@ -20,13 +20,15 @@ public class FileProviderService : IFileProviderService
         Recipe recipe = await _recipeService.GetByIdAsync(recipeId) ?? throw new Exception("Recipe not found");
         string content = "Rezept: " + recipe.Name + Environment.NewLine +
                          "Beschreibung: " + recipe.Description + Environment.NewLine +
-                         "Anleitung:" + recipe.CookingInstructions + Environment.NewLine +
                          "Zubereitungszeit: " + recipe.PreparationTime + " Minuten" + Environment.NewLine +
+                         "Kochzeit:" + recipe.CookingTime + Environment.NewLine +
                          "Zutaten:" + Environment.NewLine;
         foreach (var ingredient in recipe.RecipeIngredients)
         {
             content += "- " + ingredient.Ingredient.Name + ": " + ingredient.Amount + Environment.NewLine;
         }
+
+        content += "Anleitung:" + recipe.CookingInstructions + Environment.NewLine;
         return System.Text.Encoding.UTF8.GetBytes(content);
     }
     
@@ -66,9 +68,10 @@ public class FileProviderService : IFileProviderService
 
 
                         column.Item().Text($"Beschreibung: {recipe.Description}");
-                        column.Item().Text($"Anleitung: {recipe.CookingInstructions}");
+                        
                         column.Item().Text($"Zubereitungszeit: {recipe.PreparationTime} Minuten");
-
+                        column.Item().Text($"Kochzeit: {recipe.CookingTime} Minuten");
+                        
                         column.Item().Text("Zutaten:")
                             .FontSize(16)
                             .SemiBold();
@@ -79,6 +82,7 @@ public class FileProviderService : IFileProviderService
                                 $"- {ingredient.Ingredient.Name}: {ingredient.Amount}"
                             );
                         }
+                        column.Item().Text($"Anleitung: {recipe.CookingInstructions}");
                     });
 
                     page.Footer()
