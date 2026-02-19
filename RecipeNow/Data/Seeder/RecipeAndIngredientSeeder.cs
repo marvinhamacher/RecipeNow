@@ -362,12 +362,11 @@ public class RecipeAndIngredientSeeder
         }
     }
 
-public static async Task SeedRecipesAsync(
+    public static async Task SeedRecipesAsync(
         AppDbContext db,
         UserManager<IdentityUser> userManager,
         CancellationToken ct = default)
     {
-
         var seedEmails = new[]
         {
             "user1@example.test",
@@ -405,6 +404,15 @@ public static async Task SeedRecipesAsync(
                 Cook = 12,
                 Difficulty = CookingDifficulty.Easy,
                 ImageFile = "/static/Images/RecipeStatic/spaghetti.png",
+                CookingInstructions =
+                    "Nudeln in reichlich gesalzenem Wasser al dente kochen. " +
+                    "Währenddessen Knoblauch in dünne Scheiben schneiden. " +
+                    "Olivenöl in einer großen Pfanne bei mittlerer Hitze erwärmen und den Knoblauch langsam goldgelb anbraten;" +
+                    " nicht verbrennen lassen, sonst wird er bitter. " +
+                    "Etwas Nudelwasser abschöpfen. Nudeln abgießen und direkt in die Pfanne geben. " +
+                    "Mit 2–3 EL Nudelwasser vermengen, damit eine cremige Emulsion entsteht. " +
+                    "Mit Salz und frisch gemahlenem Pfeffer abschmecken. " +
+                    "Optional mit Chiliflocken verfeinern und sofort servieren.",
                 Ingredients = new (string Name, decimal Amount)[]
                 {
                     ("Nudeln", 200m),
@@ -422,6 +430,14 @@ public static async Task SeedRecipesAsync(
                 Cook = 18,
                 Difficulty = CookingDifficulty.Easy,
                 ImageFile = "/static/Images/RecipeStatic/tomate-basilikum-pasta.png",
+                CookingInstructions =
+                    "Nudeln in Salzwasser al dente kochen. " +
+                    "Tomaten würfeln, Knoblauch fein hacken. " +
+                    "Olivenöl in einer Pfanne erhitzen, Knoblauch kurz anschwitzen. " +
+                    "Tomaten zugeben und bei mittlerer Hitze 10–12 Minuten köcheln lassen, bis sie weich sind und eine sämige Sauce entsteht. " +
+                    "Mit Salz abschmecken. Nudeln abgießen und direkt unter die Sauce mischen. " +
+                    "Frisch gezupften Basilikum erst kurz vor dem Servieren unterheben, damit das Aroma erhalten bleibt. " +
+                    "Mit etwas Olivenöl beträufeln und optional Parmesan darübergeben.",
                 Ingredients = new (string Name, decimal Amount)[]
                 {
                     ("Nudeln", 200m),
@@ -440,6 +456,12 @@ public static async Task SeedRecipesAsync(
                 Cook = 15,
                 Difficulty = CookingDifficulty.Easy,
                 ImageFile = "/static/Images/RecipeStatic/pfannkuchen.png",
+                CookingInstructions =
+                    "Mehl, Milch, Eier, Zucker und eine Prise Salz zu einem glatten Teig verrühren. " +
+                    "5 Minuten ruhen lassen. Eine beschichtete Pfanne erhitzen und etwas Butter darin schmelzen. " +
+                    "Eine Kelle Teig hineingeben und durch Schwenken gleichmäßig verteilen. " +
+                    "Bei mittlerer Hitze 2–3 Minuten backen, bis die Unterseite goldbraun ist, dann wenden und fertig backen. " +
+                    "Vorgang wiederholen, bis der Teig aufgebraucht ist. Warm servieren; süß mit Obst oder herzhaft gefüllt.",
                 Ingredients = new (string Name, decimal Amount)[]
                 {
                     ("Mehl", 200m),
@@ -458,6 +480,13 @@ public static async Task SeedRecipesAsync(
                 Cook = 7,
                 Difficulty = CookingDifficulty.Easy,
                 ImageFile = "/static/Images/RecipeStatic/ruehrei.png",
+                CookingInstructions =
+                    "Eier in eine Schüssel aufschlagen und mit Salz und Pfeffer verquirlen. " +
+                    "Butter in einer beschichteten Pfanne bei niedriger bis mittlerer Hitze schmelzen lassen. " +
+                    "Eiermasse hineingeben und kurz stocken lassen. " +
+                    "Mit einem Pfannenwender langsam vom Rand zur Mitte schieben, sodass große, cremige Flocken entstehen. " +
+                    "Nicht zu stark erhitzen, damit das Rührei saftig bleibt. " +
+                    "Vom Herd ziehen, sobald es noch leicht glänzt – es gart in der Resthitze nach. Sofort servieren.",
                 Ingredients = new (string Name, decimal Amount)[]
                 {
                     ("Eier", 3m),
@@ -474,6 +503,13 @@ public static async Task SeedRecipesAsync(
                 Cook = 20,
                 Difficulty = CookingDifficulty.Easy,
                 ImageFile = "/static/Images/RecipeStatic/tomatensuppe.png",
+                CookingInstructions =
+                    "Zwiebeln und Knoblauch fein hacken. Olivenöl in einem Topf erhitzen und beides glasig dünsten. " +
+                    "Tomaten grob würfeln und zugeben. Mit Salz und Pfeffer würzen und 15–20 Minuten köcheln lassen. " +
+                    "Anschließend die Suppe fein pürieren, bis sie samtig ist. " +
+                    "Bei Bedarf etwas Wasser oder Brühe ergänzen. " +
+                    "Frischen Basilikum kurz vor dem Servieren unterrühren oder darüberstreuen. " +
+                    "Optional mit einem Schuss Sahne verfeinern.",
                 Ingredients = new (string Name, decimal Amount)[]
                 {
                     ("Tomaten", 500m),
@@ -493,6 +529,13 @@ public static async Task SeedRecipesAsync(
                 Cook = 35,
                 Difficulty = CookingDifficulty.Easy,
                 ImageFile = "/static/Images/RecipeStatic/ofenkartoffel.png",
+                CookingInstructions =
+                    "Backofen auf 200°C Ober-/Unterhitze vorheizen. " +
+                    "Kartoffeln gründlich waschen und in Spalten oder Würfel schneiden. " +
+                    "Mit Olivenöl, Salz und Pfeffer in einer Schüssel vermengen, sodass alles gleichmäßig bedeckt ist. " +
+                    "Auf ein mit Backpapier belegtes Blech geben und nicht übereinanderlegen. " +
+                    "30–35 Minuten backen, bis sie außen knusprig und innen weich sind. " +
+                    "Zwischendurch einmal wenden. Heiß servieren, optional mit Kräutern oder Dip.",
                 Ingredients = new (string Name, decimal Amount)[]
                 {
                     ("Kartoffeln", 600m),
@@ -509,6 +552,12 @@ public static async Task SeedRecipesAsync(
                 Cook = 20,
                 Difficulty = CookingDifficulty.Medium,
                 ImageFile = "/static/Images/RecipeStatic/zitronen-haehnchen.png",
+                CookingInstructions =
+                    "Hähnchenbrust trocken tupfen und mit Salz und Pfeffer würzen." +
+                    "Olivenöl in einer Pfanne erhitzen und das Fleisch bei mittlerer Hitze von beiden Seiten goldbraun anbraten." +
+                    "Knoblauch fein hacken und kurz mitbraten. Mit dem Saft einer Zitrone ablöschen und etwas Zitronenabrieb zugeben." +
+                    "Hitze reduzieren und das Hähnchen 8–10 Minuten gar ziehen lassen." +
+                    "Vor dem Servieren kurz ruhen lassen und in Scheiben schneiden.",
                 Ingredients = new (string Name, decimal Amount)[]
                 {
                     ("Hähnchenbrust", 300m),
@@ -527,6 +576,11 @@ public static async Task SeedRecipesAsync(
                 Cook = 0,
                 Difficulty = CookingDifficulty.Easy,
                 ImageFile = "/static/Images/RecipeStatic/caprese-salat.png",
+                CookingInstructions =
+                    "Tomaten in gleichmäßige Scheiben schneiden. Auf einem Teller leicht überlappend anrichten." +
+                    "Mit Salz und frisch gemahlenem Pfeffer würzen. Olivenöl gleichmäßig darüberträufeln. Basilikumblätter" +
+                    " grob zupfen und über die Tomaten streuen. Kurz durchziehen lassen, damit sich die Aromen verbinden. " +
+                    "Optional mit etwas Balsamico oder frischem Mozzarella ergänzen.",
                 Ingredients = new (string Name, decimal Amount)[]
                 {
                     ("Tomaten", 300m),
@@ -543,7 +597,7 @@ public static async Task SeedRecipesAsync(
             var r = recipes[index];
             var ownerUserId = users[index % users.Count].Id;
 
-            var imagePath =  r.ImageFile;
+            var imagePath = r.ImageFile;
 
             var existing = await db.Recipes
                 .Include(x => x.RecipeIngredients)
@@ -560,7 +614,7 @@ public static async Task SeedRecipesAsync(
                     CookingTime = r.Cook,
                     CookingDifficulty = r.Difficulty,
                     UserId = ownerUserId,
-
+                    CookingInstructions = r.CookingInstructions,
                     ImagePath = imagePath,
 
                     Images = new List<RecipeImage>(),
@@ -587,6 +641,7 @@ public static async Task SeedRecipesAsync(
                 db.RecipeImages.RemoveRange(existing.Images);
                 existing.Images.Clear();
             }
+
             existing.Images.Add(new RecipeImage
             {
                 ImagePath = imagePath,
