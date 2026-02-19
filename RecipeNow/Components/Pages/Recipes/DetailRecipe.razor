@@ -1,5 +1,6 @@
 ﻿@page "/recipes/{Id:int}"
 @using RecipeNow.Data.Entities.RecipeSystem
+@using RecipeNow.Data.Enumerators
 @using RecipeNow.Services
 @inject IRecipeService RecipeService
 @inject UserService UserService
@@ -171,7 +172,7 @@
                                                 @(ri.Ingredient?.Name ?? $"Zutat #{ri.IngredientId}")
                                             </span>
                                             <span class="badge text-bg-primary rounded-pill">
-                                                @ri.Amount
+                                                @ri.Amount / @EnumHelper.GetDisplayName(@ri.Ingredient!.Measurement)
                                             </span>
                                         </li>
                                     }

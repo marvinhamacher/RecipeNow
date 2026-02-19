@@ -16,37 +16,37 @@ public class RecipeAndIngredientSeeder
         {
             new
             {
-                Name = "Zucker", PricePerUnit = 2.8, MeasurementType = MeasurementType.Kilogram,
+                Name = "Zucker", PricePerUnit = 0.0028, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/zucker.png"
             },
             new
             {
-                Name = "Salz", PricePerUnit = 0.8, MeasurementType = MeasurementType.Kilogram,
+                Name = "Salz", PricePerUnit = 0.0008, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/salz.png"
             },
             new
             {
-                Name = "Mehl", PricePerUnit = 1.9, MeasurementType = MeasurementType.Kilogram,
+                Name = "Mehl", PricePerUnit = 0.0019, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/mehl.png"
             },
             new
             {
-                Name = "Butter", PricePerUnit = 8.5, MeasurementType = MeasurementType.Kilogram,
+                Name = "Butter", PricePerUnit = 0.0085, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/butter.png"
             },
             new
             {
-                Name = "Milch", PricePerUnit = 1.2, MeasurementType = MeasurementType.Liter,
+                Name = "Milch", PricePerUnit = 0.0012, MeasurementType = MeasurementType.Mililiter,
                 ImagePath = "static/Images/IngredientStatic/milch.png"
             },
             new
             {
-                Name = "Olivenöl", PricePerUnit = 9.9, MeasurementType = MeasurementType.Liter,
+                Name = "Olivenöl", PricePerUnit = 0.0099, MeasurementType = MeasurementType.Mililiter,
                 ImagePath = "static/Images/IngredientStatic/olivenoel.png"
             },
             new
             {
-                Name = "Sonnenblumenöl", PricePerUnit = 4.2, MeasurementType = MeasurementType.Liter,
+                Name = "Sonnenblumenöl", PricePerUnit = 0.0042, MeasurementType = MeasurementType.Mililiter,
                 ImagePath = "static/Images/IngredientStatic/sonnenblumenoel.png"
             },
             new
@@ -56,97 +56,97 @@ public class RecipeAndIngredientSeeder
             },
             new
             {
-                Name = "Tomaten", PricePerUnit = 3.2, MeasurementType = MeasurementType.Kilogram,
+                Name = "Tomaten", PricePerUnit = 0.0032, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/tomaten.png"
             },
             new
             {
-                Name = "Gurken", PricePerUnit = 2.4, MeasurementType = MeasurementType.Kilogram,
+                Name = "Gurken", PricePerUnit = 0.0024, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/gurken.png"
             },
             new
             {
-                Name = "Paprika", PricePerUnit = 4.1, MeasurementType = MeasurementType.Kilogram,
+                Name = "Paprika", PricePerUnit = 0.0041, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/paprika.png"
             },
             new
             {
-                Name = "Zwiebeln", PricePerUnit = 2.0, MeasurementType = MeasurementType.Kilogram,
+                Name = "Zwiebeln", PricePerUnit = 0.0020, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/zwiebeln.png"
             },
             new
             {
-                Name = "Knoblauch", PricePerUnit = 6.5, MeasurementType = MeasurementType.Kilogram,
+                Name = "Knoblauch", PricePerUnit = 0.0065, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/knoblauch.png"
             },
             new
             {
-                Name = "Karotten", PricePerUnit = 1.8, MeasurementType = MeasurementType.Kilogram,
+                Name = "Karotten", PricePerUnit = 0.0018, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/karotten.png"
             },
             new
             {
-                Name = "Kartoffeln", PricePerUnit = 1.6, MeasurementType = MeasurementType.Kilogram,
+                Name = "Kartoffeln", PricePerUnit = 0.0016, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/kartoffeln.png"
             },
             new
             {
-                Name = "Reis", PricePerUnit = 2.3, MeasurementType = MeasurementType.Kilogram,
+                Name = "Reis", PricePerUnit = 0.0023, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/reis.png"
             },
             new
             {
-                Name = "Nudeln", PricePerUnit = 1.7, MeasurementType = MeasurementType.Kilogram,
+                Name = "Nudeln", PricePerUnit = 0.0017, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/nudeln.png"
             },
             new
             {
-                Name = "Hähnchenbrust", PricePerUnit = 11.5, MeasurementType = MeasurementType.Kilogram,
+                Name = "Hähnchenbrust", PricePerUnit = 0.0115, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/haehnchenbrust.png"
             },
             new
             {
-                Name = "Rinderhack", PricePerUnit = 13.9, MeasurementType = MeasurementType.Kilogram,
+                Name = "Rinderhack", PricePerUnit = 0.0139, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/rinderhack.png"
             },
             new
             {
-                Name = "Schweinefleisch", PricePerUnit = 9.8, MeasurementType = MeasurementType.Kilogram,
+                Name = "Schweinefleisch", PricePerUnit = 0.0098, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/schweinefleisch.png"
             },
             new
             {
-                Name = "Lachs", PricePerUnit = 18.5, MeasurementType = MeasurementType.Kilogram,
+                Name = "Lachs", PricePerUnit = 0.0185, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/lachs.png"
             },
             new
             {
-                Name = "Thunfisch", PricePerUnit = 15.2, MeasurementType = MeasurementType.Kilogram,
+                Name = "Thunfisch", PricePerUnit = 0.0152, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/thunfisch.png"
             },
             new
             {
-                Name = "Käse", PricePerUnit = 10.4, MeasurementType = MeasurementType.Kilogram,
+                Name = "Käse", PricePerUnit = 0.0104, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/kaese.png"
             },
             new
             {
-                Name = "Joghurt", PricePerUnit = 1.5, MeasurementType = MeasurementType.Liter,
+                Name = "Joghurt", PricePerUnit = 0.0015, MeasurementType = MeasurementType.Mililiter,
                 ImagePath = "static/Images/IngredientStatic/joghurt.png"
             },
             new
             {
-                Name = "Sahne", PricePerUnit = 3.6, MeasurementType = MeasurementType.Liter,
+                Name = "Sahne", PricePerUnit = 0.0036, MeasurementType = MeasurementType.Mililiter,
                 ImagePath = "static/Images/IngredientStatic/sahne.png"
             },
             new
             {
-                Name = "Honig", PricePerUnit = 12.0, MeasurementType = MeasurementType.Kilogram,
+                Name = "Honig", PricePerUnit = 0.0120, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/honig.png"
             },
             new
             {
-                Name = "Essig", PricePerUnit = 2.2, MeasurementType = MeasurementType.Liter,
+                Name = "Essig", PricePerUnit = 0.0022, MeasurementType = MeasurementType.Mililiter,
                 ImagePath = "static/Images/IngredientStatic/essig.png"
             },
             new
@@ -156,22 +156,22 @@ public class RecipeAndIngredientSeeder
             },
             new
             {
-                Name = "Äpfel", PricePerUnit = 2.9, MeasurementType = MeasurementType.Kilogram,
+                Name = "Äpfel", PricePerUnit = 0.0029, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/aepfel.png"
             },
             new
             {
-                Name = "Bananen", PricePerUnit = 2.1, MeasurementType = MeasurementType.Kilogram,
+                Name = "Bananen", PricePerUnit = 0.0021, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/bananen.png"
             },
             new
             {
-                Name = "Orangen", PricePerUnit = 3.3, MeasurementType = MeasurementType.Kilogram,
+                Name = "Orangen", PricePerUnit = 0.0033, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/orangen.png"
             },
             new
             {
-                Name = "Zitronen", PricePerUnit = 3.8, MeasurementType = MeasurementType.Kilogram,
+                Name = "Zitronen", PricePerUnit = 0.0038, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/zitronen.png"
             },
             new
@@ -181,17 +181,17 @@ public class RecipeAndIngredientSeeder
             },
             new
             {
-                Name = "Brokkoli", PricePerUnit = 3.7, MeasurementType = MeasurementType.Kilogram,
+                Name = "Brokkoli", PricePerUnit = 0.0037, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/brokkoli.png"
             },
             new
             {
-                Name = "Spinat", PricePerUnit = 4.5, MeasurementType = MeasurementType.Kilogram,
+                Name = "Spinat", PricePerUnit = 0.0045, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/spinat.png"
             },
             new
             {
-                Name = "Champignons", PricePerUnit = 5.2, MeasurementType = MeasurementType.Kilogram,
+                Name = "Champignons", PricePerUnit = 0.0052, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/champignons.png"
             },
             new
@@ -201,67 +201,67 @@ public class RecipeAndIngredientSeeder
             },
             new
             {
-                Name = "Erbsen", PricePerUnit = 2.4, MeasurementType = MeasurementType.Kilogram,
+                Name = "Erbsen", PricePerUnit = 0.0024, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/erbsen.png"
             },
             new
             {
-                Name = "Bohnen", PricePerUnit = 2.6, MeasurementType = MeasurementType.Kilogram,
+                Name = "Bohnen", PricePerUnit = 0.0026, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/bohnen.png"
             },
             new
             {
-                Name = "Mandeln", PricePerUnit = 14.0, MeasurementType = MeasurementType.Kilogram,
+                Name = "Mandeln", PricePerUnit = 0.0140, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/mandeln.png"
             },
             new
             {
-                Name = "Haselnüsse", PricePerUnit = 16.5, MeasurementType = MeasurementType.Kilogram,
+                Name = "Haselnüsse", PricePerUnit = 0.0165, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/haselnuesse.png"
             },
             new
             {
-                Name = "Walnüsse", PricePerUnit = 15.8, MeasurementType = MeasurementType.Kilogram,
+                Name = "Walnüsse", PricePerUnit = 0.0158, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/walnuesse.png"
             },
             new
             {
-                Name = "Kokosmilch", PricePerUnit = 3.4, MeasurementType = MeasurementType.Liter,
+                Name = "Kokosmilch", PricePerUnit = 0.0034, MeasurementType = MeasurementType.Mililiter,
                 ImagePath = "static/Images/IngredientStatic/kokosmilch.png"
             },
             new
             {
-                Name = "Sojasauce", PricePerUnit = 5.6, MeasurementType = MeasurementType.Liter,
+                Name = "Sojasauce", PricePerUnit = 0.0056, MeasurementType = MeasurementType.Mililiter,
                 ImagePath = "static/Images/IngredientStatic/sojasauce.png"
             },
             new
             {
-                Name = "Ketchup", PricePerUnit = 3.1, MeasurementType = MeasurementType.Liter,
+                Name = "Ketchup", PricePerUnit = 0.0031, MeasurementType = MeasurementType.Mililiter,
                 ImagePath = "static/Images/IngredientStatic/ketchup.png"
             },
             new
             {
-                Name = "Senf", PricePerUnit = 2.7, MeasurementType = MeasurementType.Liter,
+                Name = "Senf", PricePerUnit = 0.0027, MeasurementType = MeasurementType.Mililiter,
                 ImagePath = "static/Images/IngredientStatic/senf.png"
             },
             new
             {
-                Name = "Mayonnaise", PricePerUnit = 4.0, MeasurementType = MeasurementType.Liter,
+                Name = "Mayonnaise", PricePerUnit = 0.0040, MeasurementType = MeasurementType.Mililiter,
                 ImagePath = "static/Images/IngredientStatic/mayonnaise.png"
             },
             new
             {
-                Name = "Mineralwasser", PricePerUnit = 0.8, MeasurementType = MeasurementType.Liter,
+                Name = "Mineralwasser", PricePerUnit = 0.0008, MeasurementType = MeasurementType.Mililiter,
                 ImagePath = "static/Images/IngredientStatic/mineralwasser.png"
             },
             new
             {
-                Name = "Kaffeebohnen", PricePerUnit = 18.0, MeasurementType = MeasurementType.Kilogram,
+                Name = "Kaffeebohnen", PricePerUnit = 0.0180, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/kaffeebohnen.png"
             },
             new
             {
-                Name = "Schokolade", PricePerUnit = 7.5, MeasurementType = MeasurementType.Kilogram,
+                Name = "Schokolade", PricePerUnit = 0.0075, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/schokolade.png"
             },
             new
@@ -271,17 +271,17 @@ public class RecipeAndIngredientSeeder
             },
             new
             {
-                Name = "Zimt", PricePerUnit = 9.0, MeasurementType = MeasurementType.Kilogram,
+                Name = "Zimt", PricePerUnit = 0.0090, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/zimt.png"
             },
             new
             {
-                Name = "Pfeffer", PricePerUnit = 12.5, MeasurementType = MeasurementType.Kilogram,
+                Name = "Pfeffer", PricePerUnit = 0.0125, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/pfeffer.png"
             },
             new
             {
-                Name = "Chili", PricePerUnit = 10.8, MeasurementType = MeasurementType.Kilogram,
+                Name = "Chili", PricePerUnit = 0.0108, MeasurementType = MeasurementType.Gram,
                 ImagePath = "static/Images/IngredientStatic/chili.png"
             },
             new
@@ -295,6 +295,7 @@ public class RecipeAndIngredientSeeder
                 ImagePath = "static/Images/IngredientStatic/petersilie.png"
             },
         };
+
 
         foreach (var x in ingredientsToSeed)
         {
