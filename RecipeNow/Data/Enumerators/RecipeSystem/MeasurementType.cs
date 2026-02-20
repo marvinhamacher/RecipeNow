@@ -2,10 +2,10 @@
 using System.ComponentModel.DataAnnotations;
 public enum MeasurementType
 {
-    [Display(Name = "Gram")]
+    [Display(Name = "g")]
     Gram = 0,
-    [Display(Name = "Mililiter")]
-    Mililiter = 1,
-    [Display(Name = "Stück")]
+    [Display(Name = "ml")]
+    Milliliter = 1,
+    [Display(Name = "Stk")]
     Pieces = 2
 }

@@ -3,6 +3,7 @@
 @using System.Security.Claims
 @using Microsoft.EntityFrameworkCore
 @using RecipeNow.Data.Entities.RecipeSystem
+@using RecipeNow.Data.Enumerators
 @using RecipeNow.Services
 
 @inject StorageRoomService StorageRoomService
@@ -73,7 +74,7 @@
                                 else
                                 {
                                     <img src="@si.Ingredient?.ImagePath" />
-                                    <span class="amount">@si.Amount x</span>
+                                    <span class="amount">@si.Amount.ToString("0.##") @EnumHelper.GetDisplayName(si.Ingredient!.Measurement)</span>
                                 }
 
                             </div>

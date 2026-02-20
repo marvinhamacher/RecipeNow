@@ -36,17 +36,17 @@ public class RecipeAndIngredientSeeder
             },
             new
             {
-                Name = "Milch", PricePerUnit = 0.0012, MeasurementType = MeasurementType.Mililiter,
+                Name = "Milch", PricePerUnit = 0.0012, MeasurementType = MeasurementType.Milliliter,
                 ImagePath = "static/Images/IngredientStatic/milch.png"
             },
             new
             {
-                Name = "Olivenöl", PricePerUnit = 0.0099, MeasurementType = MeasurementType.Mililiter,
+                Name = "Olivenöl", PricePerUnit = 0.0099, MeasurementType = MeasurementType.Milliliter,
                 ImagePath = "static/Images/IngredientStatic/olivenoel.png"
             },
             new
             {
-                Name = "Sonnenblumenöl", PricePerUnit = 0.0042, MeasurementType = MeasurementType.Mililiter,
+                Name = "Sonnenblumenöl", PricePerUnit = 0.0042, MeasurementType = MeasurementType.Milliliter,
                 ImagePath = "static/Images/IngredientStatic/sonnenblumenoel.png"
             },
             new
@@ -131,12 +131,12 @@ public class RecipeAndIngredientSeeder
             },
             new
             {
-                Name = "Joghurt", PricePerUnit = 0.0015, MeasurementType = MeasurementType.Mililiter,
+                Name = "Joghurt", PricePerUnit = 0.0015, MeasurementType = MeasurementType.Milliliter,
                 ImagePath = "static/Images/IngredientStatic/joghurt.png"
             },
             new
             {
-                Name = "Sahne", PricePerUnit = 0.0036, MeasurementType = MeasurementType.Mililiter,
+                Name = "Sahne", PricePerUnit = 0.0036, MeasurementType = MeasurementType.Milliliter,
                 ImagePath = "static/Images/IngredientStatic/sahne.png"
             },
             new
@@ -146,7 +146,7 @@ public class RecipeAndIngredientSeeder
             },
             new
             {
-                Name = "Essig", PricePerUnit = 0.0022, MeasurementType = MeasurementType.Mililiter,
+                Name = "Essig", PricePerUnit = 0.0022, MeasurementType = MeasurementType.Milliliter,
                 ImagePath = "static/Images/IngredientStatic/essig.png"
             },
             new
@@ -226,32 +226,32 @@ public class RecipeAndIngredientSeeder
             },
             new
             {
-                Name = "Kokosmilch", PricePerUnit = 0.0034, MeasurementType = MeasurementType.Mililiter,
+                Name = "Kokosmilch", PricePerUnit = 0.0034, MeasurementType = MeasurementType.Milliliter,
                 ImagePath = "static/Images/IngredientStatic/kokosmilch.png"
             },
             new
             {
-                Name = "Sojasauce", PricePerUnit = 0.0056, MeasurementType = MeasurementType.Mililiter,
+                Name = "Sojasauce", PricePerUnit = 0.0056, MeasurementType = MeasurementType.Milliliter,
                 ImagePath = "static/Images/IngredientStatic/sojasauce.png"
             },
             new
             {
-                Name = "Ketchup", PricePerUnit = 0.0031, MeasurementType = MeasurementType.Mililiter,
+                Name = "Ketchup", PricePerUnit = 0.0031, MeasurementType = MeasurementType.Milliliter,
                 ImagePath = "static/Images/IngredientStatic/ketchup.png"
             },
             new
             {
-                Name = "Senf", PricePerUnit = 0.0027, MeasurementType = MeasurementType.Mililiter,
+                Name = "Senf", PricePerUnit = 0.0027, MeasurementType = MeasurementType.Milliliter,
                 ImagePath = "static/Images/IngredientStatic/senf.png"
             },
             new
             {
-                Name = "Mayonnaise", PricePerUnit = 0.0040, MeasurementType = MeasurementType.Mililiter,
+                Name = "Mayonnaise", PricePerUnit = 0.0040, MeasurementType = MeasurementType.Milliliter,
                 ImagePath = "static/Images/IngredientStatic/mayonnaise.png"
             },
             new
             {
-                Name = "Mineralwasser", PricePerUnit = 0.0008, MeasurementType = MeasurementType.Mililiter,
+                Name = "Mineralwasser", PricePerUnit = 0.0008, MeasurementType = MeasurementType.Milliliter,
                 ImagePath = "static/Images/IngredientStatic/mineralwasser.png"
             },
             new
