@@ -15,7 +15,7 @@ public class Recipe
     
     [Required]
     [MaxLength(1000)]
-    public required string CookingInstructions { get; set; } = string.Empty; 
+    public required string CookingInstructions { get; set; }
     
     [Required]
     [Range(0, int.MaxValue)]

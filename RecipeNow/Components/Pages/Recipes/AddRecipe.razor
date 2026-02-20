@@ -16,7 +16,6 @@
 {
     <EditForm EditContext="@_editContext" OnSubmit="HandleSubmit">
         <DataAnnotationsValidator />
-
         <div class="container mt-4">
             <div class="card shadow-sm">
                 <div class="card-body">
@@ -164,7 +163,7 @@
         PreparationTime = 0,
         CookingTime = 0,
         CookingDifficulty = CookingDifficulty.Medium,
-        UserId = "",
+        UserId = "temp",
         ImagePath = ""
     };
 
@@ -184,12 +183,9 @@
     }
 
     private EditContext _editContext = null!;
-
-    // --- Zutaten Searchable Select State ---
     private List<Ingredient> _allIngredients = new();
     private string _ingredientSearch = string.Empty;
     private bool _showIngredientSuggestions = false;
-
     private sealed class SelectedIngredientVm
     {
         public required int IngredientId { get; init; }
@@ -211,7 +207,6 @@
     protected override async Task OnInitializedAsync()
     {
         _isAuthenticated = await UserService.IsAuthenticated();
-
         if (_isAuthenticated)
             _allIngredients = await IngredientService.GetAllAsync();
     }
