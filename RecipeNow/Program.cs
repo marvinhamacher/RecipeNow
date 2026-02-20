@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using RecipeNow.Components;
@@ -49,7 +50,9 @@ builder.Services.AddAuthentication(options =>
 
     builder.Services.AddAuthorizationCore();
 var app = builder.Build();
-
+var culture = new CultureInfo("de-DE");
+CultureInfo.DefaultThreadCurrentCulture = culture;
+CultureInfo.DefaultThreadCurrentUICulture = culture;
 // Seeding für Mockdaten (muss VOR app.Run() passieren!)
 if (args.Any(a => string.Equals(a, "seed", StringComparison.OrdinalIgnoreCase) ||
                   string.Equals(a, "--seed", StringComparison.OrdinalIgnoreCase)))
