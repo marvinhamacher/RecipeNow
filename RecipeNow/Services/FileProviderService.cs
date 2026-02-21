@@ -30,7 +30,7 @@ public class FileProviderService : IFileProviderService
             content += "- " + ingredient.Ingredient.Name + ": " + ingredient.Amount + Environment.NewLine;
         }
 
-        content += "Anleitung:" + recipe.CookingInstructions + Environment.NewLine;
+        content += "Anleitung:" + Environment.NewLine + recipe.CookingInstructions + Environment.NewLine;
         return System.Text.Encoding.UTF8.GetBytes(content);
     }
     
@@ -84,7 +84,10 @@ public class FileProviderService : IFileProviderService
                                 $"- {ingredient.Ingredient.Name}: {ingredient.Amount}"
                             );
                         }
-                        column.Item().Text($"Anleitung: {recipe.CookingInstructions}");
+                        column.Item().Text("Anleitung:")
+                            .FontSize(16)
+                            .SemiBold();
+                        column.Item().Text($"{recipe.CookingInstructions}");
                     });
 
                     page.Footer()
