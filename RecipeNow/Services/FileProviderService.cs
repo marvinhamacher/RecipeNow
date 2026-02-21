@@ -8,10 +8,12 @@ public class FileProviderService : IFileProviderService
 {
     
     private readonly IRecipeService _recipeService;
+    private readonly IStorageRoomService _storageRoomService;
     private readonly IWebHostEnvironment _env;
-    public FileProviderService(IRecipeService recipeService, IWebHostEnvironment env)
+    public FileProviderService(IRecipeService recipeService, IStorageRoomService storageRoomService, IWebHostEnvironment env)
     {
         _recipeService = recipeService;
+        _storageRoomService = storageRoomService;
         _env = env;
     }
     
@@ -95,6 +97,94 @@ public class FileProviderService : IFileProviderService
                 });
             })
             .GeneratePdf(stream);
+
+        stream.Position = 0;
+        return stream;
+    }
+    
+    public async Task<Stream> CreateInventoryPdfStream()
+    {
+        var rooms = await _storageRoomService.GetAllStorageRoomsByCurrentUserAsync();
+
+        var stream = new MemoryStream();
+        var today = DateTime.UtcNow.Date;
+        var warningThreshold = today.AddDays(7);
+
+        Document.Create(container =>
+        {
+            container.Page(page =>
+            {
+                page.Size(PageSizes.A4);
+                page.Margin(2, Unit.Centimetre);
+
+                page.Header()
+                    .Text("Inventur")
+                    .FontSize(24)
+                    .SemiBold();
+
+                page.Content().Column(column =>
+                {
+                    column.Spacing(10);
+
+                    foreach (var room in rooms)
+                    {
+                        column.Item().Text($"Raum: {room.Name}")
+                            .FontSize(18)
+                            .SemiBold();
+
+                        foreach (var shelf in room.StorageRoomShelf)
+                        {
+                            column.Item().Text($"Schrank: {shelf.ContentDescription}")
+                                .FontSize(14)
+                                .SemiBold();
+
+                            foreach (var si in shelf.ShelfIngredients)
+                            {
+                                var status = "";
+                                var color = Colors.Black;
+
+                                if (si.ExpirationDate.Date < today)
+                                {
+                                    status = "ABGELAUFEN";
+                                    color = Colors.Red.Darken2;
+                                }
+                                else if (si.ExpirationDate.Date <= warningThreshold)
+                                {
+                                    status = "Kurz vor Ablauf";
+                                    color = Colors.Orange.Darken2;
+                                }
+
+                                column.Item().Text(text =>
+                                {
+                                    text.Span($"{si.Ingredient?.Name} | ");
+                                    text.Span($"{si.Amount} {si.Ingredient?.Measurement} | ");
+                                    text.Span($"Reihe: {si.Row} | Spalte: {si.Column} | ");
+                                    text.Span($"Ablauf: {si.ExpirationDate:dd.MM.yyyy} ");
+
+                                    if (!string.IsNullOrEmpty(status))
+                                    {
+                                        text.Span($"({status})")
+                                            .FontColor(color)
+                                            .SemiBold();
+                                    }
+                                });
+                            }
+                        }
+
+                        column.Item().PaddingBottom(10);
+                    }
+                });
+
+                page.Footer()
+                    .AlignCenter()
+                    .Text(x =>
+                    {
+                        x.Span("Inventur erstellt am ");
+                        x.Span(DateTime.Now.ToString("dd.MM.yyyy"));
+                    });
+            });
+        })
+        .GeneratePdf(stream);
 
         stream.Position = 0;
         return stream;

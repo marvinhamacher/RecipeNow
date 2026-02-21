@@ -6,7 +6,7 @@ using RecipeNow.Data.Entities.RecipeSystem;
 
 namespace RecipeNow.Services;
 
-public class StorageRoomService
+public class StorageRoomService: IStorageRoomService
 {
     [Inject] private ILogger<StorageRoom> Logger { get; set; } = default!;
     private readonly AppDbContext _context;
@@ -138,7 +138,9 @@ public class StorageRoomService
     public async Task<List<StorageRoom>> GetAllStorageRoomsByCurrentUserAsync()
     {
         var user = await _userService.GetUserAsync();
+        Console.WriteLine(user);
         var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+        Console.WriteLine(userId);
         return await _context.StorageRooms
             .Where(sr => sr.UserId == userId  )
             .ToListAsync();
