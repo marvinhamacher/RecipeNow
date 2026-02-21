@@ -1,4 +1,4 @@
-﻿@page "/StorageRoom/{Id:int}"
+@page "/StorageRoom/{Id:int}"
 @using System.ComponentModel.DataAnnotations
 @using System.Security.Claims
 @using Microsoft.EntityFrameworkCore
@@ -17,73 +17,88 @@
 
 @if (_sameUser && _storageRoom != null)
 {
-    <h3>Vorratsraum: @_storageRoom.Name</h3>
+    <h3 class="mb-4">Vorratsraum: @_storageRoom.Name</h3>
 
-    <div class="btn-group mb-3">
-        <button class="btn btn-primary" @onclick="NewShelfClicked">+ Neuer Schrank</button>
+    <div class="btn-group mb-4">
+        <button class="btn btn-primary" @onclick="NewShelfClicked">
+            + Neuer Schrank
+        </button>
     </div>
 
-    @foreach (var shelf in _shelves)
-    {
-        <div class="card mt-4">
-            <div class="card-header">
-                <div class="d-flex justify-content-between align-items-center">
+    <!-- 🔥 GRID FÜR ALLE SCHRÄNKE -->
+    <div class="room-grid">
+
+        @foreach (var shelf in _shelves)
+        {
+            <div class="card shelf-card shadow-sm">
+
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">@shelf.ContentDescription</h5>
 
                     <div class="dropdown">
-                        <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" type="button">
+                        <button class="btn btn-sm btn-light" data-bs-toggle="dropdown">
                             ⋮
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow-sm">
                             <li>
-                                <button class="dropdown-item" @onclick="() => StartEdit(shelf)">
+                                <button class="dropdown-item"
+                                        @onclick="() => StartEdit(shelf)">
                                     Bearbeiten
                                 </button>
                             </li>
                             <li>
-                                <button class="dropdown-item" @onclick="() => StartDelete(shelf.Id)">
+                                <button class="dropdown-item"
+                                        @onclick="() => StartDelete(shelf.Id)">
                                     Löschen
                                 </button>
                             </li>
                         </ul>
                     </div>
                 </div>
-            </div>
 
-            <div class="card-body">
-                @for (int row = 1; row <= shelf.Height; row++)
-                {
-                    <div class="d-flex">
-                        @for (int col = 1; col <= shelf.Width; col++)
+                <div class="card-body">
+                    <div class="shelf-slots"
+                         style="grid-template-columns: repeat(@shelf.Width, 1fr);">
+
+                        @for (int row = 1; row <= shelf.Height; row++)
                         {
-                            var r = row;
-                            var c = col;
-                            var si = shelf.ShelfIngredients.FirstOrDefault(x => x.Row == r && x.Column == c);
+                            @for (int col = 1; col <= shelf.Width; col++)
+                            {
+                                var r = row;
+                                var c = col;
+                                var si = shelf.ShelfIngredients
+                                    .FirstOrDefault(x => x.Row == r && x.Column == c);
 
-                            <div class="slot @(si == null ? "empty" : $"filled {GetExpiryClass(si)}")"
-                                 draggable="@(si != null)"
-                                 @ondragstart="@(si != null ? () => StartDrag(si.Id) : null)"
-                                 @ondragover:preventDefault
-                                 @ondrop="() => HandleDrop(shelf.Id, r, c)"
-                                 @onclick="@(si == null ? () => OpenAddIngredientModal(shelf.Id, c, r) : null)">
+                                <div class="slot @(si == null ? "empty" : $"filled {GetExpiryClass(si)}")"
+                                     draggable="@(si != null)"
+                                     @ondragstart="@(si != null ? () => StartDrag(si.Id) : null)"
+                                     @ondragover:preventDefault
+                                     @ondrop="() => HandleDrop(shelf.Id, r, c)"
+                                     @onclick="@(si == null ? () => OpenAddIngredientModal(shelf.Id, c, r) : null)"
+                                     @oncontextmenu="@(si != null 
+                                                         ? () => ChangeItem(si.Id, si.Amount, EnumHelper.GetDisplayName(si.Ingredient!.Measurement)) 
+                                                         : null)"
+                                     @oncontextmenu:preventDefault>
 
-                                @if (si == null)
-                                {
-                                    <span>+</span>
-                                }
-                                else
-                                {
-                                    <img src="@si.Ingredient?.ImagePath" />
-                                    <span class="amount">@si.Amount.ToString("0.##") @EnumHelper.GetDisplayName(si.Ingredient!.Measurement)</span>
-                                }
+                                    @if (si == null)
+                                    {
+                                        <span class="plus">+</span>
+                                    }
+                                    else
+                                    {
+                                        <img src="@si.Ingredient?.ImagePath" />
+                                        <span class="amount">@si.Amount.ToString("0.##") @EnumHelper.GetDisplayName(si.Ingredient!.Measurement)</span>
+                                    }
 
-                            </div>
+                                </div>
+                            }
                         }
                     </div>
-                }
+                </div>
             </div>
-        </div>
-    }
+        }
+
+    </div>
 }
 else
 {
@@ -201,7 +216,96 @@ else
             </div>
         </div>
     </div>
-</div>    
+</div>
+
+<div class="modal fade" @ref="_changeValueModalEL">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content shadow-lg modern-modal">
+
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-semibold">
+                    Menge anpassen
+                </h5>
+                <button type="button"
+                        class="btn-close"
+                        @onclick="CloseChangeModal">
+                </button>
+            </div>
+
+            <div class="modal-body pt-2">
+
+                <EditForm Model="_changeValueModel"
+                          OnValidSubmit="UpdateShelfIngredient">
+
+                    <DataAnnotationsValidator />
+
+                    <!-- Anzeige -->
+                    <div class="text-center mb-4">
+
+                        <div class="amount-display">
+                            @_changeValueModel.Amount
+                            <span class="unit">@_changeValueModel.MeasurementType</span>
+                        </div>
+
+                    </div>
+
+                    <!-- Slider -->
+                    <input type="range"
+                           class="form-range modern-slider"
+                           min="0"
+                           max="2000"
+                           step="1.0"
+                           @bind="_sliderValue"
+                           @bind:event="oninput"
+                           @onchange="UpdateAmountFromSlider" />
+
+                    <!-- Manual Toggle -->
+                    <div class="text-center mt-3">
+                        <button type="button"
+                                class="btn btn-sm btn-outline-secondary"
+                                @onclick="ToggleManualInput">
+                            @(_showManualInput ? "Manuelle Eingabe schließen"
+                                              : "Manuelle Eingabe")
+                        </button>
+                    </div>
+
+                    <!-- Animiertes Input Feld -->
+                    <div class="manual-input-container @( _showManualInput ? "open" : "" )">
+                        <InputNumber class="form-control mt-3"
+                                     step="0.1"
+                                     @bind-Value="_changeValueModel.Amount" />
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="d-flex justify-content-between mt-5">
+
+                        <button type="button"
+                                class="btn btn-outline-danger"
+                                @onclick="ConfirmDelete">
+                            Löschen
+                        </button>
+
+                        <div class="d-flex gap-2">
+                            <button type="button"
+                                    class="btn btn-secondary"
+                                    @onclick="CloseChangeModal">
+                                Abbrechen
+                            </button>
+
+                            <button type="submit"
+                                    class="btn btn-primary px-4">
+                                Speichern
+                            </button>
+                        </div>
+
+                    </div>
+
+                </EditForm>
+
+            </div>
+        </div>
+    </div>
+</div>
 <script>
     window.bootstrapModalShow = (el) => { if (el) new bootstrap.Modal(el).show(); }
     window.bootstrapModalHide = (el) => { const m = bootstrap.Modal.getInstance(el); if (m) m.hide(); }
@@ -214,20 +318,23 @@ else
     private StorageRoom? _storageRoom;
     private List<Shelf> _shelves = new();
     private List<Ingredient> _ingredients = new();
-
+    private bool _confirmDelete;
     private bool _sameUser;
     private int? _draggedShelfIngredientId;
-
+    private bool _showManualInput;
     private int _modalShelfId;
     private int _modalRow;
     private int _modalCol;
     private int _editingShelfId;
+    private double _sliderValue = 0;
 
     private ElementReference _modalEl;
     private ElementReference _addShelfIngredientEl;
     private ElementReference _deleteModalEl;
+    private ElementReference _changeValueModalEL;
 
     private NewShelfModel _newShelfModel = new();
+    private ChangeValueModel _changeValueModel = new();
     private DeleteModel _deleteModel = new();
     private EditContext _editContext = default!;
     private bool _isEdit;
@@ -235,6 +342,13 @@ else
 
     private NewShelfIngredientModel _newShelfIngredientModel = new();
 
+    public sealed class ChangeValueModel
+    {
+        public int Id { get; set; } 
+        [Required(ErrorMessage = "Breite ist erforderlich"), Range(0,2000, ErrorMessage =  "Der Slider geht ja nur bis 2000")]
+        public decimal Amount { get; set; }
+        public string MeasurementType { get; set; } = string.Empty;
+    }
     public class NewShelfModel
     {
         [Required(ErrorMessage = "Inhaltsbeschriftung ist erforderlich")]
@@ -283,7 +397,10 @@ else
         await LoadShelves();
         ResetForm();
     }
-
+    private void ToggleManualInput()
+    {
+        _showManualInput = !_showManualInput;
+    }
     private void ResetForm()
     {
         _newShelfModel = new NewShelfModel();
@@ -337,6 +454,11 @@ else
     {
         await JS.InvokeVoidAsync("bootstrapModalHide", _deleteModalEl);
     }
+    
+    private async Task CloseChangeModal()
+    {
+        await JS.InvokeVoidAsync("bootstrapModalHide", _changeValueModalEL);
+    }
 
     private async Task SaveShelfIngredient()
     {
@@ -364,6 +486,22 @@ else
         if (days <= 7) return "exp-yellow";
         return "exp-green";
     }
+    
+    private async Task ChangeItem(int shelfIngredientId, decimal amount, string unit)
+    {
+        _changeValueModel = new ChangeValueModel
+        {
+            Id = shelfIngredientId,
+            Amount = amount,
+            MeasurementType = unit,
+        };
+
+        _sliderValue = (double)amount;
+        _showManualInput = false;
+
+        await JS.InvokeVoidAsync("bootstrapModalShow", _changeValueModalEL);
+    }
+    
 
     private async Task StartEdit(Shelf shelf)
     {
@@ -414,4 +552,47 @@ else
             _error = ex.Message;
         }
     }
+    
+    public async Task UpdateShelfIngredient()
+    {
+        switch (_changeValueModel.Amount)
+        {
+            case 0:
+                await DeleteShelfIngredient(_changeValueModel.Id);
+                return;
+            case <0:
+                return;
+            default:
+                await StorageRoomService.ChangeShelfIngredientAmountAsync(_changeValueModel.Id, _changeValueModel.Amount);
+                break;
+        }
+        
+        await CloseChangeModal();
+        await LoadShelves();
+    }
+
+    public async Task DeleteShelfIngredient(int shelfIngredientId)
+    {
+        await StorageRoomService.DeleteShelfIngredientAsync(shelfIngredientId);
+        await CloseChangeModal();
+        await LoadShelves();
+    }
+    
+    private async Task ConfirmDelete()
+    {
+        if (!_confirmDelete)
+        {
+            _confirmDelete = true;
+            return;
+        }
+
+        await DeleteShelfIngredient(_changeValueModel.Id);
+    }
+    
+    private void UpdateAmountFromSlider()
+    {
+        _changeValueModel.Amount = (decimal)_sliderValue;
+    }
 }
+
+

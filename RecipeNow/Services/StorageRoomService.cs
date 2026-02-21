@@ -196,4 +196,22 @@ public class StorageRoomService: IStorageRoomService
         _context.ShelfIngredients.Update(ingredient);
         await _context.SaveChangesAsync();
     }
+
+
+    public async Task DeleteShelfIngredientAsync(int id)
+    {
+        var ingredient = await _context.ShelfIngredients.FindAsync(id);
+        if (ingredient is null) throw new InvalidOperationException("Zutat nicht gefunden.");
+        _context.ShelfIngredients.Remove(ingredient);
+        await _context.SaveChangesAsync();
+    }
+    
+    public async Task ChangeShelfIngredientAmountAsync(int id, decimal newAmount)
+    {
+        var ingredient = await _context.ShelfIngredients.FindAsync(id);
+        if (ingredient is null) throw new InvalidOperationException("Zutat nicht gefunden.");
+        ingredient.Amount = newAmount;
+        _context.ShelfIngredients.Update(ingredient);
+        await _context.SaveChangesAsync();
+    }
 }
