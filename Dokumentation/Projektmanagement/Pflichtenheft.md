@@ -3,55 +3,70 @@ Artefakte der Systemdokumentation wurden teilweise auf basis
 von ChatGPT (OpenAI) & der Projektvorlage Studurizer erstellt, und manuell angepasst.
 Vorlage: https://github.com/Johann110/Studurizer-Fallstudie-Software-Engineering/tree/main/Systemdokumentation
 -->
-# Pflichtenheft für die Lernplattform „RecipeNow"
+# Pflichtenheft für die Rezeptverwaltungsplattform „RecipeNow"
 ## 1. Einleitung
 ### 1.1 Ziel des Dokuments
-Dieses Pflichtenheft beschreibt die konkrete technische Umsetzung der Anforderungen aus dem Lastenheft für die Lernplattform „Studurizer".
-"Ziel des Projekts „Studurizer“ ist die Entwicklung eines innovativen, barrierearmen Kursverwaltungssystems, das sich an etablierten Systemen wie MyCampus, Itslearning oder Iserv orientiert – jedoch mit einem stärkeren Fokus auf Barrierefreiheit und dem Einsatz neuer Technologien. Es wird als Webanwendung mit dem Framework Django realisiert."
+Dieses Pflichtenheft beschreibt die konkrete technische Umsetzung der Anforderungen aus dem Lastenheft für die Rezeptverwaltungsplattform „RecipeNow".
+
+**Ziel des Projekts „RecipeNow"** ist die Entwicklung einer benutzerfreundlichen, modernen Webanwendung zur Verwaltung von Rezepten, Zutaten und Lagerbereichen. Die Anwendung bietet umfassende Funktionen für Benutzer zur Organisation ihrer Rezeptsammlungen mit integrierter Authentifizierung und personalisierten Bereichen.
 
 ### 1.2 Verantwortlichkeiten
 
-- Auftraggeber: Bildungsinstitutionen
-- Auftragnehmer: Study4U
-- Projektleitung: Marvin Hamacher
+- Auftraggeber: Privatnutzer 
+- Projektleitung: Projektverantwortliche/r
+- Entwicklungsteam: Full-Stack-Entwickler
 
 ## 2. Systemübersicht
-„Studurizer“ ist eine Webanwendung, die mit dem Django-Framework (Python) entwickelt wird.
-Für das Frontend werden HTML, CSS und JavaScript genutzt. Die Datenhaltung erfolgt über eine SQLite-Datenbank.
-Der Fokus liegt auf intuitiver Benutzerführung, Barrierefreiheit und Erweiterbarkeit.
+„RecipeNow" ist eine moderne Webanwendung, die mit dem ASP.NET Core Framework (.NET 10.0) und Blazor entwickelt wird.
+Für das Frontend werden Blazor-Komponenten mit HTML, CSS und JavaScript eingesetzt. Die Datenhaltung erfolgt über SQLite mit Entity Framework Core.
+Der Fokus liegt auf intuitiver Benutzerführung, responsivem Design und modularer Architektur.
 
 ## 3. Technische Umsetzung der Anforderungen
 ### 3.1 Funktionale Anforderungen und deren Umsetzung
-| Modul             | Beschreibung                                                                     |
-| ----------------- | -------------------------------------------------------------------------------- |
+| Modul | Beschreibung | Implementierung |
+| --- | --- | --- |
+| **Rezeptverwaltung** | Erstellen, Bearbeiten, Löschen und Anzeigen von Rezepten | RecipeService, RecipePages |
+| **Zutatenverwaltung** | Verwaltung von Zutaten mit Preisen und Maßeinheiten | IngredientService, IngredientPages |
+| **Lagerbereiche** | Organisation und Verwaltung von Lagerbereichen | StorageRoomService, StorageRoomPages |
+| **BenutzerAuthentifizierung** | Login, Registrierung, Passwort-Management | ASP.NET Core Identity, AuthDbContext |
+| **Datei-Upload** | Upload von Bildern für Rezepte | FileProviderService, UploadSettings |
 
 
 ### 3.2 Nicht-funktionale Anforderungen und deren Umsetzung
 
-| Anforderung       | Umsetzung                                                                 |
-| ----------------- |---------------------------------------------------------------------------|
-| Modularität       | Trennung in klare Softwareteile und Namespaces wurden deutlich eingeteilt |
-| Datenspeicherung  | SQLite für schnelle Entwicklung und einfache Wartung                      |
-| Sicherheit        | CSRF-Schutz, Passwort-Hashing, Rechteverwaltung                           |
-| Erweiterbarkeit   | Nutzung von ASPNET und Razor Best Practices, Modulare Architektur         |
-| Responsive Design | Bootstrap Columns und Rowsysteme um resizablity zu ermöglichen            |
+| Anforderung | Umsetzung |
+| --- | --- |
+| **Modularität** | Trennung in Service-Layer, Data Layer und UI-Komponenten mit DI-Pattern |
+| **Datenspeicherung** | SQLite für schnelle Entwicklung, EF Core für ORM und Migration |
+| **Sicherheit** | ASP.NET Core Identity für Authentifizierung, Passwort-Hashing, Autorisierung |
+| **Erweiterbarkeit** | Blazor-Komponenten, Service-Interfaces, modulare Architektur |
+| **Responsive Design** | CSS-Grid und Flexbox für responsive Layouts |
+| **Performance** | Entity Framework Core mit optimierten Datenbankqueries |
 
 ## 4. Architektur und Systemdesign
 
 ### 4.1 Systemkomponenten
 
-* **Backend:**  
-* **Datenbank:** SQLite
-* **Frontend:** HTML, CSS, JavaScript/Razor embedded Code
-* **TXT-Export:**
+* **Backend:** ASP.NET Core (.NET 10.0) mit Blazor Server
+* **Datenbank:** SQLite mit Entity Framework Core
+* **Frontend:** Blazor-Komponenten mit HTML5, CSS3, JavaScript
+* **Authentifizierung:** ASP.NET Core Identity
+* **Dateihandling:** Custom FileProviderService für Upload-Management
 
 ### 4.2 Beispielhafte Datenbankstruktur (Auszug)
 
-#### Tabelle: courses
+#### Tabelle: Ingredient
 
 | Id | Name  | PricePerUnit | Measurement |
 |----|-------|--------------|-------------|
-| 1  | Gurke | 1.5f         | 0           |
+| 1  | Gurke | 1.50 | 0 |
+| 2  | Tomate | 0.80 | 0 |
+
+#### Tabelle: Recipe
+
+| Id | Name  | Description | UserId |
+|----|-------|-------------|--------|
+| 1  | Salatmix | Ein frischer Salat | user123 |
 
 ## 5. Testfälle und Abnahme
 
@@ -69,14 +84,17 @@ Alle Features funktionieren Fehlerfrei und entsprechen den besprochenen Anforder
 
 | Phase          | Zeitraum |
 | -------------- |----------|
-| Planung        | 1 Woche  |
-| Umsetzung      | 2 Wochen |
-| Test & Abnahme | 2 Woche  |
+| Planung & Anforderungsanalyse | 1 Woche |
+| Grundarchitektur & Authentifizierung | 1 Woche |
+| Feature-Implementierung | 2 Wochen |
+| Testing & Bug-Fixes | 1 Woche |
 
 ### 6.2 Ressourcen
 
-* 2 Entwickler\:innen (1 Richtung Dokumentation, Schulung, Fullstackentwicklung und Architektur, 1 Richtung xxx)
+* 1-2 Full-Stack-Entwickler (ASP.NET Core / Blazor)
+* 1 QA-Tester
 
 ---
 
-Letzte Aktualisierung: 06. Mai 2025
+Letzte Aktualisierung: 21. Februar 2025
+Version: 2.0 (RecipeNow)
