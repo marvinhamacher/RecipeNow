@@ -56,11 +56,11 @@ Der Fokus liegt auf intuitiver Benutzerführung, Barrierefreiheit und Erweiterba
 ## 5. Testfälle und Abnahme
 
 ### 5.1 Testfälle
-
+Aus Zeitgründen nicht umgesetzt
 
 
 ### 5.2 Abnahmekriterien
-
+Alle Features funktionieren Fehlerfrei und entsprechen den besprochenen Anforderungen.
 
 
 ## 6. Zeit- und Ressourcenplanung
