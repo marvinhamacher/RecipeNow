@@ -143,6 +143,7 @@ public class StorageRoomService: IStorageRoomService
         Console.WriteLine(userId);
         return await _context.StorageRooms
             .Where(sr => sr.UserId == userId  )
+            .Include(sr => sr.StorageRoomShelf)
             .ToListAsync();
     }
     
