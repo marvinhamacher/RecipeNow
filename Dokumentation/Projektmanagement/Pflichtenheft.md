@@ -92,7 +92,6 @@ Alle Features funktionieren Fehlerfrei und entsprechen den besprochenen Anforder
 ### 6.2 Ressourcen
 
 * 1-2 Full-Stack-Entwickler (ASP.NET Core / Blazor)
-* 1 QA-Tester
 
 ---
 
