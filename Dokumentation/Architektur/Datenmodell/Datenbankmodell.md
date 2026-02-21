@@ -58,6 +58,7 @@ classDiagram
         -int cookingTime
         -int difficulty
         -int FK user_id
+        -string CookingInstructions
     }
     
     class RecipeIngredient {
