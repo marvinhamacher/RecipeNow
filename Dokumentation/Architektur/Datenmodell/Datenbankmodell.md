@@ -5,76 +5,92 @@ Artefakte der Systemdokumentation wurden mithilfe von ChatGPT (OpenAI) erstellt 
 
 ```mermaid 
 classDiagram
-    class User {
-        -int id
-        -string username
-        -string email
-        -string password
-        -string firstname
-        -string lastname
-        -int role
+
+    class AspNetUsers {
+        string Id PK
+        string UserName
+        string NormalizedUserName
+        string Email
+        string NormalizedEmail
+        bool EmailConfirmed
+        string PasswordHash
+        string SecurityStamp
+        string ConcurrencyStamp
+        string PhoneNumber
+        bool PhoneNumberConfirmed
+        bool TwoFactorEnabled
+        DateTime LockoutEnd
+        bool LockoutEnabled
+        int AccessFailedCount
     }
 
-    class Ingredient {
-        -int id
-        -string name
-        -ENUM measuretype (kg,l,pcs)
-        -float price_per_unit
-    }
-    
-    class Shelf {
-        -int id
-        -string contentDescription
-        -int FK storageRoomId
-        -DateTime expirationDate
-        -int amount
-        -int height
-        -int width
+    class StorageRooms {
+        int Id PK
+        string UserId FK
+        string Name
     }
 
+    class Shelves {
+        int Id PK
+        string ContentDescription
+        int Height
+        int Width
+        int StorageRoomId FK
+    }
 
-    class ShelfIngredient {
-        -int id
-        -DateTime expirationDate
-        -int FK shelfId
-        -int FK ingredientId
-        -int Amount
-        -int Row
-        -int Column
+    class Ingredients {
+        int Id PK
+        string Name
+        float PricePerUnit
+        int Measurement
+        string ImagePath
     }
-    
-    class StorageRoom {
-        -int id
-        -int FK user_id
-        -List StorageRoomShelf
+
+    class ShelfIngredients {
+        int Id PK
+        DateTime ExpirationDate
+        int ShelfId FK
+        int IngredientId FK
+        string Amount
+        int Row
+        int Column
     }
-    
-    
-    class Recipe {
-        -int id
-        -string name
-        -string description
-        -int preparationTime
-        -int cookingTime
-        -int difficulty
-        -int FK user_id
+
+    class Recipes {
+        int Id PK
+        string Name
+        string Description
+        string CookingInstructions
+        int PreparationTime
+        int CookingTime
+        int CookingDifficulty
+        string UserId FK
+        string ImagePath
     }
-    
-    class RecipeIngredient {
-        -int id
-        -int FK recipe_id
-        -int FK ingredient_id
-        -int amount
+
+    class RecipeIngredients {
+        int Id PK
+        int RecipeId FK
+        int IngredientId FK
+        string Amount
     }
-    
-    
-    User "1" -- "n" StorageRoom
-    User "1" -- "n" Recipe
-    Recipe "1" -- "n" RecipeIngredient
-    Ingredient "1" -- "n" RecipeIngredient
-    StorageRoom "1" -- "n" Shelf
-    User "1" -- "n" StorageRoom
-    Shelf "1" -- "n" ShelfIngredient
-    Ingredient "1" -- "n" ShelfIngredient
-    
+
+    class RecipeImages {
+        int Id PK
+        int RecipeId FK
+        string ImagePath
+        bool IsPrimary
+    }
+
+    AspNetUsers "1" -- "n" StorageRooms
+    AspNetUsers "1" -- "n" Recipes
+
+    StorageRooms "1" -- "n" Shelves
+    Shelves "1" -- "n" ShelfIngredients
+
+    Ingredients "1" -- "n" ShelfIngredients
+    Ingredients "1" -- "n" RecipeIngredients
+
+    Recipes "1" -- "n" RecipeIngredients
+    Recipes "1" -- "n" RecipeImages
 ```

@@ -172,7 +172,7 @@
                                                 @(ri.Ingredient?.Name ?? $"Zutat #{ri.IngredientId}")
                                             </span>
                                             <span class="badge text-bg-primary rounded-pill">
-                                                @ri.Amount / @EnumHelper.GetDisplayName(@ri.Ingredient!.Measurement)
+                                                @ri.Amount.ToString("0.##") @EnumHelper.GetDisplayName(@ri.Ingredient!.Measurement)
                                             </span>
                                         </li>
                                     }
