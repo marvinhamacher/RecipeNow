@@ -29,7 +29,7 @@ Der Fokus liegt auf intuitiver Benutzerführung, responsivem Design und modulare
 | **Zutatenverwaltung** | Verwaltung von Zutaten mit Preisen und Maßeinheiten | IngredientService, IngredientPages |
 | **Lagerbereiche** | Organisation und Verwaltung von Lagerbereichen | StorageRoomService, StorageRoomPages |
 | **BenutzerAuthentifizierung** | Login, Registrierung, Passwort-Management | ASP.NET Core Identity, AuthDbContext |
-| **Datei-Upload** | Upload von Bildern für Rezepte | FileProviderService, UploadSettings |
+| **Datei-Upload** | Upload von Bildern für Rezepte | UploadSettings |
 
 
 ### 3.2 Nicht-funktionale Anforderungen und deren Umsetzung
