@@ -31,8 +31,7 @@ public class RecipeService : IRecipeService
         var imageList = images?.ToList() ?? new List<IBrowserFile>();
         if (imageList.Count == 0)
             throw new InvalidOperationException("Es muss mindestens ein Bild hochgeladen werden.");
-
-        // Rezept zuerst speichern, damit wir recipe.Id haben
+        
         _context.Recipes.Add(recipe);
         await _context.SaveChangesAsync();
 
@@ -161,8 +160,7 @@ public class RecipeService : IRecipeService
                 existing.Amount = amount;
             }
         }
-
-        // 3) Bilder entfernen, die nicht mehr gewünscht sind
+        
         var keptSet = keptImageIds?.ToHashSet() ?? new HashSet<int>();
 
         var uploadDir = Path.Combine(_env.WebRootPath, "images", "Recipes");
@@ -174,7 +172,6 @@ public class RecipeService : IRecipeService
 
         foreach (var img in toRemoveImages)
         {
-            // img.ImagePath z.B. "/images/recipes/xyz.jpg"
             var relative = img.ImagePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
             var physical = Path.Combine(_env.WebRootPath, relative);
 
@@ -183,8 +180,7 @@ public class RecipeService : IRecipeService
         }
 
         _context.RecipeImages.RemoveRange(toRemoveImages);
-
-        // 4) Neue Bilder hinzufügen (immer neue Dateien erzeugen)
+        
         var newImageList = newImages?.ToList() ?? new List<IBrowserFile>();
 
         foreach (var image in newImageList)
@@ -207,8 +203,7 @@ public class RecipeService : IRecipeService
                 IsPrimary = false
             });
         }
-
-        // 5) Primary/Preview ImagePath setzen (einfach: erstes Bild = primary)
+        
         foreach (var img in entity.Images)
             img.IsPrimary = false;
 
@@ -261,7 +256,6 @@ public class RecipeService : IRecipeService
     {
         int maxTolerance = recipes.Max(r => r.RecipeIngredients.Count);
         
-        // Alle rezepte ausgeben die infrage kommen (zutaten da, nix abgelaufen)
         for (int tolerance = 0; tolerance <= maxTolerance; tolerance++)
         {
             var matches = new List<Recipe>();
@@ -283,24 +277,6 @@ public class RecipeService : IRecipeService
                 return ordered;
             }
         }
-        
-        // das günstigste aus den gefundenen ausgeben
-        // for (int tolerance = 0; tolerance <= maxTolerance; tolerance++)
-        // {
-        //     var best = recipes
-        //         .Where(r => CountMissing(r, pantry) <= tolerance)
-        //         .OrderBy(r => CalculateRecipeCost(r))
-        //         .FirstOrDefault();
-        //
-        //     if (best != null)
-        //     {
-        //         Console.WriteLine($"Gewähltes Rezept: {best.Name}");
-        //         Console.WriteLine($"Kosten: {CalculateRecipeCost(best)}");
-        //         Console.WriteLine($"Tolerance: {tolerance}");
-        //         return new List<Recipe> { best }; // hab jetzt so gelassen weil hab bei alle rezepte ausgeben auch liste gegeben...
-        //     }
-        // }
-    
         return new List<Recipe>();
     }
     
