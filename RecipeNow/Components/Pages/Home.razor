@@ -1,2 +1,81 @@
 ﻿@page "/"
-<h1>Hello, world!</h1>
+@using RecipeNow.Services
+@inject UserService UserService
+
+<h1 class="mb-4">Willkommen</h1>
+
+@if (!_isInitialized)
+{
+    <p>Lade...</p>
+}
+else if (!_isAuthenticated)
+{
+    <div class="card p-4 shadow-sm">
+        <h3>Willkommen in deiner Küchenverwaltung</h3>
+        <p>
+            Bitte melde dich an, um deine Rezepte zu verwalten und deine Vorratsräume zu organisieren.
+        </p>
+
+        <a class="btn btn-primary mt-3"
+           href="/login">
+            Zum Login
+        </a>
+    </div>
+}
+else
+{
+    <div class="row g-4">
+
+        <!-- Recipes -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title">Rezepte</h4>
+                    <p class="card-text">
+                        Hier findest du alle deine gespeicherten Rezepte.
+                        Du kannst neue Rezepte erstellen, bestehende bearbeiten
+                        und deine Lieblingsgerichte organisieren.
+                    </p>
+
+                    <a class="btn btn-success"
+                       href="/recipes">
+                        Zu allen Rezepten
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Storage Rooms -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title">🗄 Vorratsräume</h4>
+                    <p class="card-text">
+                        Verwalte hier deine Vorratsräume und Schränke.
+                        Behalte den Überblick über deine Zutaten,
+                        Lagerorte und Bestände.
+                    </p>
+
+                    <a class="btn btn-info text-white"
+                       href="/StorageRoom">
+                        Zu den Vorratsräumen
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+}
+
+@code {
+
+    private bool _isAuthenticated;
+    private bool _isInitialized;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _isAuthenticated = await UserService.IsAuthenticated();
+        _isInitialized = true;
+    }
+
+}
