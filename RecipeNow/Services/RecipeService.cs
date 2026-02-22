@@ -257,9 +257,8 @@ public class RecipeService : IRecipeService
             );
     }
 
-    public List<Recipe> FindBestRecipes(Dictionary<int, decimal> pantry, List<Recipe> recipes)
+    public List<Recipe> FindBestRecipes(Dictionary<int, decimal> stock, List<Recipe> recipes)
     {
-        Console.WriteLine("Pantry:" + pantry);
         int maxTolerance = recipes.Max(r => r.RecipeIngredients.Count);
         
         // Alle rezepte ausgeben die infrage kommen (zutaten da, nix abgelaufen)
@@ -269,9 +268,7 @@ public class RecipeService : IRecipeService
         
             foreach (var recipe in recipes)
             {
-                int missing = CountMissing(recipe, pantry);
-                Console.WriteLine("missing: " + missing);
-                Console.WriteLine("tolerance:" + tolerance);
+                int missing = CountMissing(recipe, stock);
         
                 if (missing <= tolerance)
                     matches.Add(recipe);
@@ -282,10 +279,6 @@ public class RecipeService : IRecipeService
                 var ordered = matches
                     .OrderBy(r => CalculateRecipeCost(r))
                     .ToList();
-        
-                Console.WriteLine($"Treffer bei Toleranz {tolerance}");
-                foreach (var r in ordered)
-                    Console.WriteLine($"{r.Name} | Cost={CalculateRecipeCost(r)}");
         
                 return ordered;
             }
