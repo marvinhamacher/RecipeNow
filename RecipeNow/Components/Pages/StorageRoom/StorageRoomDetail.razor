@@ -86,7 +86,7 @@
                                     else
                                     {
                                         <img src="@si.Ingredient?.ImagePath" />
-                                        <span class="amount">@si.Amount.ToString("0.##") @EnumHelper.GetDisplayName(si.Ingredient!.Measurement)</span>
+                                        <span class="amount">@si.Amount.ToString("0.##") @EnumHelper.GetDisplayName(si.Ingredient?.Measurement ?? default)</span>
                                     }
 
                                 </div>
