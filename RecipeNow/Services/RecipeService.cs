@@ -288,7 +288,7 @@ public class RecipeService : IRecipeService
         // for (int tolerance = 0; tolerance <= maxTolerance; tolerance++)
         // {
         //     var best = recipes
-        //         .Where(r => CountMissing(r, stock) <= tolerance)
+        //         .Where(r => CountMissing(r, pantry) <= tolerance)
         //         .OrderBy(r => CalculateRecipeCost(r))
         //         .FirstOrDefault();
         //
@@ -304,13 +304,13 @@ public class RecipeService : IRecipeService
         return new List<Recipe>();
     }
     
-    public int CountMissing(Recipe recipe, Dictionary<int, decimal> stock)
+    public int CountMissing(Recipe recipe, Dictionary<int, decimal> pantry)
     {
         int missing = 0;
     
         foreach (var req in recipe.RecipeIngredients)
         {
-            if (!stock.TryGetValue(req.IngredientId, out var available)
+            if (!pantry.TryGetValue(req.IngredientId, out var available)
                 || available < req.Amount)
             {
                 missing++;

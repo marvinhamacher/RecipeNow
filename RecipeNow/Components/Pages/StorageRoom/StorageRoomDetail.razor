@@ -107,7 +107,6 @@ else
     </h3>
 }
 
-<!-- Create / Edit Shelf Modal -->
 <div class="modal fade" id="addShelfModal" @ref="_modalEl">
     <div class="modal-dialog">
         <div class="modal-content shadow">
@@ -154,7 +153,6 @@ else
     </div>
 </div>
 
-<!-- Add Ingredient Modal -->
 <div class="modal fade" @ref="_addShelfIngredientEl">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -238,8 +236,7 @@ else
                           OnValidSubmit="UpdateShelfIngredient">
 
                     <DataAnnotationsValidator />
-
-                    <!-- Anzeige -->
+                    
                     <div class="text-center mb-4">
 
                         <div class="amount-display">
@@ -248,8 +245,7 @@ else
                         </div>
 
                     </div>
-
-                    <!-- Slider -->
+                    
                     <input type="range"
                            class="form-range modern-slider"
                            min="0"
@@ -258,8 +254,7 @@ else
                            @bind="_sliderValue"
                            @bind:event="oninput"
                            @onchange="UpdateAmountFromSlider" />
-
-                    <!-- Manual Toggle -->
+                    
                     <div class="text-center mt-3">
                         <button type="button"
                                 class="btn btn-sm btn-outline-secondary"
@@ -268,15 +263,13 @@ else
                                               : "Manuelle Eingabe")
                         </button>
                     </div>
-
-                    <!-- Animiertes Input Feld -->
+                    
                     <div class="manual-input-container @( _showManualInput ? "open" : "" )">
                         <InputNumber class="form-control mt-3"
                                      step="0.1"
                                      @bind-Value="_changeValueModel.Amount" />
                     </div>
-
-                    <!-- Buttons -->
+                    
                     <div class="d-flex justify-content-between mt-5">
 
                         <button type="button"

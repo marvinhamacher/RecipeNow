@@ -52,9 +52,9 @@ public class StorageRoomService: IStorageRoomService
     public async Task<List<Shelf>> GetStorageRoomShelfAsync(int storageRoomId)
     {
         var storageRoom = await _context.StorageRooms
-            .Include(sr => sr.StorageRoomShelf) // load shelves
-            .ThenInclude(s => s.ShelfIngredients)           // load ShelfIngredients
-            .ThenInclude(si => si.Ingredient)                    // load Ingredients
+            .Include(sr => sr.StorageRoomShelf) 
+            .ThenInclude(s => s.ShelfIngredients)           
+            .ThenInclude(si => si.Ingredient)                    
             .FirstOrDefaultAsync(sr => sr.Id == storageRoomId);
 
         return storageRoom?.StorageRoomShelf?.ToList() ?? new List<Shelf>();
