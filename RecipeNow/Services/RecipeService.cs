@@ -304,13 +304,13 @@ public class RecipeService : IRecipeService
         return new List<Recipe>();
     }
     
-    public int CountMissing(Recipe recipe, Dictionary<int, decimal> pantry)
+    public int CountMissing(Recipe recipe, Dictionary<int, decimal> stock)
     {
         int missing = 0;
     
         foreach (var req in recipe.RecipeIngredients)
         {
-            if (!pantry.TryGetValue(req.IngredientId, out var available)
+            if (!stock.TryGetValue(req.IngredientId, out var available)
                 || available < req.Amount)
             {
                 missing++;
