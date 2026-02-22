@@ -228,17 +228,17 @@ public class RecipeService : IRecipeService
     
     public async Task<List<Recipe>> SuggestRecipesAsync(string userId)
     {
-        var pantry = await BuildPantryAsync(userId);
+        var stock = await BuildStockAsync(userId);
     
         var recipes = await _context.Recipes
             .Include(r => r.RecipeIngredients)
             .ThenInclude(ri => ri.Ingredient)
             .ToListAsync();
     
-        return FindBestRecipes(pantry, recipes);
+        return FindBestRecipes(stock, recipes);
     }
 
-    public async Task<Dictionary<int, decimal>> BuildPantryAsync(string userId)
+    public async Task<Dictionary<int, decimal>> BuildStockAsync(string userId)
     {
         var now = DateTime.UtcNow;
         

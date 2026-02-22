@@ -13,7 +13,7 @@ public interface IRecipeService
 
     Task<List<Recipe>> SuggestRecipesAsync(string userId);
 
-    Task<Dictionary<int, decimal>> BuildPantryAsync(string userId);
+    Task<Dictionary<int, decimal>> BuildStockAsync(string userId);
 
     List<Recipe> FindBestRecipes(Dictionary<int, decimal> pantry, List<Recipe> recipes);
 
