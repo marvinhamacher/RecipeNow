@@ -4,129 +4,142 @@
 @using RecipeNow.Data.Entities.RecipeSystem
 @using RecipeNow.Services
 @inject StorageRoomService StorageRoomService
+@inject UserService UserService
 @inject IJSRuntime JS
 @inject NavigationManager NavigationManager
 @inject IFileProviderService FileProviderService
-<h1 class="mb-4">Vorratsräume</h1>
+@if (_isAuthenticated)
+{
+    <h1 class="mb-4">Vorratsräume</h1>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <button class="btn btn-primary shadow-sm px-4"
-            @onclick="NewRoomClicked"
-            type="button">
-        + Neuer Raum
-    </button>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <button class="btn btn-primary shadow-sm px-4"
+                @onclick="NewRoomClicked"
+                type="button">
+            + Neuer Raum
+        </button>
 
-    <button class="btn btn-outline-secondary shadow-sm"
-            @onclick="DownloadInventoryPdf">
-        Inventur (PDF)
-    </button>
-</div>
+        <button class="btn btn-outline-secondary shadow-sm"
+                @onclick="DownloadInventoryPdf">
+            Inventur (PDF)
+        </button>
+    </div>
 
-<div class="row g-3">
-    @foreach (var room in _rooms)
-    {
-        <div class="col-md-6">
-            <div class="card border-0 shadow-sm h-100 position-relative">
+    <div class="row g-3">
+        @foreach (var room in _rooms)
+        {
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100 position-relative">
 
-                <div class="dropdown position-absolute top-0 end-0 m-2">
-                    <button class="btn btn-sm btn-light"
-                            data-bs-toggle="dropdown"
-                            type="button">
-                        ⋮
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                        <li>
-                            <button class="dropdown-item"
-                                    @onclick="() => StartEdit(room)">
-                                Bearbeiten
-                            </button>
-                        </li>
-                        <li>
-                            <button class="dropdown-item text-danger"
-                                    @onclick="() => ConfirmDelete(room)">
-                                Löschen
-                            </button>
-                        </li>
-                    </ul>
-                </div>
+                    <div class="dropdown position-absolute top-0 end-0 m-2">
+                        <button class="btn btn-sm btn-light"
+                                data-bs-toggle="dropdown"
+                                type="button">
+                            ⋮
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                            <li>
+                                <button class="dropdown-item"
+                                        @onclick="() => StartEdit(room)">
+                                    Bearbeiten
+                                </button>
+                            </li>
+                            <li>
+                                <button class="dropdown-item text-danger"
+                                        @onclick="() => ConfirmDelete(room)">
+                                    Löschen
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
 
-                <div class="card-body">
-                    <h5 class="card-title fw-semibold">@room.Name</h5>
-                    <span class="badge bg-light text-dark border">
+                    <div class="card-body">
+                        <h5 class="card-title fw-semibold">@room.Name</h5>
+                        <span class="badge bg-light text-dark border">
                         @(room.StorageRoomShelf?.Count ?? 0) Schränke
                     </span>
-                    <a class="btn btn-sm btn-primary"
-                       href="@($"StorageRoom/{room.Id}")">
-                        Zum Raum
-                    </a>
+                        <a class="btn btn-sm btn-primary"
+                           href="@($"StorageRoom/{room.Id}")">
+                            Zum Raum
+                        </a>
+                    </div>
                 </div>
             </div>
+        }
+    </div>
+
+    <div class="modal fade" id="storageRoomModal" tabindex="-1" aria-hidden="true" @ref="_modalEl">
+        <div class="modal-dialog">
+            <div class="modal-content shadow">
+                <EditForm EditContext="_editContext"
+                          OnValidSubmit="SaveRoom"
+                          FormName="StorageRoomForm">
+
+                    <DataAnnotationsValidator/>
+                    <ValidationSummary class="text-danger"/>
+
+                    <div class="modal-header">
+                        <h5 class="modal-title">@(_isEdit ? "Vorratsraum bearbeiten" : "Neuen Vorratsraum anlegen")</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <label class="form-label">Name</label>
+                        <InputText class="form-control"
+                                   @bind-Value="_newRoomModel.Name"/>
+                        <ValidationMessage For="@(() => _newRoomModel.Name)"/>
+                        @if (!string.IsNullOrWhiteSpace(_error))
+                        {
+                            <div class="text-danger mt-2">@_error</div>
+                        }
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                        <button type="submit" class="btn btn-primary">Speichern</button>
+                    </div>
+
+                </EditForm>
+            </div>
         </div>
-    }
-</div>
+    </div>
 
-<div class="modal fade" id="storageRoomModal" tabindex="-1" aria-hidden="true" @ref="_modalEl">
-    <div class="modal-dialog">
-        <div class="modal-content shadow">
-            <EditForm EditContext="_editContext"
-                      OnValidSubmit="SaveRoom"
-                      FormName="StorageRoomForm">
-
-                <DataAnnotationsValidator />
-                <ValidationSummary class="text-danger" />
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true" @ref="_deleteModalEl">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content shadow">
 
                 <div class="modal-header">
-                    <h5 class="modal-title">@(_isEdit ? "Vorratsraum bearbeiten" : "Neuen Vorratsraum anlegen")</h5>
+                    <h5 class="modal-title text-danger">Löschen bestätigen</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
 
                 <div class="modal-body">
-                    <label class="form-label">Name</label>
-                    <InputText class="form-control"
-                               @bind-Value="_newRoomModel.Name" />
-                    <ValidationMessage For="@(() => _newRoomModel.Name)" />
-                    @if (!string.IsNullOrWhiteSpace(_error))
-                    {
-                        <div class="text-danger mt-2">@_error</div>
-                    }
+                    Möchtest du <strong>@_roomToDelete?.Name</strong> wirklich löschen?
                 </div>
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-                    <button type="submit" class="btn btn-primary">Speichern</button>
+                    <button type="button" class="btn btn-danger" @onclick="DeleteRoom">Löschen</button>
                 </div>
 
-            </EditForm>
+            </div>
         </div>
     </div>
-</div>
 
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true" @ref="_deleteModalEl">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content shadow">
-
-            <div class="modal-header">
-                <h5 class="modal-title text-danger">Löschen bestätigen</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-
-            <div class="modal-body">
-                Möchtest du <strong>@_roomToDelete?.Name</strong> wirklich löschen?
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-                <button type="button" class="btn btn-danger" @onclick="DeleteRoom">Löschen</button>
-            </div>
-
-        </div>
-    </div>
-</div>
-
-<script>
-    window.bootstrapModalShow = (el) => { if (el) new bootstrap.Modal(el).show(); }
-    window.bootstrapModalHide = (el) => { const m = bootstrap.Modal.getInstance(el); if (m) m.hide(); }
-</script>
+    <script>
+        window.bootstrapModalShow = (el) => {
+            if (el) new bootstrap.Modal(el).show();
+        }
+        window.bootstrapModalHide = (el) => {
+            const m = bootstrap.Modal.getInstance(el);
+            if (m) m.hide();
+        }
+    </script>
+}
+else
+{
+    <p>Du bist nicht angemeldet.</p>
+}
 
 @code {
     private List<StorageRoom> _rooms = new();
@@ -134,7 +147,7 @@
     private EditContext _editContext = default!;
     private bool _isEdit;
     private string? _error;
-
+    private bool _isAuthenticated = false;
     private StorageRoom? _editingRoom;
     private StorageRoom? _roomToDelete;
 
@@ -151,6 +164,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        _isAuthenticated = await UserService.IsAuthenticated();
         ResetForm();
         await LoadRooms();
     }
@@ -225,7 +239,7 @@
         await LoadRooms();
         await JS.InvokeVoidAsync("bootstrapModalHide", _deleteModalEl);
     }
-    
+
     private async Task DownloadInventoryPdf()
     {
         var stream = await FileProviderService.CreateInventoryPdfStream();
@@ -237,4 +251,5 @@
             $"RecipeNow-Inventur.pdf",
             streamRef);
     }
+
 }
